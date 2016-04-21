@@ -27,6 +27,10 @@ add_executable(${app} MACOSX_BUNDLE
     ${PROTO_CPP}
     ${PROTO_H}
     main.cpp
+    robot.cpp
+    communicator.cpp
+    trajectoryplanner.cpp
+    soccerteam.cpp
     mainwindow.cpp
     mainwindow.h
 )
