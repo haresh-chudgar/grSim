@@ -27,14 +27,20 @@
 class Robot
 {
 public:
-    Robot(Communicator* communicator, TrajectoryPlanner* planner, char* team, int id);
+  Robot(Communicator* communicator, TrajectoryPlanner* planner, const char* team, int id);
     ~Robot();
     
-    bool dribbleToLocation(GVector::vector2d<double> location);
-    bool kickBallToLocation(GVector::vector2d<double> location);
-    bool goToLocation(GVector::vector2d<double> location);
-    bool sendPacket(double velTangent, double velNormal, double velAngular,
-    double kickSpeedX, double kickSpeedZ, bool spinnerOn);
+  bool dribbleToLocation(GVector::vector2d<double> location);
+  bool kickBallToLocation(GVector::vector2d<double> location);
+  bool goToLocation(GVector::vector2d<double> location);
+
+  void setAngularVelocity(double vAngular);
+  void setTangentVelocity(double vTangent);
+  void setNormalVelocity(double vNormal);
+  void setKickSpeed(double speedX, double speedZ);
+  void setSpinner(double on);
+
+  bool sendPacket();
 private:
   QUdpSocket udpsocket;
   QHostAddress _addr;
@@ -44,6 +50,9 @@ private:
   
   const char* teamName;
   int playerID;
+  double velTangent, velNormal, velAngular;
+  double kickSpeedX, kickSpeedZ;
+  bool spinnerOn;
 };
 
 #endif // ROBOT_H

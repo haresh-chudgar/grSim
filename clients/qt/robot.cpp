@@ -17,12 +17,18 @@
 
 #include "robot.h"
 
-Robot::Robot(Communicator* communicator, TrajectoryPlanner* planner, char* team, int id)
+Robot::Robot(Communicator* communicator, TrajectoryPlanner* planner, const char* team, int id)
 :_communicator(communicator), _planner(planner), teamName(team), playerID(id),
     udpsocket(0)
 {
   _addr = "127.0.0.1";
   _port = (unsigned short)(20011);
+  velTangent = 0;
+  velNormal = 0;
+  velAngular = 0;
+  kickSpeedX = 0;
+  kickSpeedZ = 0;
+  spinnerOn = false;
 }
 
 Robot::~Robot(){}
@@ -40,10 +46,29 @@ bool Robot::goToLocation(GVector::vector2d<double> location) {
 }
 
 
+void Robot::setTangentVelocity(double vTangent) {
+  velTangent = vTangent;
+}
+
+void Robot::setNormalVelocity(double vNormal) {
+  velNormal = vNormal;
+}
+
+void Robot::setAngularVelocity(double vAngular) {
+  velAngular = vAngular;
+}
+
+void Robot::setKickSpeed(double speedX, double speedZ) {
+  kickSpeedX = speedX;
+}
+
+void Robot::setSpinner(double on) {
+  spinnerOn = on;
+}
+
 // Sends the robot's velocity commands to the simulator
 // All velocities are relative to the robot
-bool Robot::sendPacket(double velTangent, double velNormal, double velAngular,
-    double kickSpeedX, double kickSpeedZ, bool spinnerOn) {
+bool Robot::sendPacket() {
   grSim_Packet packet;
   bool yellow = false;
   if (teamName == "Yellow") {
