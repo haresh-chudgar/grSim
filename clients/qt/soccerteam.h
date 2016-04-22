@@ -18,14 +18,28 @@
 #ifndef SOCCERTEAM_H
 #define SOCCERTEAM_H
 
-class SoccerTeam
-{
+#include "communicator.h"
+#include "robot.h"
+#include "trajectoryplanner.h"
+#include <eigen3/Eigen/Core>
+
+using namespace std; 
+using namespace Eigen;
+class SoccerTeam{
 public:
-    SoccerTeam(const char* teamName);
+    SoccerTeam(const bool team, 
+               Communicator* communicator, 
+               TrajectoryPlanner* planner,
+               const int num_robots);
     ~SoccerTeam();
-    
+    void SimCallback(Vector3d ball, vector<Vector3d> robots);
+    vector<Robot*> StartRobots(int num_robots);
 private:
-  const char* _teamName;
+  const bool _team;
+  Communicator* _communicator;
+  TrajectoryPlanner* _planner;
+  const int _num_robots;
+  vector<Robot*> _robots;
 };
 
 #endif // SOCCERTEAM_H

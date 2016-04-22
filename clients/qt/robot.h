@@ -27,7 +27,8 @@
 class Robot
 {
 public:
-  Robot(Communicator* communicator, TrajectoryPlanner* planner, const char* team, int id);
+    Robot(Communicator* communicator, TrajectoryPlanner* planner, const bool team, const int id);
+
     ~Robot();
     
   bool dribbleToLocation(GVector::vector2d<double> location);
@@ -48,7 +49,7 @@ private:
   Communicator* _communicator;
   TrajectoryPlanner* _planner;
   
-  const char* teamName;
+  const bool team;
   int playerID;
   double velTangent, velNormal, velAngular;
   double kickSpeedX, kickSpeedZ;
