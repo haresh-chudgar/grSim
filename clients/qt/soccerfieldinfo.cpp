@@ -20,20 +20,20 @@
 #include <QObject>
 #include <qiodevice.h>
 
-SoccerFieldInfo::SoccerFieldInfo(QUdpSocket* fieldInfosocket)
-:_fieldInfosocket(fieldInfosocket)
+SoccerFieldInfo::SoccerFieldInfo(QUdpSocket* fieldInfosocket, SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
+:_fieldInfosocket(fieldInfosocket), _blueTeam(team1), _yellowTeam(team2)
 {
   in_buffer = new char [65536];
-  blueTeam = std::vector<Eigen::Vector3d>(6);
-  yellowTeam = std::vector<Eigen::Vector3d>(6);
+  _blueTeam = new std::vector<Eigen::Vector3d>(6);
+  _yellowTeam = new std::vector<Eigen::Vector3d>(6);
 }
 
 SoccerFieldInfo::SoccerFieldInfo()
 {
   in_buffer = new char [65536];
   _fieldInfosocket = NULL;
-  blueTeam = std::vector<Eigen::Vector3d>(6);
-  yellowTeam = std::vector<Eigen::Vector3d>(6);
+  blueTeam = new std::vector<Eigen::Vector3d>(6);
+  yellowTeam = new std::vector<Eigen::Vector3d>(6);
 }
 
 SoccerFieldInfo::~SoccerFieldInfo()
@@ -48,39 +48,45 @@ void SoccerFieldInfo::StopListening() {
 }
 */
  
-bool SoccerFieldInfo::receive()
+void SoccerFieldInfo::receive()
 {
   QHostAddress sender;
   quint16 port;
   SSL_WrapperPacket packet;
+  int size = 0;
   while (_fieldInfosocket->hasPendingDatagrams())
   {
-    int size = _fieldInfosocket->readDatagram(in_buffer, 65536, &sender, &port);
-    packet.ParseFromArray(in_buffer, size);
-    if(packet.has_detection()) {
-      SSL_DetectionFrame frame = packet.detection();
-      google::protobuf::RepeatedPtrField<SSL_DetectionBall>::const_iterator ballState = frame.balls().begin();
-      ball[0] = (*ballState).x();
-      ball[1] = (*ballState).y();
-      ball[2] = (*ballState).z();
-      
-      google::protobuf::RepeatedPtrField<SSL_DetectionRobot>::const_iterator iter = frame.robots_blue().begin();
-      for(;iter!=frame.robots_blue().end();iter++) {
-	SSL_DetectionRobot robot = *iter;
-	Eigen::Vector3d v = blueTeam.at(0);
-	blueTeam.at(robot.robot_id())[0] = robot.x();
-	blueTeam.at(robot.robot_id())[1] = robot.y();
-	blueTeam.at(robot.robot_id())[2] = robot.orientation();
-      }
-      
-      iter = frame.robots_blue().begin();
-      for(;iter!=frame.robots_blue().end();iter++) {
-	SSL_DetectionRobot robot = *iter;
-	blueTeam.at(robot.robot_id())[0] = robot.x();
-	blueTeam.at(robot.robot_id())[1] = robot.y();
-	blueTeam.at(robot.robot_id())[2] = robot.orientation();
-      }
-    }
+    size = _fieldInfosocket->readDatagram(in_buffer, 65536, &sender, &port);
   }
+  if(size == 0)
+    return;
+
+  packet.ParseFromArray(in_buffer, size);
+  if(packet.has_detection()) {
+    SSL_DetectionFrame frame = packet.detection();
+    google::protobuf::RepeatedPtrField<SSL_DetectionBall>::const_iterator ballState = frame.balls().begin();
+    ball[0] = (*ballState).x();
+    ball[1] = (*ballState).y();
+    ball[2] = (*ballState).z();
+    
+    google::protobuf::RepeatedPtrField<SSL_DetectionRobot>::const_iterator iter = frame.robots_blue().begin();
+    for(;iter!=frame.robots_blue().end();iter++) {
+      SSL_DetectionRobot robot = *iter;
+      blueTeamBots->at(robot.robot_id())[0] = robot.x();
+      blueTeamBots->at(robot.robot_id())[1] = robot.y();
+      blueTeamBots->at(robot.robot_id())[2] = robot.orientation();
+    }
+    
+    iter = frame.robots_yellow().begin();
+    for(;iter!=frame.robots_yellow().end();iter++) {
+      SSL_DetectionRobot robot = *iter;
+      yellowTeamBots->at(robot.robot_id())[0] = robot.x();
+      yellowTeamBots->at(robot.robot_id())[1] = robot.y();
+      yellowTeamBots->at(robot.robot_id())[2] = robot.orientation();
+    }
+    _blueTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
+    _yellowTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
+  }
+  
 }
 

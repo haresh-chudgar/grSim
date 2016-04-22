@@ -23,24 +23,26 @@
 #include <QMutex>
 #include <eigen3/Eigen/Core>
 #include <vector>
+#include "soccerteam.h"
 
 using namespace std;
 
 class SoccerFieldInfo
 {
 public:
-    SoccerFieldInfo(QUdpSocket* fieldInfosocket);
+    SoccerFieldInfo(QUdpSocket* fieldInfosocket, SoccerTeam* team1, SoccerTeam* team2);
     SoccerFieldInfo();
     ~SoccerFieldInfo();
     
-    bool receive();
+    void receive();
     QUdpSocket* _fieldInfosocket;
 private:
   
   char* in_buffer;
   Eigen::Vector3d ball;
-  std::vector<Eigen::Vector3d> yellowTeam;
-  std::vector<Eigen::Vector3d> blueTeam;
+  std::vector<Eigen::Vector3d> *yellowTeamBots;
+  std::vector<Eigen::Vector3d> *blueTeamBots;
+  SoccerTeam *_blueTeam, *_yellowTeam;
 };
 
 #endif // SOCCERFIELDINFO_H
