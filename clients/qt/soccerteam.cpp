@@ -36,7 +36,7 @@ SoccerTeam::~SoccerTeam() {
 }
 
 // Callback for incoming state information from the simulator
-void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<Vector3d> blueRobots, vector<Vector3d> yellowRobots) {
+void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<Vector3d> *blueRobots, vector<Vector3d> *yellowRobots) {
 //   if(_plan) {
 //     // Plan a gameplan
     

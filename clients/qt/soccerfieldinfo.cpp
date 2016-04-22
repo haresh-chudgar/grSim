@@ -20,20 +20,12 @@
 #include <QObject>
 #include <qiodevice.h>
 
-SoccerFieldInfo::SoccerFieldInfo(QUdpSocket* fieldInfosocket, SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
-:_fieldInfosocket(fieldInfosocket), _blueTeam(team1), _yellowTeam(team2)
+SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam, QUdpSocket* fieldInfosocket)
+:_fieldInfosocket(fieldInfosocket), _blueTeam(blueTeam), _yellowTeam(yellowTeam)
 {
   in_buffer = new char [65536];
-  _blueTeam = new std::vector<Eigen::Vector3d>(6);
-  _yellowTeam = new std::vector<Eigen::Vector3d>(6);
-}
-
-SoccerFieldInfo::SoccerFieldInfo()
-{
-  in_buffer = new char [65536];
-  _fieldInfosocket = NULL;
-  blueTeam = new std::vector<Eigen::Vector3d>(6);
-  yellowTeam = new std::vector<Eigen::Vector3d>(6);
+  blueTeamBots = new std::vector<Eigen::Vector3d>(6);
+  yellowTeamBots = new std::vector<Eigen::Vector3d>(6);
 }
 
 SoccerFieldInfo::~SoccerFieldInfo()
@@ -86,7 +78,7 @@ void SoccerFieldInfo::receive()
     }
     _blueTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
     _yellowTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
+    fprintf(stderr, "Received info for frame %d\n", frame.frame_number());
   }
-  
 }
 

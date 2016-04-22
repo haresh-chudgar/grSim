@@ -5,9 +5,9 @@
 
 #define NUM_ROBOTS 6
 
-MainWindow::MainWindow(QWidget *parent)
-    : QDialog(parent), udpsocket(this), communicator(&udpsocket), 
-      blueTeam(false, &communicator, &planner, NUM_ROBOTS), yellowTeam(true, &communicator, &planner, NUM_ROBOTS)
+MainWindow::MainWindow(QWidget *parent) : QDialog(parent), udpsocket(this), communicator(&udpsocket), 
+      blueTeam(false, &communicator, &planner, NUM_ROBOTS), yellowTeam(true, &communicator, &planner, NUM_ROBOTS),
+      fieldInfo(&blueTeam, &yellowTeam)
 {
   fieldInfoSocket = NULL;
   listenToGRSim();
@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
 
   lblIp = new QLabel("Simulator Address", this);
   lblPort = new QLabel("Simulator Port", this);
-  
+
   lblId = new QLabel("Id", this);
   lblVx = new QLabel("Velocity X (m/s)", this);
   lblVy = new QLabel("Velocity Y (m/s)", this);

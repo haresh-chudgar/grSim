@@ -30,8 +30,7 @@ using namespace std;
 class SoccerFieldInfo
 {
 public:
-    SoccerFieldInfo(QUdpSocket* fieldInfosocket, SoccerTeam* team1, SoccerTeam* team2);
-    SoccerFieldInfo();
+    SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam, QUdpSocket* fieldInfosocket = NULL);
     ~SoccerFieldInfo();
     
     void receive();
