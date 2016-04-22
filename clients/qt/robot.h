@@ -21,6 +21,8 @@
 #include "communicator.h"
 #include "trajectoryplanner.h"
 #include "gvector.h"
+#include "grSim_Packet.pb.h"
+#include "grSim_Commands.pb.h"
 
 class Robot
 {
@@ -31,7 +33,12 @@ public:
     bool dribbleToLocation(GVector::vector2d<double> location);
     bool kickBallToLocation(GVector::vector2d<double> location);
     bool goToLocation(GVector::vector2d<double> location);
+    bool sendPacket(double velTangent, double velNormal, double velAngular,
+    double kickSpeedX, double kickSpeedZ, bool spinnerOn);
 private:
+  QUdpSocket udpsocket;
+  QHostAddress _addr;
+  quint16 _port;
   Communicator* _communicator;
   TrajectoryPlanner* _planner;
   
