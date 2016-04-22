@@ -22,7 +22,8 @@
 
 class Communicator
 {
-  Communicator();
+public:
+  Communicator(QUdpSocket* udpsocket);
   ~Communicator();
   
   void reconnectUdp(QHostAddress addr, quint16 port);
@@ -30,7 +31,7 @@ class Communicator
   void disconnectUdp();
   
 private:
-  QUdpSocket udpsocket;
+  QUdpSocket* _udpsocket;
   QHostAddress _addr;
   quint16 _port;
 };

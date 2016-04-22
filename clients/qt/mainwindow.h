@@ -14,7 +14,9 @@
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
 #include "grSim_Replacement.pb.h"
-
+#include "communicator.h"
+#include "soccerteam.h"
+#include "soccerfieldinfo.h"
 
 class MainWindow : public QDialog
 {
@@ -29,7 +31,12 @@ public slots:
     void sendBtnClicked();
     void resetBtnClicked();
     void disconnectUdp();
+    void listenToGRSim();
+    
+    void recvFieldInfo();
 private:
+    QUdpSocket *fieldInfoSocket;
+    
     bool sending, reseting;
     QUdpSocket udpsocket;
     QHostAddress _addr;
@@ -53,6 +60,11 @@ private:
     QPushButton* btnReset;
     QPushButton* btnConnect;
     QTimer* timer;
+    
+    SoccerFieldInfo fieldInfo;
+    SoccerTeam yellowTeam, blueTeam;
+    Communicator communicator;
+    TrajectoryPlanner planner;
 };
 
 #endif // MAINWINDOW_H

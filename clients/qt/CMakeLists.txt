@@ -19,6 +19,9 @@ protobuf_generate_cpp(PROTO_CPP PROTO_H
     ../../src/proto/grSim_Replacement.proto
     ../../src/proto/grSim_Commands.proto
     ../../src/proto/grSim_Packet.proto
+    ../../src/proto/messages_robocup_ssl_detection.proto
+    ../../src/proto/messages_robocup_ssl_geometry.proto
+    ../../src/proto/messages_robocup_ssl_wrapper.proto
 )
 
 set(app client)
@@ -31,6 +34,7 @@ add_executable(${app} MACOSX_BUNDLE
     communicator.cpp
     trajectoryplanner.cpp
     soccerteam.cpp
+    soccerfieldinfo.cpp
     mainwindow.cpp
     mainwindow.h
 )

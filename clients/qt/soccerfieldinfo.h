@@ -15,25 +15,32 @@
  *
  */
 
-#include "communicator.h"
+#ifndef SOCCERFIELDINFO_H
+#define SOCCERFIELDINFO_H
 
-Communicator::Communicator(QUdpSocket* udpsocket) {
-  _udpsocket = udpsocket;
-}
+#include "messages_robocup_ssl_wrapper.pb.h"
+#include <QUdpSocket>
+#include <QMutex>
+#include <eigen3/Eigen/Core>
+#include <vector>
 
-Communicator::~Communicator() {
-  _udpsocket->close();
-}
+using namespace std;
 
-void Communicator::reconnectUdp(QHostAddress addr, quint16 port) {
-  _addr = addr;
-  _port = port;
-}
+class SoccerFieldInfo
+{
+public:
+    SoccerFieldInfo(QUdpSocket* fieldInfosocket);
+    SoccerFieldInfo();
+    ~SoccerFieldInfo();
+    
+    bool receive();
+    QUdpSocket* _fieldInfosocket;
+private:
+  
+  char* in_buffer;
+  Eigen::Vector3d ball;
+  std::vector<Eigen::Vector3d> yellowTeam;
+  std::vector<Eigen::Vector3d> blueTeam;
+};
 
-void Communicator::sendPacket(QByteArray dgram) {
-  _udpsocket->writeDatagram(dgram, _addr, _port);
-}
-
-void Communicator::disconnectUdp() {
-  _udpsocket->close();
-}
+#endif // SOCCERFIELDINFO_H

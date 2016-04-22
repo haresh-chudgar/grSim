@@ -80,7 +80,6 @@ bool RoboCupSSLServer::send(const SSL_WrapperPacket & packet)
         logStatus(QString("Sending UDP datagram failed (maybe too large?). Size was: %1 byte(s).").arg(datagram.size()), QColor("red"));
         return false;
     }
-
     return true;
 }
 
