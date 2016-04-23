@@ -46,7 +46,7 @@ public:
   void setCurrentState(Eigen::Vector3d currentState);
   Eigen::Vector3d getCurrentState();
   
-  bool sendPacket();
+  bool sendVelocityCommands();
 private:
   QUdpSocket udpsocket;
   QHostAddress _addr;

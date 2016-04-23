@@ -76,7 +76,7 @@ void Robot::setSpinner(double on) {
 
 // Sends the robot's velocity commands to the simulator
 // All velocities are relative to the robot
-bool Robot::sendPacket() {
+bool Robot::sendVelocityCommands() {
   grSim_Packet packet;
   bool yellow = false;
   if (team) {

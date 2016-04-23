@@ -59,10 +59,10 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<Vector3d> *b
 //     // Execute Plan (send new commands to each robot)
 //   }
   
-
-//   for(size_t i = 0; i < _robots.size(); i++){
-//     robots[i].Execute();
-//   }
+  // Makes robots send velocity commands to simulator
+  for(size_t i = 0; i < _robots.size(); i++){
+    _robots[i]->sendVelocityCommands();
+  }
 // }
 }
 
