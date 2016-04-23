@@ -28,15 +28,17 @@
 
 class Robot
 {
-public:
-    Robot(Communicator* communicator, TrajectoryPlanner* planner, const bool team, const int id);
+ public:
+  Robot(Communicator* communicator, TrajectoryPlanner* planner, const bool team, const int id);
 
-    ~Robot();
+  ~Robot();
     
-  bool dribbleToLocation(GVector::vector2d<double> location);
-  bool kickBallToLocation(GVector::vector2d<double> location);
-  bool goToLocation(GVector::vector2d<double> location);
+  int dribbleToLocation(GVector::vector3d<double> location);
+  int kickBallToLocation(GVector::vector2d<double> location, double speed);
+  int lobKickBallToLocation(GVector::vector2d<double> location, double speed, double height);
+  int goToLocation(GVector::vector3d<double> location);
 
+  //these setters should probably be removed or made private once testing is done
   void setAngularVelocity(double vAngular);
   void setTangentVelocity(double vTangent);
   void setNormalVelocity(double vNormal);
@@ -47,7 +49,7 @@ public:
   Eigen::Vector3d getCurrentState();
   
   bool sendVelocityCommands();
-private:
+ private:
   QUdpSocket udpsocket;
   QHostAddress _addr;
   quint16 _port;
@@ -55,12 +57,16 @@ private:
   TrajectoryPlanner* _planner;
   
   Eigen::Vector3d _currentState;
+  bool hasBall;
   
   const bool team;
   int playerID;
   double velTangent, velNormal, velAngular;
   double kickSpeedX, kickSpeedZ;
   bool spinnerOn;
+
+  double maxDistanceErrorSquared;
+  double maxOrientationError;
 };
 
 #endif // ROBOT_H
