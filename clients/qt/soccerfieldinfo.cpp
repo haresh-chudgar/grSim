@@ -20,40 +20,37 @@
 #include <QObject>
 #include <qiodevice.h>
 
-SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam, QUdpSocket* fieldInfosocket)
-:_fieldInfosocket(fieldInfosocket), _blueTeam(blueTeam), _yellowTeam(yellowTeam)
+static SoccerFieldInfo* _instance = NULL;
+
+SoccerFieldInfo* SoccerFieldInfo::Instance() {
+  return _instance;
+}
+
+void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTeam) {
+  _instance = new SoccerFieldInfo(blueTeam, yellowTeam);
+}
+  
+SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
+:_blueTeam(blueTeam), _yellowTeam(yellowTeam)
 {
-  in_buffer = new char [65536];
   blueTeamBots = new std::vector<Eigen::Vector3d>(6);
   yellowTeamBots = new std::vector<Eigen::Vector3d>(6);
 }
 
 SoccerFieldInfo::~SoccerFieldInfo()
-{
-}
+{}
 
 
-/*
-void SoccerFieldInfo::StopListening() {
-  if(_socket->state() == QUdpSocket::BoundState)
-    _socket->leaveMulticastGroup(*_net_address, *_net_interface);
-}
-*/
- 
-void SoccerFieldInfo::receive()
+void SoccerFieldInfo::receive(char* buffer, int size)
 {
   QHostAddress sender;
   quint16 port;
   SSL_WrapperPacket packet;
-  int size = 0;
-  while (_fieldInfosocket->hasPendingDatagrams())
-  {
-    size = _fieldInfosocket->readDatagram(in_buffer, 65536, &sender, &port);
-  }
+  
   if(size == 0)
     return;
 
-  packet.ParseFromArray(in_buffer, size);
+  packet.ParseFromArray(buffer, size);
   if(packet.has_detection()) {
     SSL_DetectionFrame frame = packet.detection();
     google::protobuf::RepeatedPtrField<SSL_DetectionBall>::const_iterator ballState = frame.balls().begin();

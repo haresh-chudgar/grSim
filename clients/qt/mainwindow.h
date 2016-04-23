@@ -61,7 +61,6 @@ private:
     QPushButton* btnConnect;
     QTimer* timer;
     
-    SoccerFieldInfo fieldInfo;
     SoccerTeam yellowTeam, blueTeam;
     Communicator communicator;
     TrajectoryPlanner planner;

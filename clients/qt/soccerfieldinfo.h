@@ -30,14 +30,14 @@ using namespace std;
 class SoccerFieldInfo
 {
 public:
-    SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam, QUdpSocket* fieldInfosocket = NULL);
-    ~SoccerFieldInfo();
-    
-    void receive();
-    QUdpSocket* _fieldInfosocket;
-private:
+  static SoccerFieldInfo* Instance();
+  static void CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);
   
-  char* in_buffer;
+  void receive(char* buffer, int size);
+private:
+  SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);
+  ~SoccerFieldInfo();
+  
   Eigen::Vector3d ball;
   std::vector<Eigen::Vector3d> *yellowTeamBots;
   std::vector<Eigen::Vector3d> *blueTeamBots;

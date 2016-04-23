@@ -3,14 +3,15 @@
 #include <QDebug>
 #include <QMessageBox>
 
-#define NUM_ROBOTS 6
+#define NUM_ROBOTS 1
 
 MainWindow::MainWindow(QWidget *parent) : QDialog(parent), udpsocket(this), communicator(&udpsocket), 
-      blueTeam(false, &communicator, &planner, NUM_ROBOTS), yellowTeam(true, &communicator, &planner, NUM_ROBOTS),
-      fieldInfo(&blueTeam, &yellowTeam)
+      blueTeam(false, &communicator, &planner, NUM_ROBOTS), yellowTeam(true, &communicator, &planner, NUM_ROBOTS)
 {
   fieldInfoSocket = NULL;
   listenToGRSim();
+  
+  SoccerFieldInfo::CreateInstance(&blueTeam, &yellowTeam);
   
   QGridLayout* layout = new QGridLayout(this);
   edtIp = new QLineEdit("127.0.0.1", this);
@@ -85,7 +86,8 @@ MainWindow::MainWindow(QWidget *parent) : QDialog(parent), udpsocket(this), comm
 
 MainWindow::~MainWindow()
 {
-
+  if(fieldInfoSocket != NULL && fieldInfoSocket->isValid() && fieldInfoSocket->isOpen())
+    fieldInfoSocket->close();
 }
 
 void MainWindow::listenToGRSim() {
@@ -108,7 +110,6 @@ void MainWindow::listenToGRSim() {
   if(!fieldInfoSocket->joinMulticastGroup(*net_address, *net_interface)) {
     fprintf(stderr, "Unable to join UDP multicast on %s: %d %s\n", net_address->toString().toStdString().c_str(), port, fieldInfoSocket->errorString().toStdString().c_str());
   }
-  fieldInfo._fieldInfosocket = fieldInfoSocket;
   
   isSuccess = QObject::connect(fieldInfoSocket,SIGNAL(readyRead()),this,SLOT(recvFieldInfo()));
   fprintf(stderr, "%d\n", isSuccess);
@@ -116,7 +117,18 @@ void MainWindow::listenToGRSim() {
 
 void MainWindow::recvFieldInfo()
 {
-  fieldInfo.receive();
+  QHostAddress sender;
+  quint16 port;
+  int size = 0;
+  char in_buffer[65536];
+  while (fieldInfoSocket->hasPendingDatagrams())
+  {
+    size = fieldInfoSocket->readDatagram(in_buffer, 65536, &sender, &port);
+  }
+  if(size == 0)
+    return;
+  
+  SoccerFieldInfo::Instance()->receive(in_buffer, size);
 }
 
 void MainWindow::disconnectUdp()
