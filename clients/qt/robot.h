@@ -24,6 +24,8 @@
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
 
+#include <eigen3/Eigen/Core>
+
 class Robot
 {
 public:
@@ -41,6 +43,9 @@ public:
   void setKickSpeed(double speedX, double speedZ);
   void setSpinner(double on);
 
+  void setCurrentState(Eigen::Vector3d currentState);
+  Eigen::Vector3d getCurrentState();
+  
   bool sendPacket();
 private:
   QUdpSocket udpsocket;
@@ -48,6 +53,8 @@ private:
   quint16 _port;
   Communicator* _communicator;
   TrajectoryPlanner* _planner;
+  
+  Eigen::Vector3d _currentState;
   
   const bool team;
   int playerID;

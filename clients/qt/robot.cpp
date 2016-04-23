@@ -33,6 +33,14 @@ Robot::Robot(Communicator* communicator, TrajectoryPlanner* planner, bool team, 
 
 Robot::~Robot(){}
 
+void Robot::setCurrentState(Eigen::Vector3d currentState) {
+  _currentState = currentState;
+}
+
+Eigen::Vector3d Robot::getCurrentState() {
+  return _currentState;
+}
+
 bool Robot::dribbleToLocation(GVector::vector2d<double> location) {
   
 }

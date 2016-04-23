@@ -37,6 +37,22 @@ SoccerTeam::~SoccerTeam() {
 
 // Callback for incoming state information from the simulator
 void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<Vector3d> *blueRobots, vector<Vector3d> *yellowRobots) {
+  
+  if(_team == true) {
+    vector<Vector3d>::iterator iter1 = yellowRobots->begin();
+    vector<Robot*>::iterator iter2 = _robots.begin();
+    for(;iter1!=yellowRobots->end();++iter1,++iter2) {
+      (*iter2)->setCurrentState(*iter1);
+    }
+  } else {
+    vector<Vector3d>::iterator iter1 = blueRobots->begin();
+    vector<Robot*>::iterator iter2 = _robots.begin();
+    for(;iter1!=blueRobots->end();++iter1,++iter2) {
+      Robot *r = *iter2;
+      r->setCurrentState(*iter1);
+    }
+  }
+  
 //   if(_plan) {
 //     // Plan a gameplan
     

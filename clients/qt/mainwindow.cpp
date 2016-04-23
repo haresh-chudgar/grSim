@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QMessageBox>
 
-#define NUM_ROBOTS 1
+#define NUM_ROBOTS 6
 
 MainWindow::MainWindow(QWidget *parent) : QDialog(parent), udpsocket(this), communicator(&udpsocket), 
       blueTeam(false, &communicator, &planner, NUM_ROBOTS), yellowTeam(true, &communicator, &planner, NUM_ROBOTS)
