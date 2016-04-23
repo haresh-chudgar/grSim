@@ -29,6 +29,7 @@ Robot::Robot(Communicator* communicator, TrajectoryPlanner* planner, bool team, 
   kickSpeedX = 0;
   kickSpeedZ = 0;
   spinnerOn = false;
+  kGravity = 9.81;
 }
 
 Robot::~Robot(){}
@@ -37,7 +38,7 @@ void Robot::setCurrentState(Eigen::Vector3d currentState) {
   _currentState = currentState;
 }
 
-// TODO(Whoever is responsible for getting the state) get if robot has ball
+// TODO(Whoever is responsible for getting the state) get if robot has ball and if it is kicking
 Eigen::Vector3d Robot::getCurrentState() {
   return _currentState;
 }
@@ -47,6 +48,8 @@ Eigen::Vector3d Robot::getCurrentState() {
 // Precondition: The robot must have the ball
 // Postcondition: The robot has the ball and is within the acceptable 
 //    error margin of the given pos and orientation
+// Assumes: There are no additional velocity constraints on the robot when
+//    it is dribbling the ball
 // args   : location - the {x, y, theta} the robot should arrive at 
 // returns: 0   - still in progress
 //          1   - success
@@ -57,6 +60,87 @@ int Robot::dribbleToLocation(GVector::vector3d<double> location) {
   }
   spinnerOn = true;
 
+  return goToLocation(location);
+}
+
+// sets the velocity commands for the robot to kick the ball to a location 
+//    along the floor
+// Precondition: The robot must have the ball
+// Postcondition: The robot has kicked the ball towards the location
+// args   : location  - the {x, y} the ball should arrive at 
+//          speed    - the horizontal speed of the ball
+// returns: 0   - still in progress
+//          1   - success
+//          -1  - failure
+int Robot::flatKickBallToLocation(GVector::vector2d<double> location, double speed) {
+  return executeKickBallToLocation(location, speed, -1);
+}
+
+
+// sets the velocity commands for the robot to kick the ball to a location 
+//    through the air
+// Precondition: The robot must have the ball
+// Postcondition: The robot has kicked the ball towards the location
+// args   : location  - the {x, y} the ball should arrive at 
+//          height    - the maximum height of the ball
+// returns: 0   - still in progress
+//          1   - success
+//          -1  - failure
+int Robot::lobKickBallToLocation(GVector::vector2d<double> location, double height) {
+  return executeKickBallToLocation(location, -1, height);
+}
+
+
+// Private helper method that performs the kicking of the ball
+// Precondition: The robot must have the ball
+// Postcondition: The robot has kicked the ball towards the location
+// args   : location  - the {x, y} the ball should arrive at 
+//          speed     - the horizontal speed of the ball, -1 if lob kick
+//          height    - the maximum height of the ball, -1 if flat kick
+// returns: 0   - still in progress
+//          1   - success
+//          -1  - failure
+int Robot::executeKickBallToLocation(GVector::vector2d<double> location, double speed, double height) {
+  // Takes advantage of the simulator's implementation of kicking that only has
+  // the ball interact with the kicker during the first part of the kicking
+  // sequence
+  if (kicking) {
+    return 1;
+  }
+  
+  double xDist = location[0] - _currentState[0];
+  double yDist = location[1] - _currentState[1];
+  double desiredTheta = atan2(yDist, xDist);
+
+  GVector::vector3d<double> desiredLoc(_currentState[0], _currentState[1], desiredTheta);
+  int dribbleResult = dribbleToLocation(desiredLoc);
+  if (dribbleResult != 1) {
+    return dribbleResult;
+  }
+
+  if(height < 0) {  // if kick is a flat kick
+    kickSpeedX = speed;
+    kickSpeedZ = 0;
+  } else {          // if kick is a lob kick
+    // Current implementation of lob kick assumes it should hit the ground at 
+    //  the target without any bounces.  It may need to be modified so it can 
+    //  lob over something nearby and then bounce to the target location.
+    kickSpeedZ = sqrt(2*height/kGravity);
+    kickSpeedX = sqrt(xDist*xDist+yDist*yDist)*kGravity/(2*kickSpeedZ);
+  }
+  
+  return 0;
+}
+
+
+// sets the velocity commands for the robot to move to a location
+// Postcondition: The robot is within the acceptable 
+//    error margin of the given pos and orientation
+// args   : location - the {x, y, theta} the robot should arrive at 
+// returns: 0   - still in progress
+//          1   - success
+//          -1  - failure
+int Robot::goToLocation(GVector::vector3d<double> location) {
   double distErrorSquared = (location[0]-_currentState[0])*(location[0]-_currentState[0])+
     (location[1]-_currentState[1])*(location[1]-_currentState[1]);
 
@@ -70,23 +154,6 @@ int Robot::dribbleToLocation(GVector::vector3d<double> location) {
   //  the interface has been defined
 
   return 0;
-}
-
-// kicks the ball to a location flat along the floor.
-// Equivilant of calling lobKickBallToLocation(location, speed, 0)
-// see lobKickBallToLocation for more information
-int Robot::kickBallToLocation(GVector::vector2d<double> location, double speed) {
-  return lobKickBallToLocation(location, speed, 0.0);
-}
-
-
-
-int Robot::lobKickBallToLocation(GVector::vector2d<double> location, double speed, double height) {
-  
-}
-
-int Robot::goToLocation(GVector::vector3d<double> location) {
-  
 }
 
 

@@ -34,8 +34,8 @@ class Robot
   ~Robot();
     
   int dribbleToLocation(GVector::vector3d<double> location);
-  int kickBallToLocation(GVector::vector2d<double> location, double speed);
-  int lobKickBallToLocation(GVector::vector2d<double> location, double speed, double height);
+  int flatKickBallToLocation(GVector::vector2d<double> location, double speed);
+  int lobKickBallToLocation(GVector::vector2d<double> location, double height);
   int goToLocation(GVector::vector3d<double> location);
 
   //these setters should probably be removed or made private once testing is done
@@ -58,6 +58,7 @@ class Robot
   
   Eigen::Vector3d _currentState;
   bool hasBall;
+  bool kicking;
   
   const bool team;
   int playerID;
@@ -67,6 +68,10 @@ class Robot
 
   double maxDistanceErrorSquared;
   double maxOrientationError;
+
+  double kGravity;
+
+  int executeKickBallToLocation(GVector::vector2d<double> location, double speed, double height);
 };
 
 #endif // ROBOT_H
