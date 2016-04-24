@@ -36,6 +36,7 @@ class Robot
   int dribbleToLocation(GVector::vector3d<double> location);
   int flatKickBallToLocation(GVector::vector2d<double> location, double speed);
   int lobKickBallToLocation(GVector::vector2d<double> location, double height);
+  int lobKickBallToLocation(GVector::vector2d<double> location, double height, double distOfMaxHeight);
   int goToLocation(GVector::vector3d<double> location);
 
   //these setters should probably be removed or made private once testing is done
@@ -71,7 +72,7 @@ class Robot
 
   double kGravity;
 
-  int executeKickBallToLocation(GVector::vector2d<double> location, double speed, double height);
+  int executeKickBallToLocation(GVector::vector2d<double> location, double speed, double height, double distOfMaxHeight);
 };
 
 #endif // ROBOT_H

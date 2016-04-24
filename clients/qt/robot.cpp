@@ -73,7 +73,7 @@ int Robot::dribbleToLocation(GVector::vector3d<double> location) {
 //          1   - success
 //          -1  - failure
 int Robot::flatKickBallToLocation(GVector::vector2d<double> location, double speed) {
-  return executeKickBallToLocation(location, speed, -1);
+  return executeKickBallToLocation(location, speed, -1, -1);
 }
 
 
@@ -87,20 +87,35 @@ int Robot::flatKickBallToLocation(GVector::vector2d<double> location, double spe
 //          1   - success
 //          -1  - failure
 int Robot::lobKickBallToLocation(GVector::vector2d<double> location, double height) {
-  return executeKickBallToLocation(location, -1, height);
+  return executeKickBallToLocation(location, -1, height, -1);
+}
+
+// sets the velocity commands for the robot to kick the ball to a location 
+//    through the air
+// Precondition: The robot must have the ball
+// Postcondition: The robot has kicked the ball towards the location
+// args   : location        - the {x, y} the ball should arrive at 
+//          height          - the maximum height of the ball
+//          distOfMaxHeight - the distance the ball reaches the max height, -1 if flat kick
+// returns: 0   - still in progress
+//          1   - success
+//          -1  - failure
+int Robot::lobKickBallToLocation(GVector::vector2d<double> location, double height, double distOfMaxHeight) {
+  return executeKickBallToLocation(location, -1, height, distOfMaxHeight);
 }
 
 
 // Private helper method that performs the kicking of the ball
-// Precondition: The robot must have the ball
-// Postcondition: The robot has kicked the ball towards the location
-// args   : location  - the {x, y} the ball should arrive at 
-//          speed     - the horizontal speed of the ball, -1 if lob kick
-//          height    - the maximum height of the ball, -1 if flat kick
+// Precondition   : The robot must have the ball
+// Postcondition  : The robot has kicked the ball towards the location
+// args   : location        - the {x, y} the ball should arrive at 
+//          speed           - the horizontal speed of the ball, -1 if lob kick
+//          height          - the maximum height of the ball, -1 if flat kick
+//          distOfMaxHeight - the distance the ball reaches the max height, -1 if flat kick
 // returns: 0   - still in progress
 //          1   - success
 //          -1  - failure
-int Robot::executeKickBallToLocation(GVector::vector2d<double> location, double speed, double height) {
+int Robot::executeKickBallToLocation(GVector::vector2d<double> location, double speed, double height, double distOfMaxHeight) {
   // Takes advantage of the simulator's implementation of kicking that only has
   // the ball interact with the kicker during the first part of the kicking
   // sequence
@@ -118,15 +133,17 @@ int Robot::executeKickBallToLocation(GVector::vector2d<double> location, double 
     return dribbleResult;
   }
 
+  //TODO(Karl): Talk with team planner about how they want invalid vels handled
+
   if(height < 0) {  // if kick is a flat kick
     kickSpeedX = speed;
     kickSpeedZ = 0;
-  } else {          // if kick is a lob kick
-    // Current implementation of lob kick assumes it should hit the ground at 
-    //  the target without any bounces.  It may need to be modified so it can 
-    //  lob over something nearby and then bounce to the target location.
+  } else if (distOfMaxHeight < -1) { // if is a lob kick with only max height given
     kickSpeedZ = sqrt(2*height/kGravity);
     kickSpeedX = sqrt(xDist*xDist+yDist*yDist)*kGravity/(2*kickSpeedZ);
+  } else { // if is a lob kick with distOfMaxHeight and height given
+    kickSpeedZ = sqrt(2*height/kGravity);
+    kickSpeedX = distOfMaxHeight*kGravity/(2*kickSpeedZ);
   }
   
   return 0;
