@@ -18,7 +18,7 @@
 #include "robot.h"
 
 Robot::Robot(Communicator* communicator, TrajectoryPlanner* planner, bool team, int id)
-:_communicator(communicator), _planner(planner), team(team), playerID(id),
+:_communicator(communicator), _planner(planner), isYellowTeam(team), playerID(id),
     udpsocket(0)
 {
   _addr = "127.0.0.1";
@@ -199,7 +199,7 @@ void Robot::setSpinner(double on) {
 bool Robot::sendVelocityCommands() {
   grSim_Packet packet;
   
-  packet.mutable_commands()->set_isteamyellow(team);
+  packet.mutable_commands()->set_isteamyellow(isYellowTeam);
   packet.mutable_commands()->set_timestamp(0.0);
   grSim_Robot_Command* command = packet.mutable_commands()->add_robot_commands();
   command->set_id(playerID);

@@ -35,6 +35,7 @@ add_executable(${app} MACOSX_BUNDLE
     trajectoryplanner.cpp
     soccerteam.cpp
     soccerfieldinfo.cpp
+    kdtree2.cpp
     mainwindow.cpp
     mainwindow.h
 )

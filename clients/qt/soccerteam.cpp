@@ -16,6 +16,8 @@
  */
 
 #include "soccerteam.h"
+#include "soccerfieldinfo.h"
+
 using namespace std;
 using namespace Eigen;
 
@@ -38,20 +40,29 @@ SoccerTeam::~SoccerTeam() {
 // Callback for incoming state information from the simulator
 void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<Vector3d> *blueRobots, vector<Vector3d> *yellowRobots) {
   
-  if(_team == true) {
-    vector<Vector3d>::iterator iter1 = yellowRobots->begin();
-    vector<Robot*>::iterator iter2 = _robots.begin();
-    for(;iter1!=yellowRobots->end();++iter1,++iter2) {
+  kdtree2_array bRobotPositions(extents[blueRobots->size()][2]), yRobotPositions(extents[yellowRobots->size()][2]);
+  
+  vector<Vector3d>::iterator iter1 = yellowRobots->begin();
+  vector<Robot*>::iterator iter2 = _robots.begin();
+  for(int index = 0;iter1!=yellowRobots->end();++iter1,++iter2, ++index) {
+    if(_team == true)
       (*iter2)->setCurrentState(*iter1);
-    }
-  } else {
-    vector<Vector3d>::iterator iter1 = blueRobots->begin();
-    vector<Robot*>::iterator iter2 = _robots.begin();
-    for(;iter1!=blueRobots->end();++iter1,++iter2) {
-      Robot *r = *iter2;
-      r->setCurrentState(*iter1);
-    }
+    yRobotPositions[index][0] = (*iter1)[0];
+    yRobotPositions[index][1] = (*iter1)[1];
   }
+  delete yellowTeamTree;
+  yellowTeamTree = new kdtree2(yRobotPositions, true);
+  
+  iter1 = blueRobots->begin();
+  iter2 = _robots.begin();
+  for(int index = 0;iter1!=blueRobots->end();++iter1,++iter2) {
+    if(_team == false)
+      (*iter2)->setCurrentState(*iter1);
+    bRobotPositions[index][0] = (*iter1)[0];
+    bRobotPositions[index][1] = (*iter1)[1];
+  }
+  delete blueTeamTree;
+  blueTeamTree = new kdtree2(bRobotPositions, true);
   
 //   if(_plan) {
 //     // Plan a gameplan
@@ -73,3 +84,47 @@ void SoccerTeam::StartRobots(int num_robots) {
   }
   //Could potentially initialize the positions of the robots if desired (from a list of positions)
 }
+
+void SoccerTeam::FindKickAnglesOf(Robot* robot) {
+  if(robot->isYellowTeam == true) { 
+    
+  }
+}
+
+void SoccerTeam::EvaluateDefenseManeuver() {
+  
+  kdtree2_result_vector result;
+  std::vector<float> queryPoint(2);
+  queryPoint[0] = SoccerFieldInfo::Instance()->ball[0];
+  queryPoint[1] = SoccerFieldInfo::Instance()->ball[1];
+  blueTeamTree->n_nearest(queryPoint, (int)SoccerFieldInfo::Instance()->blueTeamBots->size(), result);
+  
+  //Find robot who has the ball
+  Eigen::Vector2d ballRobot = Eigen::Vector2d(blueTeamTree->the_data[result[0].idx][0],
+					      blueTeamTree->the_data[result[0].idx][1]);
+  //Find chance of ball holding robot kicking to the goal
+  
+  //Find another enemy robot with the best chance of kicking to the goal
+  //Find enemy robots near the ball
+  
+  //Find ideal positions to defend goal post
+  //Place one robot to intercept pass to the 2nd best enemy robot
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -34,14 +34,14 @@ public:
   static void CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);
   
   void receive(char* buffer, int size);
-private:
-  SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);
-  ~SoccerFieldInfo();
   
   Eigen::Vector3d ball;
   std::vector<Eigen::Vector3d> *yellowTeamBots;
   std::vector<Eigen::Vector3d> *blueTeamBots;
   SoccerTeam *_blueTeam, *_yellowTeam;
+private:
+  SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);
+  ~SoccerFieldInfo();
 };
 
 #endif // SOCCERFIELDINFO_H

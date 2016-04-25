@@ -50,6 +50,10 @@ class Robot
   Eigen::Vector3d getCurrentState();
   
   bool sendVelocityCommands();
+  
+  const bool isYellowTeam;
+  int playerID;
+  
  private:
   QUdpSocket udpsocket;
   QHostAddress _addr;
@@ -61,8 +65,6 @@ class Robot
   bool hasBall;
   bool kicking;
   
-  const bool team;
-  int playerID;
   double velTangent, velNormal, velAngular;
   double kickSpeedX, kickSpeedZ;
   bool spinnerOn;

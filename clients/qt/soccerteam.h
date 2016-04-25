@@ -22,6 +22,7 @@
 #include "robot.h"
 #include "trajectoryplanner.h"
 #include <eigen3/Eigen/Core>
+#include "kdtree2.h"
 
 using namespace std; 
 using namespace Eigen;
@@ -40,6 +41,12 @@ private:
   TrajectoryPlanner* _planner;
   const int _num_robots;
   vector<Robot*> _robots;
+  
+  kdtree2 *yellowTeamTree, *blueTeamTree;
+  
+  void FindKickAnglesOf(Robot* robot);
+  void EvaluateDefenseManeuver();
+  
 };
 
 #endif // SOCCERTEAM_H
