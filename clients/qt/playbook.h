@@ -3,7 +3,7 @@
 
 #include "robot.h"
 #include <eigen3/Eigen/Core>
-#include "soccerfieldinfo.h"
+
 using namespace std; 
 
 class Play{
@@ -29,6 +29,7 @@ class Play{
 
     virtual void Execute()= 0; // Executes the state machines of all Robots in question
   
+    bool _isYellowTeam;
   private:
     bool _complete;
     vector<Robot*>* _team;
@@ -103,6 +104,8 @@ class PlayBook{
 
     void AddPlay(Play* play); // Adds a play to the PlayBook
     
+    static PlayBook TheYellowBook();
+    static PlayBook TheBlueBook();
   private:
     vector<Play*> _plays;
 };

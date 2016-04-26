@@ -39,6 +39,7 @@ add_executable(${app} MACOSX_BUNDLE
     soccerfieldinfo.cpp
     evaluation.cpp
     kdtree2.cpp
+    gotoballplay.cpp
     mainwindow.cpp
     mainwindow.h
     

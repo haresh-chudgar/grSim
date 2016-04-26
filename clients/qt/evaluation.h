@@ -31,6 +31,9 @@ typedef struct _KickAngles  {
 
 class Evaluation
 {
+public:
+  static double ClosestRobotToBall(bool isTeamYellow, BotState* robot);
+  static bool TeamHavingBall(BotState *robot);
   static std::vector<KickAngles> EvaluateKickDirection(bool isYellowTeamKicking, Eigen::Vector2d kickFrom, Eigen::Vector2d kickToStart, Eigen::Vector2d kickToEnd);
 };
 

@@ -1,6 +1,7 @@
 #ifndef __BOTSTATE__
 #define __BOTSTATE__
 #include <eigen3/Eigen/Core>
+#include <math.h>
 
 class BotState {
 public:
@@ -12,5 +13,8 @@ public:
     _isYellow = isYellow;
   }
   
+  double distanceToLocation(Eigen::Vector3d loc) {
+    return sqrt(pow(_position[0] - loc[0],2) + pow(_position[1] - loc[1],2));
+  }
 };
 #endif

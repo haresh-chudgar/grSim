@@ -20,9 +20,9 @@
 
 #include "communicator.h"
 #include "trajectoryplanner.h"
-#include "gvector.h"
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
+#include "pid_controller.h"
 
 #include <eigen3/Eigen/Core>
 
@@ -33,35 +33,44 @@ class Robot
 
   ~Robot();
     
-  int dribbleToLocation(GVector::vector3d<double> location);
-  int flatKickBallToLocation(GVector::vector2d<double> location, double speed);
-  int lobKickBallToLocation(GVector::vector2d<double> location, double height);
-  int lobKickBallToLocation(GVector::vector2d<double> location, double height, double distOfMaxHeight);
-  int goToLocation(GVector::vector3d<double> location);
-
+  bool goToLocation(int currentFrame, Eigen::Vector3d location);
+  int dribbleToLocation(Eigen::Vector3d location);
+  int flatKickBallToLocation(Eigen::Vector2d location, double speed);
+  int lobKickBallToLocation(Eigen::Vector2d location, double height);
+  int lobKickBallToLocation(Eigen::Vector2d location, double height, double distOfMaxHeight);
+  
+  void execute();
+  
   //these setters should probably be removed or made private once testing is done
   void setAngularVelocity(double vAngular);
   void setTangentVelocity(double vTangent);
   void setNormalVelocity(double vNormal);
   void setKickSpeed(double speedX, double speedZ);
   void setSpinner(double on);
-
+  
   void setCurrentState(Eigen::Vector3d currentState);
   Eigen::Vector3d CurrentState();
   
-  bool sendVelocityCommands();
+  bool sendVelocityCommands(double vAngular, double vTangent, double vNormal, double kickSpeedX, double kickSpeedZ, bool spinnerOn);
   
   const bool isYellowTeam;
   int playerID;
   
  private:
-  QUdpSocket udpsocket;
   QHostAddress _addr;
   quint16 _port;
   Communicator* _communicator;
   TrajectoryPlanner* _planner;
+  PIDController controller;
   
+  double currentTime;
   Eigen::Vector3d _currentState;
+  Eigen::Vector3d _currentVelocity;
+  
+  Eigen::Vector3d initialLocation;
+  Eigen::Vector3d desiredLocation;
+  std::vector<std::vector<double> > coeffecients;
+  
   bool hasBall;
   bool kicking;
   
@@ -74,7 +83,7 @@ class Robot
 
   double kGravity;
 
-  int executeKickBallToLocation(GVector::vector2d<double> location, double speed, double height, double distOfMaxHeight);
+  int executeKickBallToLocation(Eigen::Vector2d location, double speed, double height, double distOfMaxHeight);
 };
 
 #endif // ROBOT_H

@@ -18,6 +18,7 @@
 #include "evaluation.h"
 #include "kdtree2.h"
 #include  <math.h>
+#include <cfloat>
 
 struct DefenseBot
 {
@@ -31,6 +32,46 @@ struct DefenseBot
         return (_angle < bot._angle);
     }
 };
+
+bool Evaluation::TeamHavingBall(BotState *robot) {
+  
+  if(SoccerFieldInfo::Instance()->ball[2] > 0)
+    return false;
+  
+  double distToNearestYellowBot = DBL_MAX;
+  BotState nearestYellowBot(true);
+  std::vector<BotState> *team = SoccerFieldInfo::Instance()->yellowTeamBots;
+  std::vector<BotState>::iterator iter = team->begin();
+  for(;iter!=team->end();++iter) {
+    double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
+    if(distToBall < distToNearestYellowBot) {
+      nearestYellowBot = *iter;
+      distToNearestYellowBot = distToBall;
+    }
+  }
+  
+  double distToNearestBlueBot = DBL_MAX;
+  BotState nearestBlueBot(false);
+  team = SoccerFieldInfo::Instance()->blueTeamBots;
+  iter = team->begin();
+  for(;iter!=team->end();++iter) {
+    double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
+    if(distToBall < distToNearestBlueBot) {
+      nearestBlueBot = *iter;
+      distToNearestBlueBot = distToBall;
+    }
+  }
+  
+  if(distToNearestBlueBot > 0.0215000000 && distToNearestYellowBot > 0.0215000000) {
+    return false;
+  }
+  if(distToNearestBlueBot < distToNearestYellowBot) {
+    *robot = nearestBlueBot;
+  } else {
+    *robot = nearestYellowBot;
+  }
+  return true;
+}
 
 std::vector< KickAngles > Evaluation::EvaluateKickDirection(bool isYellowTeamKicking, Eigen::Vector2d kickFrom, Eigen::Vector2d kickToStart, Eigen::Vector2d kickToEnd)
 {
@@ -117,7 +158,26 @@ std::vector< KickAngles > Evaluation::EvaluateKickDirection(bool isYellowTeamKic
   return kickOpenings;
 }
 
-
+double Evaluation::ClosestRobotToBall(bool isTeamYellow, BotState* robot) {
+  
+  double distToNearestBot = DBL_MAX;
+  
+  std::vector<BotState> *team = SoccerFieldInfo::Instance()->yellowTeamBots;
+  if(isTeamYellow == false) {
+    team = SoccerFieldInfo::Instance()->blueTeamBots;
+  }
+  
+  std::vector<BotState>::iterator iter = team->begin();
+  for(;iter!=team->end();++iter) {
+    double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
+    if(distToBall < distToNearestBot) {
+      *robot = *iter;
+      distToNearestBot = distToBall;
+    }
+  }
+  
+  return distToNearestBot;
+}
 
 
 

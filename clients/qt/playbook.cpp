@@ -1,54 +1,12 @@
 #include "playbook.h"
+#include "gotoballplay.h"
 #include "soccerfieldinfo.h"
+#include "evaluation.h"
+
 using namespace std; 
 // ==== Plays ====
 
 Play::Play() {}
-
-// // Should in general be used by all plays to update based on success
-// void Play::UpdateWeight() {
-//   // Write weight updating
-// }
-
-// void Play::Begin(vector<Robot*>* team) {
-//   assignments.clear();
-//   states.clear();
-//   _team = team;
-//   for(size_t i = 0; i < _team->size(); i++) {
-//     states.push_back(0);
-//   }
-//   // First bot is always the goalie (more complex plays could pull the goalie to another role)
-//   assignments.push_back(9);
-//   this->AssignRoles();
-//   this->Execute();
-// }
-
-// bool Play::Complete() {
-//   if(_complete){
-//     return true;
-//   } else if(this->CompleteCondition()){
-//     _complete = true;
-//     this->UpdateWeight();
-//   }
-// }
-
-// bool Play::Applicable() {
-//   return false;
-// }
-
-// bool Play::Success() {
-//   return false;
-// }
-
-// void Play::AssignRoles() {
-// }
-
-// void Play::Execute() {
-// }
-
-// bool Play::CompleteCondition() {
-//   return false;
-// }
 
 //---Example play---
 ExamplePlay::ExamplePlay() { }
@@ -172,20 +130,23 @@ void MoveToKick::Execute() {
   for(size_t i = 0; i < 1; i++) {
     if(assignments[i] == 0) {
       if(states[i] == 0) { // Moving to Ball
-        Eigen::Vector3d ball = soccerfieldinfo::instance()->ball;
-        Eigen::Vector3d robot = *(_team)[i]->CurrentState();
+        Eigen::Vector3d ball = SoccerFieldInfo::Instance()->ball;
+        Eigen::Vector3d robot = _team->at(i)->CurrentState();
         Eigen::Vector3d goal = (ball-robot);
-        Eigen::Vector3d offset = (ball-robot).normalize();
+        Eigen::Vector3d offset = (ball-robot);
+	offset.normalize();
         offset = offset*0.07;
         goal -= offset;
         offset.normalize();
         goal(2) = acos(offset(0));
         // Call Move
-        state = 1;
+        states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
-        Eigen::Vector3d robot = *(_team)[i]->CurrentState();
+        Eigen::Vector3d ball = SoccerFieldInfo::Instance()->ball;
+	Eigen::Vector3d robot = _team->at(i)->CurrentState();
         Eigen::Vector3d goal = (ball-robot);
-        Eigen::Vector3d offset = (ball-robot).normalize();
+        Eigen::Vector3d offset = (ball-robot);
+	offset.normalize();
         offset = offset*0.07;
         goal -= offset;
         offset.normalize();
@@ -201,6 +162,7 @@ void MoveToKick::Execute() {
       }
     } 
   frames_running++;
+  }
 }
 
 bool MoveToKick::Complete() {
@@ -250,6 +212,10 @@ Play* PlayBook::PlaySelection() {
       r -= legal_plays[i]->weight;
     }
   }
+  if(legal_plays.size() == 0) 
+    return NULL;
+  else
+    return legal_plays.at(0); //Haresh: Hardcoding to first play
 }
 
 void PlayBook::ResetWeights() {
@@ -262,17 +228,20 @@ void PlayBook::AddPlay(Play* play) {
   _plays.push_back(play);
 }
 
-PlayBook TheYellowBook(){
+PlayBook PlayBook::TheYellowBook(){
   PlayBook the_book;
-  // Add all created yellow team plays to the_book
-  return the_book;
-  the_book.AddPlay(new MoveToKick());
+
+  //the_book.AddPlay(new MoveToKick());
+
+  the_book.AddPlay(new GoToBallPlay());
   the_book.ResetWeights();
+  return the_book;
 }
 
-PlayBook TheBlueBook(){
+PlayBook PlayBook::TheBlueBook(){
   PlayBook the_book;
   // Add all created blue team plays to the_book
+  //the_book.AddPlay(new ExamplePlay());
   the_book.ResetWeights();
   return the_book;
 }

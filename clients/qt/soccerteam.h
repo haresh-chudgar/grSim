@@ -50,12 +50,7 @@ private:
   const int _num_robots;
   PlayBook* _playbook;
   
-  
-  kdtree2 *yellowTeamTree, *blueTeamTree;
-  
   void FindKickAnglesOf(Robot* robot);
-  void EvaluateDefenseManeuver();
-  
 };
 
 #endif // SOCCERTEAM_H

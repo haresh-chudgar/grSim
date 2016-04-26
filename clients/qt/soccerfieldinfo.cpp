@@ -54,10 +54,13 @@ void SoccerFieldInfo::receive(char* buffer, int size)
   if(packet.has_detection()) {
     SSL_DetectionFrame frame = packet.detection();
     google::protobuf::RepeatedPtrField<SSL_DetectionBall>::const_iterator ballState = frame.balls().begin();
-    ball[0] = (*ballState).x();
-    ball[1] = (*ballState).y();
-    ball[2] = (*ballState).z();
-    
+    for(;ballState!=frame.balls().end();++ballState) {
+      ball[0] = (*ballState).x();
+      ball[1] = (*ballState).y();
+      ball[2] = (*ballState).z();
+      //fprintf(stderr,"Ball Loc: %f, %f, %f\n", (*ballState).x(), (*ballState).y(), (*ballState).z());
+    }
+
     google::protobuf::RepeatedPtrField<SSL_DetectionRobot>::const_iterator iter = frame.robots_blue().begin();
     while(blueTeamBots->size() < frame.robots_blue_size()) {
       blueTeamBots->push_back(BotState(false));
@@ -88,7 +91,7 @@ void SoccerFieldInfo::receive(char* buffer, int size)
     }
     _blueTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
     _yellowTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
-    fprintf(stderr, "Received info for frame %d\n", frame.frame_number());
+    ////fprintf(stderr, "Received info for frame %d\n", frame.frame_number());
   }
 }
 

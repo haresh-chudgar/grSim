@@ -5,7 +5,7 @@
 
 #define NUM_ROBOTS 6
 
-MainWindow::MainWindow(QWidget *parent) : QDialog(parent), udpsocket(this), communicator(&udpsocket), 
+MainWindow::MainWindow(QWidget *parent) : QDialog(parent), udpsocket(this), communicator(&udpsocket), bluebook(PlayBook::TheBlueBook()), ybook(PlayBook::TheYellowBook()),
       blueTeam(false, &communicator, &planner, &bluebook, NUM_ROBOTS), yellowTeam(true, &communicator, &planner, &ybook, NUM_ROBOTS)
 {
   fieldInfoSocket = NULL;
@@ -105,14 +105,14 @@ void MainWindow::listenToGRSim() {
   fieldInfoSocket = new QUdpSocket(this);
   bool isSuccess = fieldInfoSocket->bind(*net_address, port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
   if (isSuccess == false) {
-    fprintf(stderr, "Unable to bind UDP socket on port %d: %s\n", port, fieldInfoSocket->errorString().toStdString().c_str());
+    //fprintf(stderr, "Unable to bind UDP socket on port %d: %s\n", port, fieldInfoSocket->errorString().toStdString().c_str());
   }
   if(!fieldInfoSocket->joinMulticastGroup(*net_address, *net_interface)) {
-    fprintf(stderr, "Unable to join UDP multicast on %s: %d %s\n", net_address->toString().toStdString().c_str(), port, fieldInfoSocket->errorString().toStdString().c_str());
+    //fprintf(stderr, "Unable to join UDP multicast on %s: %d %s\n", net_address->toString().toStdString().c_str(), port, fieldInfoSocket->errorString().toStdString().c_str());
   }
   
   isSuccess = QObject::connect(fieldInfoSocket,SIGNAL(readyRead()),this,SLOT(recvFieldInfo()));
-  fprintf(stderr, "%d\n", isSuccess);
+  ////fprintf(stderr, "%d\n", isSuccess);
 }
 
 void MainWindow::recvFieldInfo()
@@ -172,9 +172,10 @@ void MainWindow::resetBtnClicked()
 
 void MainWindow::reconnectUdp()
 {
-    _addr = edtIp->text();
-    _port = edtPort->text().toUShort();
-    btnSend->setDisabled(false);
+  _addr = edtIp->text();
+  _port = edtPort->text().toUShort();
+  btnSend->setDisabled(false);
+  communicator.reconnectUdp(_addr, _port);
 }
 
 void MainWindow::sendPacket()
