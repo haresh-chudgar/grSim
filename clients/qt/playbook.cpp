@@ -144,6 +144,92 @@ void ExamplePlay::UpdateWeight() {
 }
 
 
+//---MoveToKick play (rigged)---
+MoveToKick::MoveToKick() { }
+
+bool MoveToKick::Applicable() {
+  return true;
+}
+
+bool MoveToKick::CompleteCondition() {
+  return states[0] == 3;
+}
+
+// More complex analysis of success/failure might be nice
+//(overall negative effect in ground lost for instance)
+
+bool MoveToKick::Success() {  
+  return states[0] == 3;
+}
+
+void MoveToKick::AssignRoles() { 
+  assignments[0] = 1;
+}
+
+void MoveToKick::Execute() { 
+  // Roles are just numbers, can be enums in each class if necessary
+  // used inside state machine
+  for(size_t i = 0; i < 1; i++) {
+    if(assignments[i] == 0) {
+      if(states[i] == 0) { // Moving to Ball
+        Eigen::Vector3d ball = soccerfieldinfo::instance()->ball;
+        Eigen::Vector3d robot = *(_team)[i]->CurrentState();
+        Eigen::Vector3d goal = (ball-robot);
+        Eigen::Vector3d offset = (ball-robot).normalize();
+        offset = offset*0.07;
+        goal -= offset;
+        offset.normalize();
+        goal(2) = acos(offset(0));
+        // Call Move
+        state = 1;
+      } else if(states[i] == 1) { // Checking for location
+        Eigen::Vector3d robot = *(_team)[i]->CurrentState();
+        Eigen::Vector3d goal = (ball-robot);
+        Eigen::Vector3d offset = (ball-robot).normalize();
+        offset = offset*0.07;
+        goal -= offset;
+        offset.normalize();
+        goal(2) = acos(offset(0));
+        if((robot - goal).norm() < .01){
+          states[i] = 2;
+        }
+      } else if(states[i] == 2) { // Kicking
+        // Call Kick
+        states[i]++;
+      } else {
+        // do nothing
+      }
+    } 
+  frames_running++;
+}
+
+bool MoveToKick::Complete() {
+  if(_complete){
+    return true;
+  } else if(this->CompleteCondition()){
+    _complete = true;
+    this->UpdateWeight();
+  }
+}
+
+void MoveToKick::Begin(vector<Robot*>* team) {
+  assignments.clear();
+  states.clear();
+  _team = team;
+  for(size_t i = 0; i < _team->size(); i++) {
+    states.push_back(0);
+  }
+  // First bot is always the goalie (more complex plays could pull the goalie to another role)
+  assignments.push_back(9);
+  this->AssignRoles();
+  this->Execute();
+}
+
+// Should in general be used by all plays to update based on success
+void MoveToKick::UpdateWeight() {
+  // Write weight updating
+}
+
 // ===== PlayBook =====
 PlayBook::PlayBook() { }
 
@@ -180,7 +266,7 @@ PlayBook TheYellowBook(){
   PlayBook the_book;
   // Add all created yellow team plays to the_book
   return the_book;
-  the_book.AddPlay(new ExamplePlay());
+  the_book.AddPlay(new MoveToKick());
   the_book.ResetWeights();
 }
 
