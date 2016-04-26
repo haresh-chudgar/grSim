@@ -32,7 +32,10 @@ void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTea
   
 SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
 :_blueTeam(blueTeam), _yellowTeam(yellowTeam)
-{}
+{
+  blueTeamBots = new vector<BotState>();
+  yellowTeamBots = new vector<BotState>();
+}
 
 SoccerFieldInfo::~SoccerFieldInfo()
 {}
