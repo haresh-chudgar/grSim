@@ -31,11 +31,18 @@ class PIDController {
 				       Eigen::Vector3d curr_velo, Eigen::Vector3d des_velo);
 
     std::vector<double> ComputeCommandVoltage();
-
+    void ResetError();
+    
   private:
     static const double MAX_TRANS_VEL = 5.0; // m/s
-    static const  double MAX_ROT_VEL = 4*3.14159; // rad/s
-
+    static const double MAX_ROT_VEL = 4*3.14159; // rad/s
+    static const double Kp = 1.0;
+    static const double Ki = 1.0;
+    static const double Kd = 1.0;
+    static const double dt = 1.0/60.0;
+    Eigen::Vector3d integral_error_;
+    Eigen::Vector3d derivative_error_;
+    Eigen::Vector3d prev_error_;
 };
 
 #endif 
