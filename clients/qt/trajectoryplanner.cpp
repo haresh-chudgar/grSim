@@ -16,13 +16,36 @@
  */
 
 #include "trajectoryplanner.h"
+#include <vector>
+#include <iostream>
 
-TrajectoryPlanner::TrajectoryPlanner()
-{
+TrajectoryPlanner::TrajectoryPlanner(){}
 
-}
+TrajectoryPlanner::~TrajectoryPlanner() {}
 
-TrajectoryPlanner::~TrajectoryPlanner()
-{
+std::vector<std::vector<double> > TrajectoryPlanner::GenerateTrajectory(Eigen::Vector3d start_pos, Eigen::Vector3d goal_pos,                  								     Eigen::Vector3d start_velo, Eigen::Vector3d goal_velo,
+							std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d> > waypoints) {
 
+  start_pos_ = start_pos;
+  start_velo_ = start_velo;
+  goal_pos_ = goal_pos;
+  goal_velo_ = goal_velo;
+
+  std::vector<std::vector<double> > path;
+  std::vector<double> path_x;
+  std::vector<double> path_y;
+  std::vector<double> path_theta;
+  if (waypoints.size() == 0) {
+    std::cout << "need to handle waypoints still" << std::endl;
+  }
+  else { //naive implementation
+    Eigen::Vector3d opp_goal_dir = start_pos_ - goal_pos_;
+    path_x.push_back(opp_goal_dir(0)/MAX_TRANS_VEL);
+    path_y.push_back(opp_goal_dir(1)/MAX_TRANS_VEL);
+    path_theta.push_back(opp_goal_dir(2)/MAX_ROT_VEL);
+  }
+  path.push_back(path_x);
+  path.push_back(path_y);
+  path.push_back(path_theta);
+  return path;
 }
