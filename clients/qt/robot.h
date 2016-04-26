@@ -47,7 +47,7 @@ class Robot
   void setSpinner(double on);
 
   void setCurrentState(Eigen::Vector3d currentState);
-  Eigen::Vector3d getCurrentState();
+  Eigen::Vector3d CurrentState();
   
   bool sendVelocityCommands();
   
