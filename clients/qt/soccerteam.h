@@ -17,13 +17,15 @@
 
 #ifndef SOCCERTEAM_H
 #define SOCCERTEAM_H
-
+ 
+#include "playbook.h"
 #include "communicator.h"
 #include "robot.h"
 #include "trajectoryplanner.h"
 #include <eigen3/Eigen/Core>
 #include "kdtree2.h"
 #include "BotState.h"
+
 
 using namespace std; 
 using namespace Eigen;
@@ -36,12 +38,16 @@ public:
     ~SoccerTeam();
     void SimCallback(int frameNumber, Vector3d ball, vector<BotState> *blueRobots, vector<BotState> *yellowRobots);
     void StartRobots(int num_robots);
+    vector<Robot*> _robots;
+    bool has_ball;
+    bool scored;
+
 private:
   const bool _team;
   Communicator* _communicator;
   TrajectoryPlanner* _planner;
   const int _num_robots;
-  vector<Robot*> _robots;
+  
   
   kdtree2 *yellowTeamTree, *blueTeamTree;
   

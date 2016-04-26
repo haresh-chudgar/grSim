@@ -33,11 +33,13 @@ add_executable(${app} MACOSX_BUNDLE
     robot.cpp
     communicator.cpp
     trajectoryplanner.cpp
+    playbook.cpp
     soccerteam.cpp
     soccerfieldinfo.cpp
     kdtree2.cpp
     mainwindow.cpp
     mainwindow.h
+    
 )
 
 target_link_libraries(${app} ${libs})
