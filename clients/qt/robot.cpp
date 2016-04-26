@@ -39,7 +39,7 @@ void Robot::setCurrentState(Eigen::Vector3d currentState) {
 }
 
 // TODO(Whoever is responsible for getting the state) get if robot has ball and if it is kicking
-Eigen::Vector3d Robot::getCurrentState() {
+Eigen::Vector3d Robot::CurrentState() {
   return _currentState;
 }
 

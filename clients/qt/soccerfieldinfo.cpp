@@ -32,10 +32,7 @@ void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTea
   
 SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
 :_blueTeam(blueTeam), _yellowTeam(yellowTeam)
-{
-  blueTeamBots = new std::vector<Eigen::Vector3d>(6);
-  yellowTeamBots = new std::vector<Eigen::Vector3d>(6);
-}
+{}
 
 SoccerFieldInfo::~SoccerFieldInfo()
 {}
@@ -59,19 +56,32 @@ void SoccerFieldInfo::receive(char* buffer, int size)
     ball[2] = (*ballState).z();
     
     google::protobuf::RepeatedPtrField<SSL_DetectionRobot>::const_iterator iter = frame.robots_blue().begin();
+    while(blueTeamBots->size() < frame.robots_blue_size()) {
+      blueTeamBots->push_back(BotState(false));
+    }
+    while(blueTeamBots->size() > frame.robots_blue_size()) {
+      blueTeamBots->pop_back();
+    }
+    
     for(;iter!=frame.robots_blue().end();iter++) {
       SSL_DetectionRobot robot = *iter;
-      blueTeamBots->at(robot.robot_id())[0] = robot.x();
-      blueTeamBots->at(robot.robot_id())[1] = robot.y();
-      blueTeamBots->at(robot.robot_id())[2] = robot.orientation();
+      blueTeamBots->at(robot.robot_id())._position[0] = robot.x();
+      blueTeamBots->at(robot.robot_id())._position[1] = robot.y();
+      blueTeamBots->at(robot.robot_id())._position[2] = robot.orientation();
     }
     
     iter = frame.robots_yellow().begin();
+    while(yellowTeamBots->size() < frame.robots_blue_size()) {
+      yellowTeamBots->push_back(BotState(true));
+    }
+    while(yellowTeamBots->size() > frame.robots_blue_size()) {
+      yellowTeamBots->pop_back();
+    }
     for(;iter!=frame.robots_yellow().end();iter++) {
       SSL_DetectionRobot robot = *iter;
-      yellowTeamBots->at(robot.robot_id())[0] = robot.x();
-      yellowTeamBots->at(robot.robot_id())[1] = robot.y();
-      yellowTeamBots->at(robot.robot_id())[2] = robot.orientation();
+      yellowTeamBots->at(robot.robot_id())._position[0] = robot.x();
+      yellowTeamBots->at(robot.robot_id())._position[1] = robot.y();
+      yellowTeamBots->at(robot.robot_id())._position[2] = robot.orientation();
     }
     _blueTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
     _yellowTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);

@@ -24,6 +24,7 @@
 #include <eigen3/Eigen/Core>
 #include <vector>
 #include "soccerteam.h"
+#include "BotState.h"
 
 using namespace std;
 
@@ -36,8 +37,8 @@ public:
   void receive(char* buffer, int size);
   
   Eigen::Vector3d ball;
-  std::vector<Eigen::Vector3d> *yellowTeamBots;
-  std::vector<Eigen::Vector3d> *blueTeamBots;
+  std::vector<BotState> *yellowTeamBots;
+  std::vector<BotState> *blueTeamBots;
   SoccerTeam *_blueTeam, *_yellowTeam;
 private:
   SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);

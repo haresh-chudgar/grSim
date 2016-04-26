@@ -23,6 +23,7 @@
 #include "trajectoryplanner.h"
 #include <eigen3/Eigen/Core>
 #include "kdtree2.h"
+#include "BotState.h"
 
 using namespace std; 
 using namespace Eigen;
@@ -33,7 +34,7 @@ public:
                TrajectoryPlanner* planner,
                const int num_robots);
     ~SoccerTeam();
-    void SimCallback(int frameNumber, Vector3d ball, vector<Vector3d> *blueRobots, vector<Vector3d> *yellowRobots);
+    void SimCallback(int frameNumber, Vector3d ball, vector<BotState> *blueRobots, vector<BotState> *yellowRobots);
     void StartRobots(int num_robots);
 private:
   const bool _team;
