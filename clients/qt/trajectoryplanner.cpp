@@ -35,7 +35,7 @@ std::vector<std::vector<double> > TrajectoryPlanner::GenerateTrajectory(Eigen::V
   std::vector<double> path_x;
   std::vector<double> path_y;
   std::vector<double> path_theta;
-  if (waypoints.size() == 0) {
+  if (waypoints.size() != 0) {
     std::cout << "need to handle waypoints still" << std::endl;
   }
   else { //naive implementation
