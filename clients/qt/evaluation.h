@@ -18,8 +18,20 @@
 #ifndef EVALUATION_H
 #define EVALUATION_H
 
+#include <eigen3/Eigen/Core>
+#include <vector>
+#include "soccerfieldinfo.h"
+
+typedef struct _KickAngles  {
+  double _opening;
+  BotState _p1, _p2;
+  _KickAngles(double opening, BotState p1, BotState p2):_opening(opening), _p1(p1), _p2(p2) {
+  }
+}KickAngles;
+
 class Evaluation
 {
+  static std::vector<KickAngles> EvaluateKickDirection(bool isYellowTeamKicking, Eigen::Vector2d kickFrom, Eigen::Vector2d kickToStart, Eigen::Vector2d kickToEnd);
 };
 
 #endif // EVALUATION_H
