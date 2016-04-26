@@ -5,50 +5,50 @@ using namespace std;
 
 Play::Play() {}
 
-// Should in general be used by all plays to update based on success
-void Play::UpdateWeight() {
-  // Write weight updating
-}
+// // Should in general be used by all plays to update based on success
+// void Play::UpdateWeight() {
+//   // Write weight updating
+// }
 
-void Play::Begin(vector<Robot>* team) {
-  assignments.clear();
-  states.clear();
-  _team = team;
-  for(size_t i = 0; i < _team->size(); i++) {
-    states.push_back(0);
-  }
-  // First bot is always the goalie (more complex plays could pull the goalie to another role)
-  assignments.push_back(9);
-  this->AssignRoles();
-  this->Execute();
-}
+// void Play::Begin(vector<Robot*>* team) {
+//   assignments.clear();
+//   states.clear();
+//   _team = team;
+//   for(size_t i = 0; i < _team->size(); i++) {
+//     states.push_back(0);
+//   }
+//   // First bot is always the goalie (more complex plays could pull the goalie to another role)
+//   assignments.push_back(9);
+//   this->AssignRoles();
+//   this->Execute();
+// }
 
-bool Play::Complete() {
-  if(_complete){
-    return true;
-  } else if(this->CompleteCondition()){
-    _complete = true;
-    this->UpdateWeight();
-  }
-}
+// bool Play::Complete() {
+//   if(_complete){
+//     return true;
+//   } else if(this->CompleteCondition()){
+//     _complete = true;
+//     this->UpdateWeight();
+//   }
+// }
 
-bool Play::Applicable() {
-  return false;
-}
+// bool Play::Applicable() {
+//   return false;
+// }
 
-bool Play::Success() {
-  return false;
-}
+// bool Play::Success() {
+//   return false;
+// }
 
-void Play::AssignRoles() {
-}
+// void Play::AssignRoles() {
+// }
 
-void Play::Execute() {
-}
+// void Play::Execute() {
+// }
 
-bool Play::CompleteCondition() {
-  return false;
-}
+// bool Play::CompleteCondition() {
+//   return false;
+// }
 
 //---Example play---
 ExamplePlay::ExamplePlay() { }
@@ -125,7 +125,7 @@ bool ExamplePlay::Complete() {
   }
 }
 
-void ExamplePlay::Begin(vector<Robot>* team) {
+void ExamplePlay::Begin(vector<Robot*>* team) {
   assignments.clear();
   states.clear();
   _team = team;

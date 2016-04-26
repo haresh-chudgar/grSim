@@ -24,12 +24,13 @@ using namespace Eigen;
 SoccerTeam::SoccerTeam(const bool team, // true = yellow, false = blue
                        Communicator* communicator, 
                        TrajectoryPlanner* planner,
+                       PlayBook* playbook,
                        const int num_robots):
   _team(team),
   _communicator(communicator),
   _planner(planner), 
   _playbook(playbook),
-  _num_robots(num_robots) {
+  _num_robots(num_robots){
 
   this->StartRobots(num_robots);
   has_ball = false;
@@ -67,9 +68,10 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
   delete blueTeamTree;
   blueTeamTree = new kdtree2(bRobotPositions, true);
   
-  // if(_play->Complete()){
-  //   _play = playbook.PlaySelection();
-  // }
+  if(_play->Complete()){
+    _play = _playbook->PlaySelection();
+    _play->Begin(&_robots);
+  }
   
   // Makes robots send velocity commands to simulator
   for(size_t i = 0; i < _robots.size(); i++){

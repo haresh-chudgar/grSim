@@ -17,6 +17,7 @@
 #include "communicator.h"
 #include "soccerteam.h"
 #include "soccerfieldinfo.h"
+#include "playbook.h"
 
 class MainWindow : public QDialog
 {
@@ -64,6 +65,7 @@ private:
     SoccerTeam yellowTeam, blueTeam;
     Communicator communicator;
     TrajectoryPlanner planner;
+    PlayBook bluebook, ybook;
 };
 
 #endif // MAINWINDOW_H

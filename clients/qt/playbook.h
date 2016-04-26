@@ -13,24 +13,24 @@ class Play{
 
     Play(); // Constructor
 
-    virtual bool Applicable(); // Check if the play is Applicable
+    virtual bool Applicable() = 0; // Check if the play is Applicable
 
-    virtual bool Complete(); // Check if the play is over
+    virtual bool Complete() = 0; // Check if the play is over
 
-    virtual bool CompleteCondition(); // Check if the play is over
+    virtual bool CompleteCondition()= 0; // Check if the play is over
 
-    virtual bool Success(); // Check if the play was successful or not
+    virtual bool Success()= 0; // Check if the play was successful or not
 
-    virtual void AssignRoles();  // Assigns all Robots to the best role given the options
+    virtual void AssignRoles()= 0;  // Assigns all Robots to the best role given the options
 
-    virtual void Begin(vector<Robot>* team); // Begins the play initializing all components
+    virtual void Begin(vector<Robot*>* team)= 0; // Begins the play initializing all components
 
-    virtual void Execute(); // Executes the state machines of all Robots in question
+    virtual void Execute()= 0; // Executes the state machines of all Robots in question
   
   private:
     bool _complete;
-    vector<Robot>* _team;
-    virtual void UpdateWeight();
+    vector<Robot*>* _team;
+    virtual void UpdateWeight() = 0;
 };
 
 class ExamplePlay : public Play {
@@ -52,12 +52,12 @@ class ExamplePlay : public Play {
 
     void AssignRoles();  // Assigns all Robots to the best role given the options
 
-    void Begin(vector<Robot>* team); // Begins the play initializing all components
+    void Begin(vector<Robot*>* team); // Begins the play initializing all components
 
     void Execute(); // Executes the state machines of all Robots in question
   
   private:
-    vector<Robot>* _team;
+    vector<Robot*>* _team;
     bool _complete;
     virtual void UpdateWeight();
 };

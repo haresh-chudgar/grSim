@@ -6,7 +6,7 @@
 #define NUM_ROBOTS 6
 
 MainWindow::MainWindow(QWidget *parent) : QDialog(parent), udpsocket(this), communicator(&udpsocket), 
-      blueTeam(false, &communicator, &planner, NUM_ROBOTS), yellowTeam(true, &communicator, &planner, NUM_ROBOTS)
+      blueTeam(false, &communicator, &planner, &bluebook, NUM_ROBOTS), yellowTeam(true, &communicator, &planner, &ybook, NUM_ROBOTS)
 {
   fieldInfoSocket = NULL;
   listenToGRSim();

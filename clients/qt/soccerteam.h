@@ -34,6 +34,7 @@ public:
     SoccerTeam(const bool team, 
                Communicator* communicator, 
                TrajectoryPlanner* planner,
+               PlayBook* playbook,
                const int num_robots);
     ~SoccerTeam();
     void SimCallback(int frameNumber, Vector3d ball, vector<BotState> *blueRobots, vector<BotState> *yellowRobots);
@@ -41,12 +42,13 @@ public:
     vector<Robot*> _robots;
     bool has_ball;
     bool scored;
-
+    Play* _play;
 private:
   const bool _team;
   Communicator* _communicator;
   TrajectoryPlanner* _planner;
   const int _num_robots;
+  PlayBook* _playbook;
   
   
   kdtree2 *yellowTeamTree, *blueTeamTree;
