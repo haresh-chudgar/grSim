@@ -33,6 +33,7 @@ add_executable(${app} MACOSX_BUNDLE
     robot.cpp
     communicator.cpp
     trajectoryplanner.cpp
+    pid_controller.cpp
     soccerteam.cpp
     soccerfieldinfo.cpp
     kdtree2.cpp
