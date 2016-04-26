@@ -34,11 +34,13 @@ add_executable(${app} MACOSX_BUNDLE
     communicator.cpp
     trajectoryplanner.cpp
     pid_controller.cpp
+    playbook.cpp
     soccerteam.cpp
     soccerfieldinfo.cpp
     kdtree2.cpp
     mainwindow.cpp
     mainwindow.h
+    
 )
 
 target_link_libraries(${app} ${libs})

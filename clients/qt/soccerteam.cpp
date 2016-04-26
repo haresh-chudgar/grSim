@@ -28,9 +28,12 @@ SoccerTeam::SoccerTeam(const bool team, // true = yellow, false = blue
   _team(team),
   _communicator(communicator),
   _planner(planner), 
+  _playbook(playbook),
   _num_robots(num_robots) {
 
   this->StartRobots(num_robots);
+  has_ball = false;
+  scored = false;
 }
 
 SoccerTeam::~SoccerTeam() {
@@ -64,11 +67,9 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
   delete blueTeamTree;
   blueTeamTree = new kdtree2(bRobotPositions, true);
   
-//   if(_plan) {
-//     // Plan a gameplan
-    
-//     // Execute Plan (send new commands to each robot)
-//   }
+  // if(_play->Complete()){
+  //   _play = playbook.PlaySelection();
+  // }
   
   // Makes robots send velocity commands to simulator
   for(size_t i = 0; i < _robots.size(); i++){
