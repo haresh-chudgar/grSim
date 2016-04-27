@@ -25,9 +25,9 @@ PIDController::PIDController() {
   derivative_error_ << 0,0,0;
   prev_error_ << 0,0,0;
   
-  Kp = -1.0;
+  Kp = -40.0;
   Ki = 0;
-  Kd = 0;
+  Kd = 0.1;
   dt = 1.0/60.0;
 }
 
