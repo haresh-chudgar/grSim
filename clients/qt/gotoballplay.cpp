@@ -68,7 +68,10 @@ void GoToBallPlay::Execute() {
         Eigen::Vector3d goal = (ball);
 
         // sets the desired angle to the robot's current angle
-        goal[2] = robot[2];
+        //goal[2] = robot[2];
+
+        // sets the desired angle so the robot points at the goal
+        goal[2] = atan2(robot[0]-goal[0], robot[1]-goal[1]);
 //        fprintf(stderr, "Goal and robot  %f %f %f  %f %f %f\n", goal[0], goal[1], goal[2], robot[0], robot[1], robot[2]);
       
         //Eigen::Vector3d offset = (robot-ball);
@@ -89,7 +92,10 @@ void GoToBallPlay::Execute() {
         Eigen::Vector3d goal = (ball);
 
         // sets the desired angle to the robot's current angle
-        goal[2] = robot[2];
+        //goal[2] = robot[2];
+
+        // sets the desired angle so the robot points at the goal
+        goal[2] = atan2(robot[0]-goal[0], robot[1]-goal[1]);
         
 //        fprintf(stderr, "Goal and robot  %f %f %f  %f %f %f\n", goal[0], goal[1], goal[2], robot[0], robot[1], robot[2]);
         //Eigen::Vector3d offset = (robot-ball);

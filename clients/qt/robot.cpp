@@ -59,6 +59,11 @@ int Robot::executeKickBallToLocation(Eigen::Vector2d location, double speed, dou
 void Robot::execute() {
   currentTime += (1.0/60.0);
 //  fprintf(stderr, "currentTime %f\n", currentTime);
+
+  coeffecients = _planner->GenerateTrajectory(CurrentState(), 
+					      desiredLocation, 
+					      Eigen::Vector3d(), Eigen::Vector3d(), 
+					      std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d> >());
   Eigen::Vector3d desiredState;
   desiredState[0] = desiredLocation[0] + coeffecients[0][0] / currentTime;
   desiredState[1] = desiredLocation[1] + coeffecients[0][1] / currentTime;
@@ -99,17 +104,18 @@ bool Robot::goToLocation(int currentFrame, Eigen::Vector3d location) {
 }
 
 // Sends the robot's velocity commands to the simulator
-// All velocities are relative to the robot
-bool Robot::sendVelocityCommands(double vAngular, double vTangent, double vNormal, double kickSpeedX, double kickSpeedZ, bool spinnerOn) {
+// All velocities are relative to the global coordinate frame
+bool Robot::sendVelocityCommands(double vAngular, double vX, double vY, double kickSpeedX, double kickSpeedZ, bool spinnerOn) {
+  vX /= 10000.;
+  vY /= 10000.;
   
-  vTangent /= 10000.;
-  vNormal /= 10000.;
+
+  //fprintf(stderr, "original command: %f, %f, %f   %f, %f  %f\n", vX, vY, vAngular, _currentState[2], cos(_currentState[2]), sin(_currentState[2]));
+
+  // vTangent is in the direction the robot faces
+  double vTangent =  vX * cos(_currentState[2]) + vY * sin(_currentState[2]);
   
-  //fprintf(stderr, "original command: %f, %f, %f %f\n", vTangent, vNormal, vAngular, _currentState[2]);
-  
-  double vT = vTangent, vN = vNormal;
-  vTangent = vT * cos(_currentState[2]) - vN * sin(_currentState[2]);
-  vNormal = vT * sin(_currentState[2]) + vN * cos(_currentState[2]);
+  double vNormal = - vX * sin(_currentState[2]) + vY * cos(_currentState[2]);
   
   //fprintf(stderr, "transformed command: %f, %f, %f %f\n", vTangent, vNormal, vAngular, _currentState[2]);
   
