@@ -57,17 +57,20 @@ int Robot::executeKickBallToLocation(Eigen::Vector2d location, double speed, dou
 }
 
 void Robot::execute() {
-  currentTime += (1/60);
-  
+  currentTime += (1.0/60.0);
+//  fprintf(stderr, "currentTime %f\n", currentTime);
   Eigen::Vector3d desiredState;
   desiredState[0] = desiredLocation[0] + coeffecients[0][0] / currentTime;
   desiredState[1] = desiredLocation[1] + coeffecients[0][1] / currentTime;
   desiredState[2] = desiredLocation[2] + coeffecients[0][2] / currentTime;
-  fprintf(stderr, "coeffecients %f %f %f\n", coeffecients[0][0], coeffecients[0][1], coeffecients[0][2]);
-  //fprintf(stderr, "Robot::goToLocation currentState: %f,%f,%f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2]);
-  //fprintf(stderr, "Robot::goToLocation desiredState: %f,%f,%f\n", desiredState[0], desiredState[1], desiredState[2]);
+//  fprintf(stderr, "coeffecients %f %f %f\n", coeffecients[0][0], coeffecients[0][1], coeffecients[0][2]);
+//  fprintf(stderr, "coeffecients/time %f %f %f\n", coeffecients[0][0] / currentTime, coeffecients[0][1] / currentTime, coeffecients[0][2] / currentTime);
+
+//  fprintf(stderr, "Robot::goToLocation currentState: %f,%f,%f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2]);
+//  fprintf(stderr, "Robot::goToLocation desiredLocation: %f,%f,%f\n", desiredLocation[0], desiredLocation[1], desiredLocation[2]);
+//  fprintf(stderr, "Robot::goToLocation desiredState: %f,%f,%f\n", desiredState[0], desiredState[1], desiredState[2]);
   _currentVelocity = controller.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
-  sendVelocityCommands(_currentVelocity[2], _currentVelocity[0], _currentVelocity[1], 0, 0, 0);
+  sendVelocityCommands(_currentVelocity[2], _currentVelocity[0], _currentVelocity[1], 0, 0, 1);
 }
 
 bool Robot::goToLocation(int currentFrame, Eigen::Vector3d location) {
@@ -87,11 +90,11 @@ bool Robot::goToLocation(int currentFrame, Eigen::Vector3d location) {
   desiredState[0] = desiredLocation[0] + coeffecients[0][0] / currentTime;
   desiredState[1] = desiredLocation[1] + coeffecients[0][1] / currentTime;
   desiredState[2] = desiredLocation[2] + coeffecients[0][2] / currentTime;
-  
-  //fprintf(stderr, "Robot::goToLocation currentState: %f,%f,%f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2]);
-  //fprintf(stderr, "Robot::goToLocation desiredState: %f,%f,%f\n", desiredState[0], desiredState[1], desiredState[2]);
+//  fprintf(stderr, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+//  fprintf(stderr, "Robot::goToLocation currentState: %f,%f,%f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2]);
+//  fprintf(stderr, "Robot::goToLocation desiredState: %f,%f,%f\n", desiredState[0], desiredState[1], desiredState[2]);
   _currentVelocity = controller.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
-  sendVelocityCommands(_currentVelocity[2], _currentVelocity[0], _currentVelocity[1], 0, 0, 0);
+  sendVelocityCommands(_currentVelocity[2], _currentVelocity[0], _currentVelocity[1], 0, 0, 1);
   return true;
 }
 

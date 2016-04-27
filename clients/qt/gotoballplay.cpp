@@ -17,6 +17,7 @@
 
 #include "gotoballplay.h"
 #include "evaluation.h"
+#include <iostream>
 
 GoToBallPlay::GoToBallPlay() : ballAcquiringRobot(false), _complete(false) { }
 
@@ -62,35 +63,49 @@ void GoToBallPlay::Execute() {
     if(assignments[i] == 1) {
       if(states[i] == 0) { // Moving to Ball
         Eigen::Vector3d ball = SoccerFieldInfo::Instance()->ball;
-	ball[2] = 0;
+	
         Eigen::Vector3d robot = _team->at(i)->CurrentState();
-        Eigen::Vector3d goal = (ball-robot);
-        Eigen::Vector3d offset = (robot-ball);
-	offset.normalize();
-        offset = offset*70;
-        goal += offset;
-        offset.normalize();
-        goal(2) = acos(offset(0));
+        Eigen::Vector3d goal = (ball);
+
+        // sets the desired angle to the robot's current angle
+        goal[2] = robot[2];
+//        fprintf(stderr, "Goal and robot  %f %f %f  %f %f %f\n", goal[0], goal[1], goal[2], robot[0], robot[1], robot[2]);
+      
+        //Eigen::Vector3d offset = (robot-ball);
+	      //offset.normalize();
+        //offset = offset*70;
+        //goal += offset;
+        //offset.normalize();
+        //goal(2) = acos(offset(0));
         // Call Move
         _team->at(i)->goToLocation(1, goal);
+        
+        //_team->at(i)->goToLocation(1, ball);
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
         Eigen::Vector3d ball = SoccerFieldInfo::Instance()->ball;
-	ball[2] = 0;
+	//ball[2] = 0;
         Eigen::Vector3d robot = _team->at(i)->CurrentState();
-        Eigen::Vector3d goal = (ball-robot);
-        Eigen::Vector3d offset = (robot-ball);
-	offset.normalize();
-        offset = offset*70;
-        goal += offset;
-        offset.normalize();
-	goal(2) = acos(offset(0));
+        Eigen::Vector3d goal = (ball);
+
+        // sets the desired angle to the robot's current angle
+        goal[2] = robot[2];
+        
+//        fprintf(stderr, "Goal and robot  %f %f %f  %f %f %f\n", goal[0], goal[1], goal[2], robot[0], robot[1], robot[2]);
+        //Eigen::Vector3d offset = (robot-ball);
+	      //offset.normalize();
+        //offset = offset*70;
+        //goal += offset;
+        //offset.normalize();
+	      //goal(2) = acos(offset(0));
+        //if((robot - goal).norm() < .01){
         if((robot - goal).norm() < .01){
           states[i] = 2;
         }
         _team->at(i)->execute();
         
       } else if(states[i] == 2) { // Kicking
+        fprintf(stderr, "Done with moving");
         // Call Kick
         states[i]++;
       } else {
