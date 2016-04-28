@@ -71,7 +71,7 @@ void GoToBallPlay::Execute() {
         //goal[2] = robot[2];
 
         // sets the desired angle so the robot points at the goal
-        goal[2] = atan2(robot[0]-goal[0], robot[1]-goal[1]);
+        goal[2] = atan2(robot[1]-goal[1], robot[0]-goal[0])+M_PI;
 //        fprintf(stderr, "Goal and robot  %f %f %f  %f %f %f\n", goal[0], goal[1], goal[2], robot[0], robot[1], robot[2]);
       
         Eigen::Vector3d offset = (robot-ball);
@@ -93,7 +93,11 @@ void GoToBallPlay::Execute() {
         }
         
       } else if(states[i] == 2) { // Kicking
-        fprintf(stderr, "Done with moving");
+        fprintf(stderr, "Done with moving\n");
+        _team->at(i)->setSpinner(0);
+        
+        _team->at(i)->setKickSpeed(1, 0);
+        _team->at(i)->sendVelocityCommands();
         // Call Kick
         states[i]++;
       } else {
