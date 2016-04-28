@@ -74,10 +74,11 @@ void GoToBallPlay::Execute() {
         goal[2] = atan2(robot[0]-goal[0], robot[1]-goal[1]);
 //        fprintf(stderr, "Goal and robot  %f %f %f  %f %f %f\n", goal[0], goal[1], goal[2], robot[0], robot[1], robot[2]);
       
-        //Eigen::Vector3d offset = (robot-ball);
-	      //offset.normalize();
-        //offset = offset*70;
-        //goal += offset;
+        Eigen::Vector3d offset = (robot-ball);
+        offset[2] = 0;
+	      offset.normalize();
+        offset = offset*70;
+        goal += offset;
         //offset.normalize();
         //goal(2) = acos(offset(0));
         // Call Move
@@ -98,11 +99,12 @@ void GoToBallPlay::Execute() {
         goal[2] = atan2(robot[0]-goal[0], robot[1]-goal[1]);
         
 //        fprintf(stderr, "Goal and robot  %f %f %f  %f %f %f\n", goal[0], goal[1], goal[2], robot[0], robot[1], robot[2]);
-        //Eigen::Vector3d offset = (robot-ball);
-	      //offset.normalize();
-        //offset = offset*70;
-        //goal += offset;
-        //offset.normalize();
+        Eigen::Vector3d offset = (robot-ball);
+        offset[2] = 0;
+	      offset.normalize();
+        offset = offset*70;
+        goal += offset;
+        offset.normalize();
 	      //goal(2) = acos(offset(0));
         //if((robot - goal).norm() < .01){
         if((robot - goal).norm() < .01){
