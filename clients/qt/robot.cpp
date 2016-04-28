@@ -61,13 +61,35 @@ void Robot::setSpinner(bool on) {
   spinnerOn = on;
 }
 
+void Robot::setKickSpeed(double vX, double vZ) {
+  kickSpeedX = vX;
+  kickSpeedZ = vZ;
+  fprintf(stderr, "setKickSpeed %f %f", kickSpeedX, kickSpeedZ);
+}
+
 // Executes the robot's movement towards the desiredLocation
 // Returns
 //    1   - success
 //    0   - working
 //    -1  - failure
 int Robot::execute() {
-  if ((CurrentState()-desiredLocation).norm() < 0.01) {
+  Eigen::Vector3d dist = (CurrentState()-desiredLocation);
+
+  // handles wraparound
+  while (dist[2] > M_PI) {
+    dist[2] -= 2*M_PI;
+  }
+
+  while (dist[2] < -M_PI) {
+    dist[2] += 2*M_PI;
+  }
+  
+  // scales angular error to make it have enough impact
+  //dist[2] *= 10;
+
+  //fprintf(stderr, "error comps %f %f %f\n", dist[0], dist[1], dist[2]);
+  //fprintf(stderr, "CurrentError %f\n", dist.norm());
+  if (dist.norm() < 0.1) {
     return 1;
   }
   currentTime += (1.0/60.0);
@@ -143,7 +165,7 @@ bool Robot::sendVelocityCommands() {//double vAngular, double vX, double vY, dou
   command->set_veltangent(vTangent);
   command->set_velnormal(vNormal);
   command->set_velangular(vAngular);
-
+  
   command->set_kickspeedx(kickSpeedX);
   command->set_kickspeedz(kickSpeedZ);
 
