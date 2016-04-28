@@ -103,7 +103,7 @@ void GoToBallPlay::Execute() {
         // Call Kick
         states[i]++;
       } else {
-Eigen::Vector2d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
+Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
 	      fprintf(stderr, "BallVel %f %f\n", ballVel[0], ballVel[1]);
         // do nothing
       }

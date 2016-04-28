@@ -37,7 +37,7 @@ public:
   void receive(char* buffer, int size);
   
   Eigen::Vector3d ball;
-  Eigen::Vector2d ballVelocity;
+  Eigen::Vector3d ballVelocity;
 
   std::vector<BotState> *yellowTeamBots;
   std::vector<BotState> *blueTeamBots;
