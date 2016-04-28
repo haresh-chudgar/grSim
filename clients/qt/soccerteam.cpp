@@ -49,14 +49,14 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
     vector<BotState>::iterator iter1 = yellowRobots->begin();
     vector<Robot*>::iterator iter2 = _robots.begin();
     for(;iter1!=yellowRobots->end();++iter1,++iter2) {
-      (*iter2)->setCurrentState((*iter1)._position);
+      (*iter2)->setCurrentState((*iter1)._position, (*iter1)._velocity);
     }
   } else {
     vector<BotState>::iterator iter1 = blueRobots->begin();
     vector<Robot*>::iterator iter2 = _robots.begin();
     for(;iter1!=blueRobots->end();++iter1,++iter2) {
       Robot *r = *iter2;
-      r->setCurrentState((*iter1)._position);
+      r->setCurrentState((*iter1)._position, (*iter1)._velocity);
     }
   }
   

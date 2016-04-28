@@ -37,12 +37,15 @@ public:
   void receive(char* buffer, int size);
   
   Eigen::Vector3d ball;
+  Eigen::Vector2d ballVelocity;
+
   std::vector<BotState> *yellowTeamBots;
   std::vector<BotState> *blueTeamBots;
   SoccerTeam *_blueTeam, *_yellowTeam;
 private:
   SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);
   ~SoccerFieldInfo();
+  const double kFrameRate;
 };
 
 #endif // SOCCERFIELDINFO_H

@@ -31,7 +31,7 @@ void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTea
 }
   
 SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
-:_blueTeam(blueTeam), _yellowTeam(yellowTeam)
+:_blueTeam(blueTeam), _yellowTeam(yellowTeam), kFrameRate(1.0/60.0)
 {
   blueTeamBots = new vector<BotState>();
   yellowTeamBots = new vector<BotState>();
@@ -55,9 +55,15 @@ void SoccerFieldInfo::receive(char* buffer, int size)
     SSL_DetectionFrame frame = packet.detection();
     google::protobuf::RepeatedPtrField<SSL_DetectionBall>::const_iterator ballState = frame.balls().begin();
     for(;ballState!=frame.balls().end();++ballState) {
+
+      double prevX = ball[0];
+      double prevY = ball[1];
       ball[0] = (*ballState).x();
       ball[1] = (*ballState).y();
       ball[2] = (*ballState).z();
+
+      ballVelocity[0] = (ball[0] - prevX) / kFrameRate / 1000;
+      ballVelocity[1] = (ball[1] - prevY) / kFrameRate / 1000;
       //fprintf(stderr,"Ball Loc: %f, %f, %f\n", (*ballState).x(), (*ballState).y(), (*ballState).z());
     }
 
@@ -71,9 +77,15 @@ void SoccerFieldInfo::receive(char* buffer, int size)
     
     for(;iter!=frame.robots_blue().end();iter++) {
       SSL_DetectionRobot robot = *iter;
+      double prevX = blueTeamBots->at(robot.robot_id())._position[0];
+      double prevY = blueTeamBots->at(robot.robot_id())._position[1];
+
       blueTeamBots->at(robot.robot_id())._position[0] = robot.x();
       blueTeamBots->at(robot.robot_id())._position[1] = robot.y();
       blueTeamBots->at(robot.robot_id())._position[2] = robot.orientation();
+
+      blueTeamBots->at(robot.robot_id())._velocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
+      blueTeamBots->at(robot.robot_id())._velocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
     }
     
     iter = frame.robots_yellow().begin();
@@ -85,9 +97,15 @@ void SoccerFieldInfo::receive(char* buffer, int size)
     }
     for(;iter!=frame.robots_yellow().end();iter++) {
       SSL_DetectionRobot robot = *iter;
+      double prevX = yellowTeamBots->at(robot.robot_id())._position[0];
+      double prevY = yellowTeamBots->at(robot.robot_id())._position[1];
+
       yellowTeamBots->at(robot.robot_id())._position[0] = robot.x();
       yellowTeamBots->at(robot.robot_id())._position[1] = robot.y();
       yellowTeamBots->at(robot.robot_id())._position[2] = robot.orientation();
+
+      yellowTeamBots->at(robot.robot_id())._velocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
+      yellowTeamBots->at(robot.robot_id())._velocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
     }
     _blueTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
     _yellowTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);

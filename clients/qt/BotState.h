@@ -5,7 +5,11 @@
 
 class BotState {
 public:
+  // x, y, theta
   Eigen::Vector3d _position;
+  
+  // vX, vY, theta
+  Eigen::Vector3d _velocity;
   bool _isYellow;
   
   BotState(bool isYellow, Eigen::Vector3d pos = Eigen::Vector3d(0,0,0)) {
