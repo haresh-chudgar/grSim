@@ -39,7 +39,7 @@ class Robot
   int lobKickBallToLocation(Eigen::Vector2d location, double height);
   int lobKickBallToLocation(Eigen::Vector2d location, double height, double distOfMaxHeight);
   
-  void execute();
+  int execute();
   
   //these setters should probably be removed or made private once testing is done
   void setAngularVelocity(double vAngular);

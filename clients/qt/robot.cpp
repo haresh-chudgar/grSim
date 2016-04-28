@@ -56,7 +56,16 @@ int Robot::executeKickBallToLocation(Eigen::Vector2d location, double speed, dou
   return 0;
 }
 
-void Robot::execute() {
+
+// Executes the robot's movement towards the desiredLocation
+// Returns
+//    1   - success
+//    0   - working
+//    -1  - failure
+int Robot::execute() {
+  if ((CurrentState()-desiredLocation).norm() < 0.01) {
+    return 1;
+  }
   currentTime += (1.0/60.0);
 //  fprintf(stderr, "currentTime %f\n", currentTime);
 
@@ -64,6 +73,8 @@ void Robot::execute() {
 					      desiredLocation, 
 					      Eigen::Vector3d(), Eigen::Vector3d(), 
 					      std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d> >());
+  // TODO(KARL) check if planner can generate trajectory, return -1 if not
+
   Eigen::Vector3d desiredState;
   desiredState[0] = desiredLocation[0] + coeffecients[0][0] / currentTime;
   desiredState[1] = desiredLocation[1] + coeffecients[0][1] / currentTime;
@@ -76,6 +87,7 @@ void Robot::execute() {
 //  fprintf(stderr, "Robot::goToLocation desiredState: %f,%f,%f\n", desiredState[0], desiredState[1], desiredState[2]);
   _currentVelocity = controller.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
   sendVelocityCommands(_currentVelocity[2], _currentVelocity[0], _currentVelocity[1], 0, 0, 1);
+  return 0;
 }
 
 bool Robot::goToLocation(int currentFrame, Eigen::Vector3d location) {
