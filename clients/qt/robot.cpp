@@ -57,6 +57,10 @@ int Robot::executeKickBallToLocation(Eigen::Vector2d location, double speed, dou
 }
 
 
+void Robot::setSpinner(bool on) {
+  spinnerOn = on;
+}
+
 // Executes the robot's movement towards the desiredLocation
 // Returns
 //    1   - success
@@ -86,7 +90,10 @@ int Robot::execute() {
 //  fprintf(stderr, "Robot::goToLocation desiredLocation: %f,%f,%f\n", desiredLocation[0], desiredLocation[1], desiredLocation[2]);
 //  fprintf(stderr, "Robot::goToLocation desiredState: %f,%f,%f\n", desiredState[0], desiredState[1], desiredState[2]);
   _currentVelocity = controller.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
-  sendVelocityCommands(_currentVelocity[2], _currentVelocity[0], _currentVelocity[1], 0, 0, 1);
+  vAngular = _currentVelocity[2];
+  vX = _currentVelocity[0];
+  vY = _currentVelocity[1];
+  sendVelocityCommands();
   return 0;
 }
 
@@ -111,24 +118,28 @@ bool Robot::goToLocation(int currentFrame, Eigen::Vector3d location) {
 //  fprintf(stderr, "Robot::goToLocation currentState: %f,%f,%f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2]);
 //  fprintf(stderr, "Robot::goToLocation desiredState: %f,%f,%f\n", desiredState[0], desiredState[1], desiredState[2]);
   _currentVelocity = controller.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
-  sendVelocityCommands(_currentVelocity[2], _currentVelocity[0], _currentVelocity[1], 0, 0, 1);
+
+  vAngular = _currentVelocity[2];
+  vX = _currentVelocity[0];
+  vY = _currentVelocity[1];
+  sendVelocityCommands();
   return true;
 }
 
 // Sends the robot's velocity commands to the simulator
 // All velocities are relative to the global coordinate frame
-bool Robot::sendVelocityCommands(double vAngular, double vX, double vY, double kickSpeedX, double kickSpeedZ, bool spinnerOn) {
-  vX /= 10000.;
-  vY /= 10000.;
+bool Robot::sendVelocityCommands() {//double vAngular, double vX, double vY, double kickSpeedX, double kickSpeedZ, bool spinnerOn) {
+  //vX /= 10000.;
+  //vY /= 10000.;
   
 
   //fprintf(stderr, "original command: %f, %f, %f   %f, %f  %f\n", vX, vY, vAngular, _currentState[2], cos(_currentState[2]), sin(_currentState[2]));
 
   // vTangent is in the direction the robot faces
   double vTangent =  vX * cos(_currentState[2]) + vY * sin(_currentState[2]);
-  
+  vTangent /= 10000.;
   double vNormal = - vX * sin(_currentState[2]) + vY * cos(_currentState[2]);
-  
+  vNormal /= 10000.;
   //fprintf(stderr, "transformed command: %f, %f, %f %f\n", vTangent, vNormal, vAngular, _currentState[2]);
   
   grSim_Packet packet;
@@ -164,5 +175,12 @@ bool Robot::sendVelocityCommands(double vAngular, double vX, double vY, double k
   //udpsocket.writeDatagram(dgram, _addr, _port);
 
   //_communicator->sendPacket(dgram);
+
+  vX = 0;
+  vX = 0;
+  vAngular = 0;
+  kickSpeedX = 0;
+  kickSpeedZ = 0;
+
   return true;
 }

@@ -83,7 +83,7 @@ void GoToBallPlay::Execute() {
         //goal(2) = acos(offset(0));
         // Call Move
         _team->at(i)->goToLocation(1, goal);
-        
+        _team->at(i)->setSpinner(1);
         //_team->at(i)->goToLocation(1, ball);
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location

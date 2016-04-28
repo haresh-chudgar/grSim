@@ -43,15 +43,15 @@ class Robot
   
   //these setters should probably be removed or made private once testing is done
   void setAngularVelocity(double vAngular);
-  void setTangentVelocity(double vTangent);
-  void setNormalVelocity(double vNormal);
+  void setXVelocity(double velX);
+  void setYVelocity(double velY);
   void setKickSpeed(double speedX, double speedZ);
-  void setSpinner(double on);
+  void setSpinner(bool on);
   
   void setCurrentState(Eigen::Vector3d currentState);
   Eigen::Vector3d CurrentState();
   
-  bool sendVelocityCommands(double vAngular, double vTangent, double vNormal, double kickSpeedX, double kickSpeedZ, bool spinnerOn);
+  bool sendVelocityCommands();//double vAngular, double vTangent, double vNormal, double kickSpeedX, double kickSpeedZ, bool spinnerOn);
   
   const bool isYellowTeam;
   int playerID;
@@ -74,7 +74,7 @@ class Robot
   bool hasBall;
   bool kicking;
   
-  double velTangent, velNormal, velAngular;
+  double vX, vY, vAngular;
   double kickSpeedX, kickSpeedZ;
   bool spinnerOn;
 
