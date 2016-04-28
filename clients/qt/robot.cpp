@@ -97,33 +97,14 @@ int Robot::execute() {
   return 0;
 }
 
-bool Robot::goToLocation(int currentFrame, Eigen::Vector3d location) {
+int Robot::goToLocation(int currentFrame, Eigen::Vector3d location) {
   
   currentTime = 0.2;
   desiredLocation = location;
   initialLocation = CurrentState();
-  
-  coeffecients = _planner->GenerateTrajectory(CurrentState(), 
-					      desiredLocation, 
-					      Eigen::Vector3d(), Eigen::Vector3d(), 
-					      std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d> >());
-  
   controller = PIDController();
 
-  Eigen::Vector3d desiredState;
-  desiredState[0] = desiredLocation[0] + coeffecients[0][0] / currentTime;
-  desiredState[1] = desiredLocation[1] + coeffecients[0][1] / currentTime;
-  desiredState[2] = desiredLocation[2] + coeffecients[0][2] / currentTime;
-//  fprintf(stderr, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-//  fprintf(stderr, "Robot::goToLocation currentState: %f,%f,%f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2]);
-//  fprintf(stderr, "Robot::goToLocation desiredState: %f,%f,%f\n", desiredState[0], desiredState[1], desiredState[2]);
-  _currentVelocity = controller.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
-
-  vAngular = _currentVelocity[2];
-  vX = _currentVelocity[0];
-  vY = _currentVelocity[1];
-  sendVelocityCommands();
-  return true;
+  return execute();
 }
 
 // Sends the robot's velocity commands to the simulator

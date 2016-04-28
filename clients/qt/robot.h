@@ -33,7 +33,7 @@ class Robot
 
   ~Robot();
     
-  bool goToLocation(int currentFrame, Eigen::Vector3d location);
+  int goToLocation(int currentFrame, Eigen::Vector3d location);
   int dribbleToLocation(Eigen::Vector3d location);
   int flatKickBallToLocation(Eigen::Vector2d location, double speed);
   int lobKickBallToLocation(Eigen::Vector2d location, double height);
