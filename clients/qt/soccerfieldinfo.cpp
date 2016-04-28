@@ -58,12 +58,15 @@ void SoccerFieldInfo::receive(char* buffer, int size)
 
       double prevX = ball[0];
       double prevY = ball[1];
+      double prevZ = ball[2];
+
       ball[0] = (*ballState).x();
       ball[1] = (*ballState).y();
       ball[2] = (*ballState).z();
 
       ballVelocity[0] = (ball[0] - prevX) / kFrameRate / 1000;
       ballVelocity[1] = (ball[1] - prevY) / kFrameRate / 1000;
+      ballVelocity[2] = (ball[2] - prevZ) / kFrameRate / 1000;
       //fprintf(stderr,"Ball Loc: %f, %f, %f\n", (*ballState).x(), (*ballState).y(), (*ballState).z());
     }
 
@@ -79,13 +82,15 @@ void SoccerFieldInfo::receive(char* buffer, int size)
       SSL_DetectionRobot robot = *iter;
       double prevX = blueTeamBots->at(robot.robot_id())._position[0];
       double prevY = blueTeamBots->at(robot.robot_id())._position[1];
+      double prevTheta = blueTeamBots->at(robot.robot_id())._position[2];
 
       blueTeamBots->at(robot.robot_id())._position[0] = robot.x();
       blueTeamBots->at(robot.robot_id())._position[1] = robot.y();
       blueTeamBots->at(robot.robot_id())._position[2] = robot.orientation();
-
+      
       blueTeamBots->at(robot.robot_id())._velocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
       blueTeamBots->at(robot.robot_id())._velocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
+      blueTeamBots->at(robot.robot_id())._velocity[2] = (robot.orientation()-prevTheta) / kFrameRate;
     }
     
     iter = frame.robots_yellow().begin();
@@ -99,6 +104,7 @@ void SoccerFieldInfo::receive(char* buffer, int size)
       SSL_DetectionRobot robot = *iter;
       double prevX = yellowTeamBots->at(robot.robot_id())._position[0];
       double prevY = yellowTeamBots->at(robot.robot_id())._position[1];
+      double prevTheta = yellowTeamBots->at(robot.robot_id())._position[2];
 
       yellowTeamBots->at(robot.robot_id())._position[0] = robot.x();
       yellowTeamBots->at(robot.robot_id())._position[1] = robot.y();
@@ -106,6 +112,7 @@ void SoccerFieldInfo::receive(char* buffer, int size)
 
       yellowTeamBots->at(robot.robot_id())._velocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
       yellowTeamBots->at(robot.robot_id())._velocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
+      yellowTeamBots->at(robot.robot_id())._velocity[2] = (robot.orientation()-prevTheta) / kFrameRate;
     }
     _blueTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
     _yellowTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);

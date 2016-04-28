@@ -88,7 +88,7 @@ void GoToBallPlay::Execute() {
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
         Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
-        fprintf(stderr, "robotVel %f %f\n", vel[0], vel[1]);
+        fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
         
         if (_team->at(i)->execute() == 1) {
           states[i] = 2;
@@ -98,13 +98,13 @@ void GoToBallPlay::Execute() {
         fprintf(stderr, "Done with moving\n");
         _team->at(i)->setSpinner(0);
         
-        _team->at(i)->setKickSpeed(1, 0);
+        _team->at(i)->setKickSpeed(1, 1);
         _team->at(i)->sendVelocityCommands();
         // Call Kick
         states[i]++;
       } else {
 Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
-	      fprintf(stderr, "BallVel %f %f\n", ballVel[0], ballVel[1]);
+	      fprintf(stderr, "BallVel %f %f %f\n", ballVel[0], ballVel[1], ballVel[2]);
         // do nothing
       }
     } 
