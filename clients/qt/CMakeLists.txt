@@ -32,7 +32,7 @@ add_executable(${app} MACOSX_BUNDLE
     main.cpp
     robot.cpp
     communicator.cpp
-    trajectoryplanner.cpp
+    pathplanner.cpp
     pid_controller.cpp
     playbook.cpp
     soccerteam.cpp

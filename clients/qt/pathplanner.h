@@ -20,15 +20,15 @@
 
 #include <eigen3/Eigen/Core>
 #include <vector>
-#include "soccerfieldinfo.h"
-
+#include "rrtnode.h"
+using namespace std;
 class PathPlanner {
   public:
-    PathPlanner(int robot_ID, bool team);
+    PathPlanner(const int robot_ID, const bool team);
     ~PathPlanner();
    
     std::vector<Eigen::Vector3d> FindPath(Eigen::Vector3d start_pos, Eigen::Vector3d goal_pos);
-
+    std::vector<Eigen::Vector3d> FindPath();
     Eigen::Vector3d start_pos_;
     Eigen::Vector3d goal_pos_;
 

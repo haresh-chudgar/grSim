@@ -17,6 +17,7 @@
 
 #include "rrtnode.cpp"
 #include "pathplanner.h"
+#include "soccerfieldinfo.h"
 #include <vector>
 #include <iostream>
 #include <stdlib.h>
@@ -126,6 +127,7 @@ double PathPlanner::fRand(double fMin, double fMax) {
     return fMin + f * (fMax - fMin);
 }
 
+
 std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Eigen::Vector3d goal_pos) {
   vector<Eigen::Vector3d> path;
   vector<Eigen::Vector3d> temp_path;
@@ -161,6 +163,7 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
 
   //check that goal state is not also a collision state
   if (fabs(goal_pos_(0)) > x_lim_ || fabs(goal_pos_(1)) > y_lim_) {
+    fprintf(stderr, "%f  %f %f %f\n", goal_pos_(0), x_lim_, goal_pos_(1), y_lim_);
     std::cout << "Goal out of bounds, returning empty path." << std::endl;
     return path;
   }

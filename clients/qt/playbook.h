@@ -5,7 +5,7 @@
 #include <eigen3/Eigen/Core>
 
 using namespace std; 
-
+class Robot;
 class Play{
   public:
     vector<int> assignments; // Which Robots are assigned to which of the plays roles

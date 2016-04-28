@@ -21,7 +21,7 @@
 #include "playbook.h"
 #include "communicator.h"
 #include "robot.h"
-#include "trajectoryplanner.h"
+#include "pathplanner.h"
 #include <eigen3/Eigen/Core>
 #include "kdtree2.h"
 #include "BotState.h"
@@ -29,11 +29,14 @@
 
 using namespace std; 
 using namespace Eigen;
+class Robot;
+class PlayBook;
+class Play;
+
 class SoccerTeam{
 public:
     SoccerTeam(const bool team, 
-               Communicator* communicator, 
-               TrajectoryPlanner* planner,
+               Communicator* communicator,
                PlayBook* playbook,
                const int num_robots);
     ~SoccerTeam();
@@ -46,7 +49,6 @@ public:
 private:
   const bool _team;
   Communicator* _communicator;
-  TrajectoryPlanner* _planner;
   const int _num_robots;
   PlayBook* _playbook;
   

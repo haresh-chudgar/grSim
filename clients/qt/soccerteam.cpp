@@ -23,12 +23,10 @@ using namespace Eigen;
 
 SoccerTeam::SoccerTeam(const bool team, // true = yellow, false = blue
                        Communicator* communicator, 
-                       TrajectoryPlanner* planner,
                        PlayBook* playbook,
                        const int num_robots):
   _team(team),
   _communicator(communicator),
-  _planner(planner), 
   _playbook(playbook),
   _num_robots(num_robots),
   _play(NULL){
@@ -75,7 +73,8 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
 // Initialize the robots for the team
 void SoccerTeam::StartRobots(int num_robots) {
   for(int i = 0; i < num_robots; i++) {
-    _robots.push_back(new Robot(_communicator, _planner, _team, i));
+    PathPlanner* planner = new PathPlanner(i, _team);
+    _robots.push_back(new Robot(_communicator, planner, _team, i));
   }
   //Could potentially initialize the positions of the robots if desired (from a list of positions)
 }

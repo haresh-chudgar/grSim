@@ -27,7 +27,7 @@
 #include "BotState.h"
 
 using namespace std;
-
+class SoccerTeam;
 class SoccerFieldInfo
 {
 public:

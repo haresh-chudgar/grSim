@@ -19,7 +19,7 @@
 #define ROBOT_H
 
 #include "communicator.h"
-#include "trajectoryplanner.h"
+#include "pathplanner.h"
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
 #include "pid_controller.h"
@@ -29,7 +29,7 @@
 class Robot
 {
  public:
-  Robot(Communicator* communicator, TrajectoryPlanner* planner, const bool team, const int id);
+  Robot(Communicator* communicator, PathPlanner* planner, const bool team, const int id);
 
   ~Robot();
     
@@ -52,7 +52,7 @@ class Robot
   Eigen::Vector3d CurrentState();
   Eigen::Vector3d CurrentVelocity();
   
-  bool sendVelocityCommands();//double vAngular, double vTangent, double vNormal, double kickSpeedX, double kickSpeedZ, bool spinnerOn);
+  bool sendVelocityCommands();
   
   const bool isYellowTeam;
   int playerID;
@@ -61,7 +61,7 @@ class Robot
   QHostAddress _addr;
   quint16 _port;
   Communicator* _communicator;
-  TrajectoryPlanner* _planner;
+  PathPlanner* _planner;
   PIDController controller;
   
   double currentTime;
@@ -70,8 +70,7 @@ class Robot
   
   Eigen::Vector3d initialLocation;
   Eigen::Vector3d desiredLocation;
-  std::vector<std::vector<double> > coeffecients;
-  
+  std::vector<Eigen::Vector3d> coeffecients;
   bool hasBall;
   bool kicking;
   

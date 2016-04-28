@@ -16,10 +16,12 @@
  */
 
 #include "robot.h"
+#include "pathplanner.h"
 
-Robot::Robot(Communicator* communicator, TrajectoryPlanner* planner, bool team, int id)
-:_communicator(communicator), _planner(planner), isYellowTeam(team), playerID(id)
+Robot::Robot(Communicator* communicator, PathPlanner* planner, bool team, int id)
+:_communicator(communicator), isYellowTeam(team), playerID(id), _planner(planner)
 {
+  
   _addr = "127.0.0.1";
   _port = (unsigned short)(20011);
 }
@@ -89,8 +91,6 @@ int Robot::execute() {
     dist[2] += 2*M_PI;
   }
   
-  // scales angular error to make it have enough impact
-  //dist[2] *= 10;
 
   //fprintf(stderr, "error comps %f %f %f\n", dist[0], dist[1], dist[2]);
   //fprintf(stderr, "CurrentError %f\n", dist.norm());
@@ -100,10 +100,7 @@ int Robot::execute() {
   currentTime += (1.0/60.0);
 //  fprintf(stderr, "currentTime %f\n", currentTime);
 
-  coeffecients = _planner->GenerateTrajectory(CurrentState(), 
-					      desiredLocation, 
-					      Eigen::Vector3d(), Eigen::Vector3d(), 
-					      std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d> >());
+  coeffecients = _planner->FindPath(CurrentState()/1000, desiredLocation/1000);
   // TODO(KARL) check if planner can generate trajectory, return -1 if not
 
   Eigen::Vector3d desiredState;
