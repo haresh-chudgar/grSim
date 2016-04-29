@@ -8,6 +8,28 @@ using namespace std;
 
 Play::Play() {}
 
+bool Play::Complete() {
+  if(_complete){
+    return true;
+  } else if(this->CompleteCondition()){
+    _complete = true;
+    this->UpdateWeight();
+  }
+}
+
+void Play::Begin(vector<Robot*>* team) {
+  assignments.clear();
+  states.clear();
+  _team = team;
+  for(size_t i = 0; i < _team->size(); i++) {
+    states.push_back(0);
+  }
+  // First bot is always the goalie (more complex plays could pull the goalie to another role)
+  assignments.push_back(9);
+  this->AssignRoles();
+  this->Execute();
+}
+
 //---Example play---
 ExamplePlay::ExamplePlay() { }
 
@@ -74,33 +96,10 @@ void ExamplePlay::Execute() {
   frames_running++;
 }
 
-bool ExamplePlay::Complete() {
-  if(_complete){
-    return true;
-  } else if(this->CompleteCondition()){
-    _complete = true;
-    this->UpdateWeight();
-  }
-}
-
-void ExamplePlay::Begin(vector<Robot*>* team) {
-  assignments.clear();
-  states.clear();
-  _team = team;
-  for(size_t i = 0; i < _team->size(); i++) {
-    states.push_back(0);
-  }
-  // First bot is always the goalie (more complex plays could pull the goalie to another role)
-  assignments.push_back(9);
-  this->AssignRoles();
-  this->Execute();
-}
-
 // Should in general be used by all plays to update based on success
 void ExamplePlay::UpdateWeight() {
   // Write weight updating
 }
-
 
 //---MoveToKick play (rigged)---
 MoveToKick::MoveToKick() { }
@@ -193,25 +192,32 @@ void MoveToKick::UpdateWeight() {
 }
 
 // ===== PlayBook =====
-PlayBook::PlayBook() { }
+// The play passed into the constructor will be a default play 
+PlayBook::PlayBook(Play* play) { 
+  this->AddPlay(play);
+}
 
 Play* PlayBook::PlaySelection() {
   vector<Play*> legal_plays;
   // Finds all legal plays
-  for(size_t i = 0; i < _plays.size(); i++) {
+  _legal_plays.clear();
+  double sum_weights = 0;
+  _legal_plays.push_back(_plays[0]); // First play is always legal (default play)
+  for(size_t i = 1; i < _plays.size(); i++) {
     if(_plays[i]->Applicable()) {
       legal_plays.push_back(_plays[i]);
+      sum_weights += _plays[i]->weightN;
     }
   }
   // Selects a play based on the weights of plays
-  double r = ((double) rand() / (RAND_MAX)) + 1;
+  double r = ((double) rand() / (RAND_MAX)) + (sum_weights - 1);
   for(size_t i = 0; i < legal_plays.size(); i++) {
     if(legal_plays[i]->weight > r) {
       return legal_plays[i];
     } else {
       r -= legal_plays[i]->weight;
     }
-  }
+  } 
   if(legal_plays.size() == 0) 
     return NULL;
   else
@@ -219,9 +225,34 @@ Play* PlayBook::PlaySelection() {
 }
 
 void PlayBook::ResetWeights() {
+  _plays[0]->weightN = .1;
   for(size_t i = 0; i < _plays.size(); i++) {
-    _plays[i]->weight = 1 / _plays.size();
+    _plays[i]->weightN = 1 ;
   }
+}
+
+void PlayBook::UpdateWeight(Play* play, int success) {
+  double sum_weights;
+  double sum_weightsN;
+  for(size_t i = 0; i < _legal_plays.size(); i++) {
+    sum_weightsN += _legal_plays[i]->weightN;
+    sum_weights += _legal_plays[i]->weight;
+  }
+  double play_probability = play->weight / sum_weightsN;
+  double m = 0; //m is a reward weighting multiplier
+  if(success == -1) {
+    m = 2.0/3.0; // Failure
+  } else if(success == 0) {
+    m = 10.0 / 11.0; //Aborted
+  } else if(success == 1) {
+    m = 11.0/10.0; // Completed
+  } else {
+    m = 3.0 / 2.0; // Success
+  }
+  sum_weights -= play->weight;
+  play->weight = play->weight * pow(m, 1/play_probability);
+  sum_weights += play->weight;
+  play->weightN = sum_weightsN / sum_weights;
 }
 
 void PlayBook::AddPlay(Play* play) {
@@ -229,7 +260,7 @@ void PlayBook::AddPlay(Play* play) {
 }
 
 PlayBook PlayBook::TheYellowBook(){
-  PlayBook the_book;
+  PlayBook the_book(new GoToBallPlay());
 
   //the_book.AddPlay(new MoveToKick());
 
@@ -239,7 +270,7 @@ PlayBook PlayBook::TheYellowBook(){
 }
 
 PlayBook PlayBook::TheBlueBook(){
-  PlayBook the_book;
+  PlayBook the_book(new ExamplePlay());
   // Add all created blue team plays to the_book
   //the_book.AddPlay(new ExamplePlay());
   the_book.ResetWeights();

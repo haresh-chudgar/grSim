@@ -11,13 +11,15 @@ class Play{
     vector<int> assignments; // Which Robots are assigned to which of the plays roles
     vector<int> states; // The state of each state machine
     double weight; // Success Rate
+    double weightN; // Normalized weight
     int frames_running; // Number for frames the play has been executing
 
+    
     Play(); // Constructor
 
     virtual bool Applicable() = 0; // Check if the play is Applicable
 
-    virtual bool Complete() = 0; // Check if the play is over
+    virtual bool Complete(); // Check if the play is over
 
     virtual bool CompleteCondition()= 0; // Check if the play is over
 
@@ -25,7 +27,7 @@ class Play{
 
     virtual void AssignRoles()= 0;  // Assigns all Robots to the best role given the options
 
-    virtual void Begin(vector<Robot*>* team)= 0; // Begins the play initializing all components
+    virtual void Begin(vector<Robot*>* team); // Begins the play initializing all components
 
     virtual void Execute()= 0; // Executes the state machines of all Robots in question
   
@@ -47,15 +49,11 @@ class ExamplePlay : public Play {
 
     bool Applicable(); // Check if the play is Applicable
 
-    bool Complete();
-
     bool CompleteCondition(); // Check if the play is over
 
     bool Success(); // Check if the play was successful or not
 
     void AssignRoles();  // Assigns all Robots to the best role given the options
-
-    void Begin(vector<Robot*>* team); // Begins the play initializing all components
 
     void Execute(); // Executes the state machines of all Robots in question
   
@@ -96,7 +94,7 @@ class MoveToKick : public Play {
 
 class PlayBook{
   public:
-    PlayBook();
+    PlayBook(Play* play);
 
     Play* PlaySelection(); // Selects the best legal play
 
@@ -108,6 +106,8 @@ class PlayBook{
     static PlayBook TheBlueBook();
   private:
     vector<Play*> _plays;
+    vector<Play*> _legal_plays;
+    void UpdateWeight(Play* play, int success);
 };
 
 
