@@ -354,7 +354,9 @@ VectorXd Evaluation::shotEvaluator(double queryRegion, int Num_queryPoints, int 
 	double r; // radius of the sampled point with respect to the shooter 
 	double theta; // angle of the sampled point with respect to the shooter
 	MatrixXd queryPoints(Num_queryPoints, 5); //{x, y, theta_start, del_theta, score}
-	vector<double> shooterPos = { robPosition_OwnTeam(shooterInd, 0), robPosition_OwnTeam(shooterInd, 1) };
+	vector<double> shooterPos(0, 2);
+  shooterPos[0] = robPosition_OwnTeam(shooterInd, 0);
+  shooterPos[1] = robPosition_OwnTeam(shooterInd, 1);
 
 	for (int i = 0; i < Num_queryPoints; i++)
 	{
@@ -375,7 +377,10 @@ VectorXd Evaluation::shotEvaluator(double queryRegion, int Num_queryPoints, int 
 			double y = robPosition_OwnTeam(shooterInd, 1) + delY;
 		}
 		// calculate the sorted list of open angles for the sampled point
-		MatrixXd openAng = openAngleFinder({x, y}, shooterInd, targetSt, targetEn,  robPosition_OwnTeam,  robPosition_Opponent);
+    vector<double> pos(0, 2);
+    pos[0] = x;
+    pos[1] = y;
+		MatrixXd openAng = openAngleFinder(pos, shooterInd, targetSt, targetEn,  robPosition_OwnTeam,  robPosition_Opponent);
 		if (openAng.size() == 0)
 			queryPoints.row(i) << 0, 0, 0, 0, 0;
 		else
