@@ -74,6 +74,12 @@ void Robot::setKickSpeed(double vX, double vZ) {
   fprintf(stderr, "setKickSpeed %f %f", kickSpeedX, kickSpeedZ);
 }
 
+void Robot::stopMoving() {
+  vAngular = 0;
+  vX = 0;
+  vY = 0;
+}
+
 // Executes the robot's movement towards the desiredLocation
 // Returns
 //    1   - success

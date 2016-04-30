@@ -54,6 +54,7 @@ class GoToBallPlay : public Play {
     vector<Robot*>* _team;
     bool _complete;
     virtual void UpdateWeight();
+    bool doneMoving;
 };
 
 #endif // GOTOBALLPLAY_H

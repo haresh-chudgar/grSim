@@ -19,7 +19,7 @@
 #include "evaluation.h"
 #include <iostream>
 
-GoToBallPlay::GoToBallPlay() : ballAcquiringRobot(false), _complete(false) { }
+GoToBallPlay::GoToBallPlay() : ballAcquiringRobot(false), _complete(false), doneMoving(false){ }
 
 //Precondition: Team should not have ball
 bool GoToBallPlay::Applicable() {
@@ -34,14 +34,17 @@ bool GoToBallPlay::Applicable() {
 }
 
 bool GoToBallPlay::CompleteCondition() {
-  
+  if (!doneMoving) {
+    return false;
+  }
+
   bool has_ball = false;
   
   bool doesRobotHaveBall = Evaluation::TeamHavingBall(&ballAcquiringRobot);
   if(doesRobotHaveBall == true && ballAcquiringRobot._isYellow == _isYellowTeam) {
     has_ball = true;
   }
-  //fprintf(stderr, "GoToBallPlay::CompleteCondition %d\n", has_ball);
+  // fprintf(stderr, "GoToBallPlay::CompleteCondition %d\n", has_ball);
   return has_ball;
 }
 
@@ -77,7 +80,7 @@ void GoToBallPlay::Execute() {
         Eigen::Vector3d offset = (robot-ball);
         offset[2] = 0;
 	      offset.normalize();
-        offset = offset*70;
+        offset = offset*95;
         goal += offset;
         //offset.normalize();
         //goal(2) = acos(offset(0));
@@ -88,23 +91,19 @@ void GoToBallPlay::Execute() {
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
         Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
-        fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
+        //fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
         
         if (_team->at(i)->execute() == 1) {
           states[i] = 2;
         }
         
-      } else if(states[i] == 2) { // Kicking
-        fprintf(stderr, "Done with moving\n");
-        _team->at(i)->setSpinner(0);
-        
-        _team->at(i)->setKickSpeed(1, 1);
+      } else if(states[i] == 2) { // done moving
+        //fprintf(stderr, "Done with moving\n");
+        _team->at(i)->stopMoving();
         _team->at(i)->sendVelocityCommands();
-        // Call Kick
         states[i]++;
+        doneMoving = true;
       } else {
-Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
-	      fprintf(stderr, "BallVel %f %f %f\n", ballVel[0], ballVel[1], ballVel[2]);
         // do nothing
       }
     } 

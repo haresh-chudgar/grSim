@@ -17,6 +17,13 @@ public:
     _isYellow = isYellow;
   }
   
+  double distanceToLocationFromSpinner(Eigen::Vector3d loc) {
+    double x = loc[0] - 100*cos(_position[2]);
+    double y = loc[1] - 100*sin(_position[2]);
+    Eigen::Vector3d locMinusSpinnerPos(x, y, loc[0]); 
+    return distanceToLocation(locMinusSpinnerPos);
+  }
+
   double distanceToLocation(Eigen::Vector3d loc) {
     return sqrt(pow(_position[0] - loc[0],2) + pow(_position[1] - loc[1],2));
   }

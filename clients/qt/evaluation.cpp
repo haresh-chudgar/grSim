@@ -48,15 +48,20 @@ struct DefenseBot
 
 bool Evaluation::TeamHavingBall(BotState *robot) {
   
-  if(SoccerFieldInfo::Instance()->ball[2] > 0)
-    return false;
+
+  // Not sure why this code was here.  It always triggered, making this
+  // always return false.  The lowest value I have seen for ball[2] is in the
+  // 20s.
+
+  //if(SoccerFieldInfo::Instance()->ball[2] > 0)
+  //  return false;
   
   double distToNearestYellowBot = DBL_MAX;
   BotState nearestYellowBot(true);
   std::vector<BotState> *team = SoccerFieldInfo::Instance()->yellowTeamBots;
   std::vector<BotState>::iterator iter = team->begin();
   for(;iter!=team->end();++iter) {
-    double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
+    double distToBall = (*iter).distanceToLocationFromSpinner(SoccerFieldInfo::Instance()->ball);
     if(distToBall < distToNearestYellowBot) {
       nearestYellowBot = *iter;
       distToNearestYellowBot = distToBall;
@@ -68,14 +73,14 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
   team = SoccerFieldInfo::Instance()->blueTeamBots;
   iter = team->begin();
   for(;iter!=team->end();++iter) {
-    double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
+    double distToBall = (*iter).distanceToLocationFromSpinner(SoccerFieldInfo::Instance()->ball);
     if(distToBall < distToNearestBlueBot) {
       nearestBlueBot = *iter;
       distToNearestBlueBot = distToBall;
     }
   }
   
-  if(distToNearestBlueBot > 0.0215000000 && distToNearestYellowBot > 0.0215000000) {
+  if(distToNearestBlueBot > 5 && distToNearestYellowBot > 5) { // 5 mm
     return false;
   }
   if(distToNearestBlueBot < distToNearestYellowBot) {

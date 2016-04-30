@@ -47,6 +47,7 @@ class Robot
   void setYVelocity(double velY);
   void setKickSpeed(double speedX, double speedZ);
   void setSpinner(bool on);
+  void stopMoving();
   
   void setCurrentState(Eigen::Vector3d currentState, Eigen::Vector3d currentVelocity);
   Eigen::Vector3d CurrentState();
