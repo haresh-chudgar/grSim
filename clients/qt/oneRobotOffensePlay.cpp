@@ -99,7 +99,7 @@ void OneRobotOffensePlay::Execute() {
         }
 
         
-        MatrixXd ownTeamPos(5, 2);
+        MatrixXd ownTeamPos(6, 2);
         MatrixXd otherTeamPos(6, 2);
         
         std::vector<BotState> *otherTeamBots;
@@ -110,13 +110,13 @@ void OneRobotOffensePlay::Execute() {
         }
 
 
-        int ownTeamCount = 0;
+       
         for (int k = 0; k<6; k++){
-          if (k != i) {
-            ownTeamPos(ownTeamCount, 0) = _team->at(k)->CurrentState()[0];
-            ownTeamPos(ownTeamCount, 1) = _team->at(k)->CurrentState()[1];
-            ownTeamCount++;
-          }
+         
+          ownTeamPos(k, 0) = _team->at(k)->CurrentState()[0];
+          ownTeamPos(k, 1) = _team->at(k)->CurrentState()[1];
+            
+          
 
           otherTeamPos(k, 0) = otherTeamBots->at(k)._position[0];
           otherTeamPos(k, 1) = otherTeamBots->at(k)._position[1];
