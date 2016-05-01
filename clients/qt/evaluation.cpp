@@ -28,9 +28,9 @@ using namespace std;
 using namespace Eigen;
 
 const double RobRadius = 178 / 2; //mm the radius of the soccer robots
-const double BallRadius = 43; //mm radius of the ball
-const double FieldLength = 9000; //mm
-const double FieldWidth = 6000;
+const double BallRadius = 43/2; //mm radius of the ball
+const double FieldLength = 6000; //mm
+const double FieldWidth = 4000;
 const double alpha = 0.05; // a constant proportional to the importance of distance in the query points' score
 
 struct DefenseBot
@@ -246,10 +246,21 @@ MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooter
 	Vector2d shooterPos(shooterPosition[0], shooterPosition[1]);
 
 	// Calculate the goal viewing angle from the shooter position
-	//************** TO DO: Consider the ball radius when calculating the goal viewing angle
 	double ang1 = atan2(targetStart(1) - shooterPos(1), targetStart(0) - shooterPos(0));
 	double ang2 = atan2(targetEnd(1) - shooterPos(1), targetEnd(0) - shooterPos(0));
 
+	// Considering the ball radius when calculating the goal viewing angle
+	double del_x1 = targetStart(0) - shooterPos(0);
+	double del_y1 = targetStart(1) - shooterPos(1);
+	double del_x2 = targetEnd(0) - shooterPos(0);
+	double del_y2 = targetEnd(1) - shooterPos(1);
+	double rho_1 = sqrt(del_x1 * del_x1 + del_y1 * del_y1);
+	double rho_2 = sqrt(del_x2 * del_x2 + del_y2 * del_y2);
+
+	// The margin from the post considering the ball diameter
+	double marg1 = atan(BallRadius / rho_1);
+	double marg2 = atan(BallRadius / rho_2);
+	
 	// if the target is divided because of[-pi, pi] interval, convert the angles to[0, 2 * pi] interval
 	int flag_2pi = 0;
 
@@ -261,6 +272,19 @@ MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooter
 		else
 			ang2 = ang2 + 2 * PI;
 	}
+
+	
+	if (ang1 >= ang2)
+	{
+		ang1 = ang1 - marg1;
+		ang2 = ang2 + marg2;
+	}
+	else
+	{
+		ang1 = ang1 + marg1;
+		ang2 = ang2 - marg2;
+	}
+
 
 	Vector2d goalAng;
 	goalAng << min(ang1, ang2), max(ang1, ang2);
