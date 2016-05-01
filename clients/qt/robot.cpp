@@ -74,28 +74,10 @@ void Robot::setKickSpeed(double vX, double vZ) {
   fprintf(stderr, "setKickSpeed %f %f", kickSpeedX, kickSpeedZ);
 }
 
-bool Robot::isDone() {
-  Eigen::Vector3d dist = (CurrentState()-desiredLocation);
-
-  // handles wraparound
-  while (dist[2] > M_PI) {
-    dist[2] -= 2*M_PI;
-  }
-
-  while (dist[2] < -M_PI) {
-    dist[2] += 2*M_PI;
-  }
-  
-  double positionError = Eigen::Vector2d(dist[0], dist[1]).norm();
-  double angularError = dist[2];
-  //fprintf(stderr, "error comps %f %f %f\n", dist[0], dist[1], dist[2]);
-  //fprintf(stderr, "CurrentError %f %f\n", positionError, angularError);
-  
-  //Ball radius + robot radius + delta
-  if(positionError == 0)
-    return true;
-  
-  return false;
+void Robot::stopMoving() {
+  vAngular = 0;
+  vX = 0;
+  vY = 0;
 }
 
 // Executes the robot's movement towards the desiredLocation

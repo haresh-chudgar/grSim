@@ -45,12 +45,12 @@ typedef struct _InterceptInfo {
 class Evaluation
 {
 public:
+  static bool FindInterceptingRobots(bool isTeamYellow, std::vector<InterceptInfo> *interceptingBots);
   static double ClosestRobotToBall(bool isTeamYellow, BotState* robot);
   static bool TeamHavingBall(BotState *robot);
   static std::vector<KickAngles> EvaluateKickDirection(bool isYellowTeamKicking, Eigen::Vector2d kickFrom, Eigen::Vector2d kickToStart, Eigen::Vector2d kickToEnd);
-  static bool FindInterceptingRobots(bool isTeamYellow, std::vector<InterceptInfo> *interceptingBots);
-  Eigen::MatrixXd openAngleFinder(std::vector<double> shooterPosition, int shooterInd, std::vector<double> targetSt, std::vector<double> targetEn, Eigen::MatrixXd robPosition_OwnTeam, Eigen::MatrixXd robPosition_Opponent);
-  Eigen::VectorXd shotEvaluator(double queryRegion, int Num_queryPoints, int shooterInd, std::vector<double> targetSt, std::vector<double> targetEn, Eigen::MatrixXd robPosition_OwnTeam, Eigen::MatrixXd robPosition_Opponent);  
+  static Eigen::MatrixXd openAngleFinder(std::vector<double> shooterPosition, int shooterInd, std::vector<double> targetSt, std::vector<double> targetEn, Eigen::MatrixXd robPosition_OwnTeam, Eigen::MatrixXd robPosition_Opponent);
+  static Eigen::VectorXd shotEvaluator(double queryRegion, int Num_queryPoints, int shooterInd, std::vector<double> targetSt, std::vector<double> targetEn, Eigen::MatrixXd robPosition_OwnTeam, Eigen::MatrixXd robPosition_Opponent);    
 };
 
 #endif // EVALUATION_H

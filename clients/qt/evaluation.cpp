@@ -48,15 +48,16 @@ struct DefenseBot
 
 bool Evaluation::TeamHavingBall(BotState *robot) {
   
-  //if(SoccerFieldInfo::Instance()->ball[2] > 0)
-  //  return false;
+  //If the ball's z is more than its diameter, ball is in the air.
+  if(SoccerFieldInfo::Instance()->ball[2] > 21.5*2)
+    return false;
   
   double distToNearestYellowBot = DBL_MAX;
   BotState nearestYellowBot(true);
   std::vector<BotState> *team = SoccerFieldInfo::Instance()->yellowTeamBots;
   std::vector<BotState>::iterator iter = team->begin();
   for(;iter!=team->end();++iter) {
-    double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
+    double distToBall = (*iter).distanceToLocationFromSpinner(SoccerFieldInfo::Instance()->ball);
     if(distToBall < distToNearestYellowBot) {
       nearestYellowBot = *iter;
       distToNearestYellowBot = distToBall;
@@ -68,13 +69,16 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
   team = SoccerFieldInfo::Instance()->blueTeamBots;
   iter = team->begin();
   for(;iter!=team->end();++iter) {
-    double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
+    double distToBall = (*iter).distanceToLocationFromSpinner(SoccerFieldInfo::Instance()->ball);
     if(distToBall < distToNearestBlueBot) {
       nearestBlueBot = *iter;
       distToNearestBlueBot = distToBall;
     }
   }
   fprintf(stderr, "Nearest Blue Bot: %f, %f, %f\n Nearest Yellow Bot: %f, %f, %f\n", nearestBlueBot._position[0], nearestBlueBot._position[1], distToNearestBlueBot, nearestYellowBot._position[0], nearestYellowBot._position[1], distToNearestYellowBot);
+  
+  //If the distance is greater than (ball radius + robot radius: 21.5 + 90, ball is not near the spinner
+  //Hence the ball is not in possession. Ball in possession only if it is spinning.
   if(distToNearestBlueBot > 120 && distToNearestYellowBot > 120) {
     return false;
   }
@@ -84,7 +88,6 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
     *robot = nearestYellowBot;
   }
   return true;
-  
 }
 
 std::vector< KickAngles > Evaluation::EvaluateKickDirection(bool isYellowTeamKicking, Eigen::Vector2d kickFrom, Eigen::Vector2d kickToStart, Eigen::Vector2d kickToEnd)
@@ -396,7 +399,9 @@ VectorXd Evaluation::shotEvaluator(double queryRegion, int Num_queryPoints, int 
 	double r; // radius of the sampled point with respect to the shooter 
 	double theta; // angle of the sampled point with respect to the shooter
 	MatrixXd queryPoints(Num_queryPoints, 5); //{x, y, theta_start, del_theta, score}
-	vector<double> shooterPos = { robPosition_OwnTeam(shooterInd, 0), robPosition_OwnTeam(shooterInd, 1) };
+	vector<double> shooterPos(2, 2);
+  shooterPos[0] = robPosition_OwnTeam(shooterInd, 0);
+  shooterPos[1] = robPosition_OwnTeam(shooterInd, 1);
 
 	for (int i = 0; i < Num_queryPoints; i++)
 	{
@@ -417,7 +422,10 @@ VectorXd Evaluation::shotEvaluator(double queryRegion, int Num_queryPoints, int 
 			double y = robPosition_OwnTeam(shooterInd, 1) + delY;
 		}
 		// calculate the sorted list of open angles for the sampled point
-		MatrixXd openAng = openAngleFinder({x, y}, shooterInd, targetSt, targetEn,  robPosition_OwnTeam,  robPosition_Opponent);
+    vector<double> pos(2, 2);
+    pos[0] = x;
+    pos[1] = y;
+		MatrixXd openAng = openAngleFinder(pos, shooterInd, targetSt, targetEn,  robPosition_OwnTeam,  robPosition_Opponent);
 		if (openAng.size() == 0)
 			queryPoints.row(i) << 0, 0, 0, 0, 0;
 		else

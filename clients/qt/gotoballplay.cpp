@@ -19,7 +19,7 @@
 #include "evaluation.h"
 #include <iostream>
 
-GoToBallPlay::GoToBallPlay() : ballAcquiringRobot(false), _complete(false) { }
+GoToBallPlay::GoToBallPlay() : ballAcquiringRobot(false), _complete(false), doneMoving(false){ }
 
 //Precondition: Team should not have ball
 bool GoToBallPlay::Applicable() {
@@ -30,18 +30,23 @@ bool GoToBallPlay::Applicable() {
   if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
     has_ball = true;
   }
+
+  fprintf(stderr, "GoToBallPlay::Applicable %d\n", !has_ball);
   return !has_ball;
 }
 
 bool GoToBallPlay::CompleteCondition() {
-  return false;
+  if (!doneMoving) {
+    return false;
+  }
+
   bool has_ball = false;
   
   bool doesRobotHaveBall = Evaluation::TeamHavingBall(&ballAcquiringRobot);
   if(doesRobotHaveBall == true && ballAcquiringRobot._isYellow == _isYellowTeam) {
     has_ball = true;
   }
-  //fprintf(stderr, "GoToBallPlay::CompleteCondition %d\n", has_ball);
+  // fprintf(stderr, "GoToBallPlay::CompleteCondition %d\n", has_ball);
   return has_ball;
 }
 
@@ -49,6 +54,8 @@ bool GoToBallPlay::Success() {
   return false;
 }
 
+
+//TODO currently hard coded, need conversion between BotState and robotId
 void GoToBallPlay::AssignRoles() { 
   
   double distance = Evaluation::ClosestRobotToBall(_isYellowTeam, &ballAcquiringRobot);
@@ -93,28 +100,19 @@ void GoToBallPlay::Execute() {
 	}
 	
 	fprintf(stderr, "After: %f, %f, %f\n", goal[0], goal[1], tempAngle * 180 / M_PI);
-//        fprintf(stderr, "Goal and robot  %f %f %f  %f %f %f\n", goal[0], goal[1], goal[2], robot[0], robot[1], robot[2]);
-      /*
-        Eigen::Vector3d offset = (robot-ball);
-        offset[2] = 0;
-	offset.normalize();
-        offset = offset*70;
-        goal -= offset;
-	*/
-        //offset.normalize();
-        //goal(2) = acos(offset(0));
+	
         // Call Move
         _team->at(i)->goToLocation(1, goal);
         _team->at(i)->setSpinner(1);
         //_team->at(i)->goToLocation(1, ball);
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
-        Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
-        //fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
+	  Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
+	  //fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
         
-        if (_team->at(i)->execute() == 1) {
-          states[i] = 2;
-        }
+	  if (_team->at(i)->execute() == 1) {
+	    states[i] = 2;
+	  }
       } else if(states[i] == 2) { // Kicking
 	_team->at(i)->setSpinner(0);
 	Eigen::Vector2d r = Eigen::Vector2d(_team->at(i)->CurrentState()[0], _team->at(i)->CurrentState()[1]);
@@ -133,6 +131,10 @@ void GoToBallPlay::Execute() {
       } else {
 	Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
 	//fprintf(stderr, "BallVel %f %f %f\n", ballVel[0], ballVel[1], ballVel[2]);
+
+	if (_team->at(i)->execute() == 1) {
+          states[i] = 2;
+        }
       }
     } 
   frames_running++;
@@ -162,9 +164,10 @@ void GoToBallPlay::Begin(vector<Robot*>* team) {
   assignments.push_back(9);
   this->AssignRoles();
   this->Execute();
+  fprintf(stderr, "GoToBallPlay::Begin\n");
 }
 
 // Should in general be used by all plays to update based on success
 void GoToBallPlay::UpdateWeight() {
-  // Write weight updating
+  //TODO Write weight updating
 }
