@@ -15,25 +15,21 @@
  *
  */
 
-#ifndef GOTOBALLPLAY_H
-#define GOTOBALLPLAY_H
+#ifndef ONEROBOTOFFENSEPLAY_H
+#define ONEROBOTOFFENSEPLAY_H
 
+#include "soccerfieldinfo.h"
 #include "playbook.h"
 #include "BotState.h"
 
-typedef enum _GoToBallRoles {
-  None,
-  BallAcquirer
-} GoToBallRoles;
-
-class GoToBallPlay : public Play {
+class OneRobotOffensePlay : public Play {
   public:
     vector<int> assignments; // Which Robots are assigned to which of the plays roles
     vector<int> states; // The state of each state machine
     double weight ; // Success Rate
     int frames_running; // Number for frames the play has been executing
 
-    GoToBallPlay (); // Constructor
+    OneRobotOffensePlay(); // Constructor
 
     bool Applicable(); // Check if the play is Applicable
 
@@ -48,13 +44,12 @@ class GoToBallPlay : public Play {
     void Begin(vector<Robot*>* team); // Begins the play initializing all components
 
     void Execute(); // Executes the state machines of all Robots in question
-  
+
   private:
-    BotState ballAcquiringRobot;
+    BotState offenseRobot;
     vector<Robot*>* _team;
     bool _complete;
     virtual void UpdateWeight();
-    bool doneMoving;
 };
 
-#endif // GOTOBALLPLAY_H
+#endif // ONEROBOTOFFENSEPLAY_H

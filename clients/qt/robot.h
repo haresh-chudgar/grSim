@@ -47,6 +47,7 @@ class Robot
   void setYVelocity(double velY);
   void setKickSpeed(double speedX, double speedZ);
   void setSpinner(bool on);
+  void stopMoving();
   
   void setCurrentState(Eigen::Vector3d currentState, Eigen::Vector3d currentVelocity);
   Eigen::Vector3d CurrentState();
@@ -75,6 +76,7 @@ class Robot
   bool kicking;
   
   double vX, vY, vAngular;
+  double vTangent, vNormal;
   double kickSpeedX, kickSpeedZ;
   bool spinnerOn;
 
@@ -82,7 +84,7 @@ class Robot
   double maxOrientationError;
 
   double kGravity;
-
+  
   int executeKickBallToLocation(Eigen::Vector2d location, double speed, double height, double distOfMaxHeight);
 };
 

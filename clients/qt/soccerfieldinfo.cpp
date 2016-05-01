@@ -19,6 +19,7 @@
 #include <QtNetwork>
 #include <QObject>
 #include <qiodevice.h>
+#include "evaluation.h"
 
 static SoccerFieldInfo* _instance = NULL;
 
@@ -31,7 +32,7 @@ void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTea
 }
   
 SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
-:_blueTeam(blueTeam), _yellowTeam(yellowTeam), kFrameRate(1.0/60.0)
+:_blueTeam(blueTeam), _yellowTeam(yellowTeam), kFrameRate(1.0/60.0), _robotWithBall(false), _teamInBallPossession(false)
 {
   blueTeamBots = new vector<BotState>();
   yellowTeamBots = new vector<BotState>();
@@ -67,6 +68,7 @@ void SoccerFieldInfo::receive(char* buffer, int size)
       ballVelocity[0] = (ball[0] - prevX) / kFrameRate / 1000;
       ballVelocity[1] = (ball[1] - prevY) / kFrameRate / 1000;
       ballVelocity[2] = (ball[2] - prevZ) / kFrameRate / 1000;
+      fprintf(stderr, "Ball Speed: %f, %f\n", ballVelocity[0], ballVelocity[1]);
       //fprintf(stderr,"Ball Loc: %f, %f, %f\n", (*ballState).x(), (*ballState).y(), (*ballState).z());
     }
 
@@ -87,6 +89,8 @@ void SoccerFieldInfo::receive(char* buffer, int size)
       blueTeamBots->at(robot.robot_id())._position[0] = robot.x();
       blueTeamBots->at(robot.robot_id())._position[1] = robot.y();
       blueTeamBots->at(robot.robot_id())._position[2] = robot.orientation();
+      blueTeamBots->at(robot.robot_id())._id = robot.robot_id();
+
       
       blueTeamBots->at(robot.robot_id())._velocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
       blueTeamBots->at(robot.robot_id())._velocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
@@ -109,6 +113,7 @@ void SoccerFieldInfo::receive(char* buffer, int size)
       yellowTeamBots->at(robot.robot_id())._position[0] = robot.x();
       yellowTeamBots->at(robot.robot_id())._position[1] = robot.y();
       yellowTeamBots->at(robot.robot_id())._position[2] = robot.orientation();
+      yellowTeamBots->at(robot.robot_id())._id = robot.robot_id();
 
       yellowTeamBots->at(robot.robot_id())._velocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
       yellowTeamBots->at(robot.robot_id())._velocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
@@ -116,7 +121,19 @@ void SoccerFieldInfo::receive(char* buffer, int size)
     }
     _blueTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
     _yellowTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
-    ////fprintf(stderr, "Received info for frame %d\n", frame.frame_number());
+    
+    BotState robotHavingBall(false);
+    bool isBallInPossession = Evaluation::TeamHavingBall(&robotHavingBall);
+    if(isBallInPossession == false) {
+      _teamInBallPossession = false;
+      //Dont update robotWithBall to keep the information about which robot kicked it
+      //fprintf(stderr, "Ball out of possession\n");
+    }
+    else {
+      _teamInBallPossession = true;
+      _robotWithBall = robotHavingBall;
+      //fprintf(stderr, "Ball possession %d %d\n", _robotWithBall._id, _robotWithBall._isYellow);
+    }
   }
 }
 

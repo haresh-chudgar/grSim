@@ -19,7 +19,7 @@
 #include "evaluation.h"
 #include <iostream>
 
-GoToBallPlay::GoToBallPlay() : ballAcquiringRobot(false), _complete(false) { }
+GoToBallPlay::GoToBallPlay() : ballAcquiringRobot(false), _complete(false), doneMoving(false){ }
 
 //Precondition: Team should not have ball
 bool GoToBallPlay::Applicable() {
@@ -30,18 +30,29 @@ bool GoToBallPlay::Applicable() {
   if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
     has_ball = true;
   }
+
+  fprintf(stderr, "GoToBallPlay::Applicable %d\n", !has_ball);
   return !has_ball;
 }
 
 bool GoToBallPlay::CompleteCondition() {
+
+  if (!doneMoving) {
+    return false;
+  }
   
+  if(SoccerFieldInfo::Instance()->_teamInBallPossession == true && SoccerFieldInfo::Instance()->_robotWithBall._isYellow == _isYellowTeam)
+    return true;
+  return false;
+
   bool has_ball = false;
   
   bool doesRobotHaveBall = Evaluation::TeamHavingBall(&ballAcquiringRobot);
+
   if(doesRobotHaveBall == true && ballAcquiringRobot._isYellow == _isYellowTeam) {
     has_ball = true;
   }
-  //fprintf(stderr, "GoToBallPlay::CompleteCondition %d\n", has_ball);
+  fprintf(stderr, "GoToBallPlay::CompleteCondition %d\n", has_ball);
   return has_ball;
 }
 
@@ -49,6 +60,8 @@ bool GoToBallPlay::Success() {
   return false;
 }
 
+
+//TODO currently hard coded, need conversion between BotState and robotId
 void GoToBallPlay::AssignRoles() { 
   
   double distance = Evaluation::ClosestRobotToBall(_isYellowTeam, &ballAcquiringRobot);
@@ -63,49 +76,76 @@ void GoToBallPlay::Execute() {
     if(assignments[i] == 1) {
       if(states[i] == 0) { // Moving to Ball
         Eigen::Vector3d ball = SoccerFieldInfo::Instance()->ball;
-	      
+	fprintf(stderr, "************ball location: %f %f %f\n",ball[0], ball[1], ball[2]);
         Eigen::Vector3d robot = _team->at(i)->CurrentState();
-        Eigen::Vector3d goal = (ball);
-
+        Eigen::Vector3d goal = ball;
+	
         // sets the desired angle to the robot's current angle
         //goal[2] = robot[2];
 
         // sets the desired angle so the robot points at the goal
         goal[2] = atan2(robot[1]-goal[1], robot[0]-goal[0])+M_PI;
-//        fprintf(stderr, "Goal and robot  %f %f %f  %f %f %f\n", goal[0], goal[1], goal[2], robot[0], robot[1], robot[2]);
-      
-        Eigen::Vector3d offset = (robot-ball);
-        offset[2] = 0;
-	      offset.normalize();
-        offset = offset*70;
-        goal += offset;
-        //offset.normalize();
-        //goal(2) = acos(offset(0));
+	//goal[2] = M_PI; //Testing... Haresh...
+	double tempAngle = goal[2];
+	if(tempAngle < 0) {
+	  tempAngle = 2*M_PI - tempAngle;
+	}
+	fprintf(stderr, "Before: %f, %f\n", goal[0], goal[1]);
+	if(tempAngle > 0 && tempAngle <= M_PI/2) {
+	  goal[0] -= (21.5+90)*cos(tempAngle);
+	  goal[1] -= (21.5+90)*sin(tempAngle);
+	} else if(tempAngle > M_PI/2 && tempAngle <= M_PI) {
+	  goal[0] += (21.5+90)*abs(sin(M_PI / 2 - tempAngle));
+	  goal[1] -= (21.5+90)*abs(cos(M_PI / 2 - tempAngle));
+	} else if(tempAngle > M_PI && tempAngle <= 3* M_PI / 2) {
+	  goal[0] += (21.5+90)*abs(sin(3 * M_PI / 2 - tempAngle));
+	  goal[1] += (21.5+90)*abs(cos(3 * M_PI / 2 - tempAngle));
+	} else {
+	  goal[0] -= (21.5+90)*abs(cos(2 * M_PI - tempAngle));
+	  goal[1] += (21.5+90)*abs(sin(2 * M_PI - tempAngle));
+	}
+	
+	fprintf(stderr, "After: %f, %f, %f\n", goal[0], goal[1], tempAngle * 180 / M_PI);
+	
         // Call Move
         _team->at(i)->goToLocation(1, goal);
         _team->at(i)->setSpinner(1);
         //_team->at(i)->goToLocation(1, ball);
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
-        Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
-        fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
+	  Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
+	  //fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
         
-        if (_team->at(i)->execute() == 1) {
+	  if (_team->at(i)->execute() == 1) {
+	    states[i] = 2;
+	  }
+      } else if(states[i] == 2) { 
+	// Kicking
+	doneMoving = true;
+	_team->at(i)->setSpinner(1);
+	_team->at(i)->stopMoving();
+	/*
+	Eigen::Vector2d r = Eigen::Vector2d(_team->at(i)->CurrentState()[0], _team->at(i)->CurrentState()[1]);
+	Eigen::Vector2d loc = Eigen::Vector2d(SoccerFieldInfo::Instance()->ball[0], SoccerFieldInfo::Instance()->ball[1]);
+	double distance = (r - loc).norm();
+	fprintf(stderr, "Distance: %f\n", distance);
+	if(distance > 120) {
+	  states[i]++;
+	  fprintf(stderr, "Last State\n");
+	} else {
+	  // Call Kick
+	  fprintf(stderr, "Kicking\n");
+	  _team->at(i)->setKickSpeed(2, 0);
+	  _team->at(i)->sendVelocityCommands();
+	  
+	}*/
+      } else {
+	Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
+	//fprintf(stderr, "BallVel %f %f %f\n", ballVel[0], ballVel[1], ballVel[2]);
+
+	if (_team->at(i)->execute() == 1) {
           states[i] = 2;
         }
-        
-      } else if(states[i] == 2) { // Kicking
-        fprintf(stderr, "Done with moving\n");
-        _team->at(i)->setSpinner(0);
-        
-        _team->at(i)->setKickSpeed(1, 1);
-        _team->at(i)->sendVelocityCommands();
-        // Call Kick
-        states[i]++;
-      } else {
-Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
-	      fprintf(stderr, "BallVel %f %f %f\n", ballVel[0], ballVel[1], ballVel[2]);
-        // do nothing
       }
     } 
   frames_running++;
@@ -135,9 +175,10 @@ void GoToBallPlay::Begin(vector<Robot*>* team) {
   assignments.push_back(9);
   this->AssignRoles();
   this->Execute();
+  fprintf(stderr, "GoToBallPlay::Begin\n");
 }
 
 // Should in general be used by all plays to update based on success
 void GoToBallPlay::UpdateWeight() {
-  // Write weight updating
+  //TODO Write weight updating
 }

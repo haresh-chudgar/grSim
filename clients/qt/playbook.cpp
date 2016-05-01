@@ -1,5 +1,7 @@
 #include "playbook.h"
 #include "gotoballplay.h"
+#include "deceptivedefense.h"
+#include "oneRobotOffensePlay.h"
 #include "soccerfieldinfo.h"
 #include "evaluation.h"
 
@@ -213,11 +215,14 @@ Play* PlayBook::PlaySelection() {
   double r = ((double) rand() / (RAND_MAX)) + (sum_weights - 1);
   for(size_t i = 0; i < legal_plays.size(); i++) {
     if(legal_plays[i]->weight > r) {
+      
       return legal_plays[i];
     } else {
       r -= legal_plays[i]->weight;
     }
   } 
+  
+
   if(legal_plays.size() == 0) 
     return NULL;
   else
@@ -261,18 +266,18 @@ void PlayBook::AddPlay(Play* play) {
 
 PlayBook PlayBook::TheYellowBook(){
   PlayBook the_book(new GoToBallPlay());
-
   //the_book.AddPlay(new MoveToKick());
-
   the_book.AddPlay(new GoToBallPlay());
+  the_book.AddPlay(new OneRobotOffensePlay());
   the_book.ResetWeights();
   return the_book;
 }
 
 PlayBook PlayBook::TheBlueBook(){
-  PlayBook the_book(new ExamplePlay());
+  PlayBook the_book(new DeceptiveDefense(false));
+  
   // Add all created blue team plays to the_book
-  //the_book.AddPlay(new ExamplePlay());
+  the_book.AddPlay(new DeceptiveDefense(false));
   the_book.ResetWeights();
   return the_book;
 }

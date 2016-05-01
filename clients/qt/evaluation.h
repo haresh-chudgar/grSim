@@ -29,12 +29,28 @@ typedef struct _KickAngles  {
   }
 }KickAngles;
 
+typedef struct _InterceptInfo {
+  double _time;
+  Eigen::Vector3d _interceptLocation;
+  int _robotId;
+  _InterceptInfo(double time, Eigen::Vector3d interceptLocation, int robotId):
+  _time(time), _interceptLocation(interceptLocation), _robotId(robotId) {}
+  
+  bool operator < (const _InterceptInfo& bot) const
+  {
+    return (_time < bot._time);
+  }
+}InterceptInfo;
+
 class Evaluation
 {
 public:
+  static bool FindInterceptingRobots(bool isTeamYellow, std::vector<InterceptInfo> *interceptingBots);
   static double ClosestRobotToBall(bool isTeamYellow, BotState* robot);
   static bool TeamHavingBall(BotState *robot);
   static std::vector<KickAngles> EvaluateKickDirection(bool isYellowTeamKicking, Eigen::Vector2d kickFrom, Eigen::Vector2d kickToStart, Eigen::Vector2d kickToEnd);
+  static Eigen::MatrixXd openAngleFinder(std::vector<double> shooterPosition, int shooterInd, std::vector<double> targetSt, std::vector<double> targetEn, Eigen::MatrixXd robPosition_OwnTeam, Eigen::MatrixXd robPosition_Opponent);
+  static Eigen::VectorXd shotEvaluator(double queryRegion, int Num_queryPoints, int shooterInd, std::vector<double> targetSt, std::vector<double> targetEn, Eigen::MatrixXd robPosition_OwnTeam, Eigen::MatrixXd robPosition_Opponent);    
 };
 
 #endif // EVALUATION_H

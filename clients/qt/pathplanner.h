@@ -42,12 +42,12 @@ class PathPlanner {
 
     bool team_;
     int robot_ID_;
-    static const double x_lim_ = 3.0; //mm
-    static const double y_lim_ = 2.0; //mm
-    static const int node_lim_ = 5000;
-    static const double destination_epsilon_ = 0.005; //m
-    static const double goal_bias_ = 0.15;
-    static const double robot_radius_ = 0.08; //m
+    static constexpr double x_lim_ = 3.0; //mm
+    static constexpr double y_lim_ = 2.0; //mm
+    static constexpr int node_lim_ = 5000;
+    static constexpr double destination_epsilon_ = 0.005; //m
+    static constexpr double goal_bias_ = 0.15;
+    static constexpr double robot_radius_ = 0.08; //m
 };
 
 #endif
