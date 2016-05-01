@@ -15,7 +15,6 @@
  *
  */
 
-#include "rrtnode.cpp"
 #include "pathplanner.h"
 #include "soccerfieldinfo.h"
 #include <vector>
