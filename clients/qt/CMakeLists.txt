@@ -40,9 +40,9 @@ add_executable(${app} MACOSX_BUNDLE
     evaluation.cpp
     kdtree2.cpp
     gotoballplay.cpp
+    oneRobotOffensePlay.cpp
     mainwindow.cpp
     mainwindow.h
-    
 )
 
 target_link_libraries(${app} ${libs})

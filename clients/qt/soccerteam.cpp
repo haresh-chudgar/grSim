@@ -59,6 +59,9 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
   }
   
   if(_play == NULL || _play->Complete()) {
+    if( _team) {
+      fprintf(stderr, "SoccerTeam::SimCallback selecting new play  %d\n",_play==NULL);
+    }
     _play = _playbook->PlaySelection();
     if(_play != NULL) {
       _play->_isYellowTeam = _team;

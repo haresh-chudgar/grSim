@@ -30,6 +30,8 @@ bool GoToBallPlay::Applicable() {
   if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
     has_ball = true;
   }
+
+  fprintf(stderr, "GoToBallPlay::Applicable %d\n", !has_ball);
   return !has_ball;
 }
 
@@ -52,6 +54,8 @@ bool GoToBallPlay::Success() {
   return false;
 }
 
+
+//TODO currently hard coded, need conversion between BotState and robotId
 void GoToBallPlay::AssignRoles() { 
   
   double distance = Evaluation::ClosestRobotToBall(_isYellowTeam, &ballAcquiringRobot);
@@ -90,13 +94,9 @@ void GoToBallPlay::Execute() {
         //_team->at(i)->goToLocation(1, ball);
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
-        Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
-        //fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
-        
         if (_team->at(i)->execute() == 1) {
           states[i] = 2;
         }
-        
       } else if(states[i] == 2) { // done moving
         //fprintf(stderr, "Done with moving\n");
         _team->at(i)->stopMoving();
@@ -134,9 +134,10 @@ void GoToBallPlay::Begin(vector<Robot*>* team) {
   assignments.push_back(9);
   this->AssignRoles();
   this->Execute();
+  fprintf(stderr, "GoToBallPlay::Begin\n");
 }
 
 // Should in general be used by all plays to update based on success
 void GoToBallPlay::UpdateWeight() {
-  // Write weight updating
+  //TODO Write weight updating
 }
