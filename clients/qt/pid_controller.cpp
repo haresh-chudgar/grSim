@@ -25,9 +25,9 @@ PIDController::PIDController() {
   derivative_error_ << 0,0,0;
   prev_error_ << 0,0,0;
   
-  Kp = -40.0;
-  Ki = 0;
-  Kd = 0.5;
+  Kp = -3.00;
+  Ki = -0.001;
+  Kd = -0.001;
   dt = 1.0/60.0;
 }
 
@@ -56,12 +56,16 @@ Eigen::Vector3d PIDController::ComputeCommandVelo(Eigen::Vector3d curr_pos, Eige
   derivative_error_ = (error - prev_error_)/dt;
   //fprintf(stderr, "DError %f %f %f\n", derivative_error_[0], derivative_error_[1], derivative_error_[2]);
   prev_error_ = error;
-  //command[2] = 0;//Haresh
-  if(command.norm() > MAX_TRANS_VEL) {
-    command.normalize();
-    command[0] = command[0] * MAX_TRANS_VEL;
-    command[1] = command[1] * MAX_TRANS_VEL;
-    command[2] = command[2] * MAX_TRANS_VEL;
+
+  Eigen::Vector2d transSpeed(command[0], command[1]);
+  if(transSpeed.norm() > MAX_TRANS_VEL) {
+    fprintf(stderr, "*********************MAX_TRANS_VEL**********************");
+    transSpeed.normalize();
+    command[0] = transSpeed[0] * MAX_TRANS_VEL;
+    command[1] = transSpeed[1] * MAX_TRANS_VEL;
+  }
+  if(command[2] > MAX_ROT_VEL) {
+    command[2] = MAX_ROT_VEL;
   }
 //  fprintf(stderr, "PIDController::ComputeCommandVelo %f,%f,%f\n", command[0], command[1], command[2]);
   return command;

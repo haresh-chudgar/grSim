@@ -4,6 +4,8 @@ set(CMAKE_AUTOMOC ON)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
+
 set(libs)
 
 set(QT_USE_QTNETWORK TRUE)
@@ -40,6 +42,7 @@ add_executable(${app} MACOSX_BUNDLE
     evaluation.cpp
     kdtree2.cpp
     gotoballplay.cpp
+    deceptivedefense.cpp
     mainwindow.cpp
     mainwindow.h
     

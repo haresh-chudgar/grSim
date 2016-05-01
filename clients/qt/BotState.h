@@ -7,14 +7,16 @@ class BotState {
 public:
   // x, y, theta
   Eigen::Vector3d _position;
-  
+  int _id;
+ 
   // vX, vY, theta
   Eigen::Vector3d _velocity;
   bool _isYellow;
   
-  BotState(bool isYellow, Eigen::Vector3d pos = Eigen::Vector3d(0,0,0)) {
+  BotState(bool isYellow, Eigen::Vector3d pos = Eigen::Vector3d(0,0,0), int id = 0) {
     _position = pos;
     _isYellow = isYellow;
+    _id = id;
   }
   
   double distanceToLocation(Eigen::Vector3d loc) {

@@ -33,8 +33,8 @@ class PIDController {
     std::vector<double> ComputeCommandVoltage();
     void ResetError();
     
-    static const double MAX_TRANS_VEL = 5000; // mm/s
-    static const double MAX_ROT_VEL = 4*3.14159; // rad/s
+    static constexpr double MAX_TRANS_VEL = 5000; // mm/s
+    static constexpr double MAX_ROT_VEL = 4*3.14159; // rad/s
   private:
     double Kp;
     double Ki;

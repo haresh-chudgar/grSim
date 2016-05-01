@@ -1,5 +1,6 @@
 #include "playbook.h"
 #include "gotoballplay.h"
+#include "deceptivedefense.h"
 #include "soccerfieldinfo.h"
 #include "evaluation.h"
 
@@ -270,9 +271,10 @@ PlayBook PlayBook::TheYellowBook(){
 }
 
 PlayBook PlayBook::TheBlueBook(){
-  PlayBook the_book(new ExamplePlay());
+  PlayBook the_book(new DeceptiveDefense(false));
+  
   // Add all created blue team plays to the_book
-  //the_book.AddPlay(new ExamplePlay());
+  the_book.AddPlay(new DeceptiveDefense(false));
   the_book.ResetWeights();
   return the_book;
 }

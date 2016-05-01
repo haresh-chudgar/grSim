@@ -75,6 +75,7 @@ class Robot
   bool kicking;
   
   double vX, vY, vAngular;
+  double vTangent, vNormal;
   double kickSpeedX, kickSpeedZ;
   bool spinnerOn;
 
@@ -82,7 +83,9 @@ class Robot
   double maxOrientationError;
 
   double kGravity;
-
+  
+  bool isDone();
+  
   int executeKickBallToLocation(Eigen::Vector2d location, double speed, double height, double distOfMaxHeight);
 };
 

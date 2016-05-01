@@ -48,8 +48,8 @@ struct DefenseBot
 
 bool Evaluation::TeamHavingBall(BotState *robot) {
   
-  if(SoccerFieldInfo::Instance()->ball[2] > 0)
-    return false;
+  //if(SoccerFieldInfo::Instance()->ball[2] > 0)
+  //  return false;
   
   double distToNearestYellowBot = DBL_MAX;
   BotState nearestYellowBot(true);
@@ -74,8 +74,8 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
       distToNearestBlueBot = distToBall;
     }
   }
-  
-  if(distToNearestBlueBot > 0.0215000000 && distToNearestYellowBot > 0.0215000000) {
+  fprintf(stderr, "Nearest Blue Bot: %f, %f, %f\n Nearest Yellow Bot: %f, %f, %f\n", nearestBlueBot._position[0], nearestBlueBot._position[1], distToNearestBlueBot, nearestYellowBot._position[0], nearestYellowBot._position[1], distToNearestYellowBot);
+  if(distToNearestBlueBot > 120 && distToNearestYellowBot > 120) {
     return false;
   }
   if(distToNearestBlueBot < distToNearestYellowBot) {
@@ -84,6 +84,7 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
     *robot = nearestYellowBot;
   }
   return true;
+  
 }
 
 std::vector< KickAngles > Evaluation::EvaluateKickDirection(bool isYellowTeamKicking, Eigen::Vector2d kickFrom, Eigen::Vector2d kickToStart, Eigen::Vector2d kickToEnd)
@@ -192,6 +193,47 @@ double Evaluation::ClosestRobotToBall(bool isTeamYellow, BotState* robot) {
   return distToNearestBot;
 }
 
+bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<InterceptInfo> *interceptingBots) {
+  
+  Vector2d ballSpeed = Vector2d(SoccerFieldInfo::Instance()->ballVelocity[0], 
+				SoccerFieldInfo::Instance()->ballVelocity[1]);
+  Vector3d ballPos(SoccerFieldInfo::Instance()->ball);
+  double rMaxVelocity = 2;
+  
+  std::vector<BotState> *robots = SoccerFieldInfo::Instance()->yellowTeamBots;
+  if(isTeamYellow == false)
+    robots = SoccerFieldInfo::Instance()->blueTeamBots;
+  
+  std::vector<BotState>::iterator iter = robots->begin();
+  for(;iter!=robots->end();++iter) {
+    BotState r = *iter;
+    fprintf(stderr, "Robot %f: %f,%f,%f,%f,%f",r._id, r._position[0], r._position[1], ballPos[0], ballPos[1],ballSpeed[0],ballSpeed[1]);
+    
+    Vector2d br = Vector2d(ballPos[0] - r._position[0], ballPos[1] - r._position[1]);
+    double C = pow(br.norm(),2);
+    double A = pow(ballSpeed.norm(),2) - pow(rMaxVelocity,2);
+    double B = -2 * br.dot(ballSpeed);
+    //A x tb^2+ B x tb + C = 0
+    double discriminant = B*B - 4*A*C;
+    if(discriminant < 0)
+      continue;
+    double time1 = (-B + sqrt(discriminant)) / (2*A);
+    double time2 = (-B - sqrt(discriminant)) / (2*A);
+    if(time1 > time2 || time1 < 0) {
+      time1 = time2;
+    }
+    Vector3d interceptPos = Vector3d(br[0] + time1*ballSpeed[0], br[1] + time1*ballSpeed[1], 0);
+    fprintf(stderr, "time: %f, location: %f %f", time1, interceptPos[0], interceptPos[1]);
+    interceptingBots->push_back(InterceptInfo(time1, interceptPos, r._id));
+  }
+  
+  std::sort(interceptingBots->begin(), interceptingBots->end());
+  
+  if(interceptingBots->size() > 0)
+    return true;
+  
+  return false;
+}
 
 MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooterInd, vector<double> targetSt, vector<double> targetEn, MatrixXd robPosition_OwnTeam, MatrixXd robPosition_Opponent)
 {
