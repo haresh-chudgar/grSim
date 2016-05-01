@@ -25,7 +25,7 @@
 //TODO: Use KD-Tree to store points
 //      Cache waypoints in the manner of J. Bruce and M. Veloso in ERRT (2002)
 //      Improve smoothing
-PathPlanner::PathPlanner(int robot_ID, bool team) { // team = isYellow
+PathPlanner::PathPlanner(size_t robot_ID, bool team) { // team = isYellow
   robot_ID_ = robot_ID;
   team_ = team;
 }
