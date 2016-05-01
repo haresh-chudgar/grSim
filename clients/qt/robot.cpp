@@ -76,8 +76,9 @@ void Robot::setKickSpeed(double vX, double vZ) {
 
 void Robot::stopMoving() {
   vAngular = 0;
-  vX = 0;
-  vY = 0;
+  vTangent = 0;
+  vNormal = 0;
+  sendVelocityCommands();
 }
 
 // Executes the robot's movement towards the desiredLocation

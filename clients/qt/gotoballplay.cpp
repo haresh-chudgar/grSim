@@ -36,17 +36,23 @@ bool GoToBallPlay::Applicable() {
 }
 
 bool GoToBallPlay::CompleteCondition() {
+
   if (!doneMoving) {
     return false;
   }
+  
+  if(SoccerFieldInfo::Instance()->_teamInBallPossession == true && SoccerFieldInfo::Instance()->_robotWithBall._isYellow == _isYellowTeam)
+    return true;
+  return false;
 
   bool has_ball = false;
   
   bool doesRobotHaveBall = Evaluation::TeamHavingBall(&ballAcquiringRobot);
+
   if(doesRobotHaveBall == true && ballAcquiringRobot._isYellow == _isYellowTeam) {
     has_ball = true;
   }
-  // fprintf(stderr, "GoToBallPlay::CompleteCondition %d\n", has_ball);
+  fprintf(stderr, "GoToBallPlay::CompleteCondition %d\n", has_ball);
   return has_ball;
 }
 
@@ -113,8 +119,12 @@ void GoToBallPlay::Execute() {
 	  if (_team->at(i)->execute() == 1) {
 	    states[i] = 2;
 	  }
-      } else if(states[i] == 2) { // Kicking
-	_team->at(i)->setSpinner(0);
+      } else if(states[i] == 2) { 
+	// Kicking
+	doneMoving = true;
+	_team->at(i)->setSpinner(1);
+	_team->at(i)->stopMoving();
+	/*
 	Eigen::Vector2d r = Eigen::Vector2d(_team->at(i)->CurrentState()[0], _team->at(i)->CurrentState()[1]);
 	Eigen::Vector2d loc = Eigen::Vector2d(SoccerFieldInfo::Instance()->ball[0], SoccerFieldInfo::Instance()->ball[1]);
 	double distance = (r - loc).norm();
@@ -127,7 +137,8 @@ void GoToBallPlay::Execute() {
 	  fprintf(stderr, "Kicking\n");
 	  _team->at(i)->setKickSpeed(2, 0);
 	  _team->at(i)->sendVelocityCommands();
-	}
+	  
+	}*/
       } else {
 	Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
 	//fprintf(stderr, "BallVel %f %f %f\n", ballVel[0], ballVel[1], ballVel[2]);
