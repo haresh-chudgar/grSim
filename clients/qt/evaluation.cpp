@@ -29,8 +29,8 @@ using namespace Eigen;
 
 const double RobRadius = 178 / 2; //mm the radius of the soccer robots
 const double BallRadius = 43/2; //mm radius of the ball
-const double FieldLength = 9000; //mm
-const double FieldWidth = 6000;
+const double FieldLength = 6000; //mm
+const double FieldWidth = 4000;
 const double alpha = 0.05; // a constant proportional to the importance of distance in the query points' score
 
 struct DefenseBot
