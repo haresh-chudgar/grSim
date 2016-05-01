@@ -114,8 +114,9 @@ int Robot::execute() {
   
   sendVelocityCommands();
   
-  if(abs(vTangent) <= 0.01 && abs(vNormal) <= 0.01 && abs(vAngular) <= 0.01) {
-    fprintf(stderr, "Executed move to location!\n");
+  if(CurrentState()[0] - desiredLocation[0] < 0 && CurrentState()[1] - desiredLocation[1] < 0) {
+  //if(abs(vTangent) <= 0.01 && abs(vNormal) <= 0.01 && abs(vAngular) <= 0.01) {
+    fprintf(stderr, "Executed move to location: %f, %f, %f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2]);
     return 1;
   }
   
