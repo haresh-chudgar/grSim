@@ -23,16 +23,14 @@ GoToBallPlay::GoToBallPlay() : ballAcquiringRobot(false), _complete(false), done
 
 //Precondition: Team should not have ball
 bool GoToBallPlay::Applicable() {
-  bool has_ball = false;
-    
-  BotState robot(_isYellowTeam);
-  bool doesRobotHaveBall = Evaluation::TeamHavingBall(&robot);
-  if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
-    has_ball = true;
+  
+  //bool doesRobotHaveBall = Evaluation::TeamHavingBall(&robot);
+  if(SoccerFieldInfo::Instance()->_teamInBallPossession == false && SoccerFieldInfo::Instance()->_robotWithBall._isYellow != _isYellowTeam) {
+  //if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
+    fprintf(stderr, "GoToBallPlay::Applicable! \n");
+    return true;
   }
-
-  fprintf(stderr, "GoToBallPlay::Applicable %d\n", !has_ball);
-  return !has_ball;
+  return false;
 }
 
 bool GoToBallPlay::CompleteCondition() {
@@ -85,45 +83,27 @@ void GoToBallPlay::Execute() {
 
         // sets the desired angle so the robot points at the goal
         goal[2] = atan2(robot[1]-goal[1], robot[0]-goal[0])+M_PI;
-	//goal[2] = M_PI; //Testing... Haresh...
-	double tempAngle = goal[2];
-	if(tempAngle < 0) {
-	  tempAngle = 2*M_PI - tempAngle;
-	}
 	fprintf(stderr, "Before: %f, %f\n", goal[0], goal[1]);
-	if(tempAngle > 0 && tempAngle <= M_PI/2) {
-	  goal[0] -= (21.5+90)*cos(tempAngle);
-	  goal[1] -= (21.5+90)*sin(tempAngle);
-	} else if(tempAngle > M_PI/2 && tempAngle <= M_PI) {
-	  goal[0] += (21.5+90)*abs(sin(M_PI / 2 - tempAngle));
-	  goal[1] -= (21.5+90)*abs(cos(M_PI / 2 - tempAngle));
-	} else if(tempAngle > M_PI && tempAngle <= 3* M_PI / 2) {
-	  goal[0] += (21.5+90)*abs(sin(3 * M_PI / 2 - tempAngle));
-	  goal[1] += (21.5+90)*abs(cos(3 * M_PI / 2 - tempAngle));
-	} else {
-	  goal[0] -= (21.5+90)*abs(cos(2 * M_PI - tempAngle));
-	  goal[1] += (21.5+90)*abs(sin(2 * M_PI - tempAngle));
-	}
-	
-	fprintf(stderr, "After: %f, %f, %f\n", goal[0], goal[1], tempAngle * 180 / M_PI);
+	goal = Evaluation::GetGoalPositionToBall(goal[2]);
+	fprintf(stderr, "After: %f, %f, %f\n", goal[0], goal[1], goal[2] * 180 / M_PI);
 	
         // Call Move
         _team->at(i)->goToLocation(1, goal);
-        _team->at(i)->setSpinner(1);
+        _team->at(i)->setSpinner(0);
         //_team->at(i)->goToLocation(1, ball);
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
 	  Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
 	  //fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
-        
 	  if (_team->at(i)->execute() == 1) {
 	    states[i] = 2;
 	  }
       } else if(states[i] == 2) { 
 	// Kicking
-	doneMoving = true;
-	_team->at(i)->setSpinner(1);
+	//_team->at(i)->setSpinner(1);
 	_team->at(i)->stopMoving();
+	//_team->at(i)->dribbleToLocation(Eigen::Vector3d(_team->at(i)->CurrentState()[0], _team->at(i)->CurrentState()[1], 225 * M_PI /180));
+	states[i] = 3;
 	/*
 	Eigen::Vector2d r = Eigen::Vector2d(_team->at(i)->CurrentState()[0], _team->at(i)->CurrentState()[1]);
 	Eigen::Vector2d loc = Eigen::Vector2d(SoccerFieldInfo::Instance()->ball[0], SoccerFieldInfo::Instance()->ball[1]);
@@ -143,9 +123,9 @@ void GoToBallPlay::Execute() {
 	Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
 	//fprintf(stderr, "BallVel %f %f %f\n", ballVel[0], ballVel[1], ballVel[2]);
 
-	if (_team->at(i)->execute() == 1) {
-          states[i] = 2;
-        }
+	//if (_team->at(i)->execute() == 1) {
+          doneMoving = true;
+        //}
       }
     } 
   frames_running++;

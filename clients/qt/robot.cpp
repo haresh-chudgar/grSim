@@ -17,6 +17,7 @@
 
 #include "robot.h"
 #include "pathplanner.h"
+#include "soccerfieldinfo.h"
 
 Robot::Robot(Communicator* communicator, PathPlanner* planner, bool team, int id)
 :_communicator(communicator), isYellowTeam(team), playerID(id), _planner(planner)
@@ -42,7 +43,16 @@ Eigen::Vector3d Robot::CurrentVelocity() {
 }
 
 int Robot::dribbleToLocation(Eigen::Vector3d location) {
-  return 0;
+  
+  _maxVelocity = PIDController::MAX_TRANS_VEL/10;
+  _maxAngularVelocity = PIDController::MAX_ROT_VEL/ 10;
+  
+  currentTime = 0.2;
+  desiredLocation = location;
+  initialLocation = CurrentState();
+  controller = PIDController();
+
+  return execute();
 }
 
 int Robot::flatKickBallToLocation(Eigen::Vector2d location, double speed) {
@@ -107,16 +117,20 @@ int Robot::execute() {
   vY = _currentVelocity[1];
   
   vTangent =  vX * cos(_currentState[2]) + vY * sin(_currentState[2]);
+  vTangent = (abs(vTangent)/vTangent) * min(abs(vTangent), _maxVelocity);
   vTangent /= 1000.;
-  vNormal = - vX * sin(_currentState[2]) + vY * cos(_currentState[2]);
+  vNormal = min(- vX * sin(_currentState[2]) + vY * cos(_currentState[2]), _maxVelocity);
+  vNormal = (abs(vNormal)/vNormal) * min(abs(vNormal), _maxVelocity);
   vNormal /= 1000.;
   //fprintf(stderr, "transformed command: %f, %f, %f\n", vTangent, vNormal, vAngular);
+  vAngular = (abs(vAngular)/vAngular) * min(abs(vAngular), _maxVelocity);
   
   sendVelocityCommands();
   
-  if(CurrentState()[0] - desiredLocation[0] < 0 && CurrentState()[1] - desiredLocation[1] < 0) {
-  //if(abs(vTangent) <= 0.01 && abs(vNormal) <= 0.01 && abs(vAngular) <= 0.01) {
-    fprintf(stderr, "Executed move to location: %f, %f, %f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2]);
+  double dist = Eigen::Vector2d((CurrentState() - desiredLocation)[0], (CurrentState() - desiredLocation)[1]).norm();
+  fprintf(stderr, "Distance to desired location: %f", dist);
+  if(dist < 5) {
+    fprintf(stderr, "Executed move to location!\n");
     return 1;
   }
   
@@ -130,6 +144,9 @@ int Robot::goToLocation(int currentFrame, Eigen::Vector3d location) {
   initialLocation = CurrentState();
   controller = PIDController();
 
+  _maxVelocity = PIDController::MAX_TRANS_VEL;
+  _maxAngularVelocity = PIDController::MAX_ROT_VEL;
+  
   return execute();
 }
 

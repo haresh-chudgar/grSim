@@ -40,17 +40,17 @@ class Controller {
     std::vector<double> Case4(double wdot_0, double w_f);
     std::vector<double> Case5(double wdot_0, double w_f);
     
-    static const double mu_ = 0.8; // friction coeff
-    static const double g_ = 9.81; // m/s^2
-    static const double m_ = 2.7; // kg
-    static const double J_ = 0.0085; // m^2/kg
-    static const double l_ = 0.08; // m (radius)
-    static const double h_ = 0.05; // m 
+    static constexpr double mu_ = 0.8; // friction coeff
+    static constexpr double g_ = 9.81; // m/s^2
+    static constexpr double m_ = 2.7; // kg
+    static constexpr double J_ = 0.0085; // m^2/kg
+    static constexpr double l_ = 0.08; // m (radius)
+    static constexpr double h_ = 0.05; // m 
     //Below values need to be for single dimensions, ie x,y,z,theta
-    static const double MAX_TRANS_ACC = 5.0; // m/s^2
-    static const double MAX_ROT_ACC = 4*3.14159; // rad/s^2
-    static const double MAX_TRANS_VEL = 5.0; // m/s
-    static const double MAX_ROT_VEL = 4*3.14159; // rad/s
+    static constexpr double MAX_TRANS_ACC = 5.0; // m/s^2
+    static constexpr double MAX_ROT_ACC = 4*3.14159; // rad/s^2
+    static constexpr double MAX_TRANS_VEL = 5.0; // m/s
+    static constexpr double MAX_ROT_VEL = 4*3.14159; // rad/s
 };
 
 #endif 

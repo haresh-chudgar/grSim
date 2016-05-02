@@ -31,7 +31,7 @@ const double RobRadius = 178 / 2; //mm the radius of the soccer robots
 const double BallRadius = 43/2; //mm radius of the ball
 const double FieldLength = 6000; //mm
 const double FieldWidth = 4000;
-const double alpha = 0.05; // a constant proportional to the importance of distance in the query points' score
+const double alpha = 0.00; // a constant proportional to the importance of distance in the query points' score
 
 struct DefenseBot
 {
@@ -79,7 +79,7 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
   
   //If the distance is greater than (ball radius + robot radius: 21.5 + 90, ball is not near the spinner
   //Hence the ball is not in possession. Ball in possession only if it is spinning.
-  if(distToNearestBlueBot > 120 && distToNearestYellowBot > 120) {
+  if(distToNearestBlueBot > 5 && distToNearestYellowBot > 5) {
     return false;
   }
   if(distToNearestBlueBot < distToNearestYellowBot) {
@@ -419,67 +419,89 @@ MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooter
 //from those positions. Returns the optimum pose in the queryRegion.
 VectorXd Evaluation::shotEvaluator(double queryRegion, int Num_queryPoints, int shooterInd, vector<double> targetSt, vector<double> targetEn, MatrixXd robPosition_OwnTeam, MatrixXd robPosition_Opponent)
 {
-	srand(time(NULL));
-	double r; // radius of the sampled point with respect to the shooter 
-	double theta; // angle of the sampled point with respect to the shooter
-	MatrixXd queryPoints(Num_queryPoints, 5); //{x, y, theta_start, del_theta, score}
-	vector<double> shooterPos(2, 2);
+  srand(time(NULL));
+  double r; // radius of the sampled point with respect to the shooter 
+  double theta; // angle of the sampled point with respect to the shooter
+  MatrixXd queryPoints(Num_queryPoints, 5); //{x, y, theta_start, del_theta, score}
+  vector<double> shooterPos(2, 2);
   shooterPos[0] = robPosition_OwnTeam(shooterInd, 0);
   shooterPos[1] = robPosition_OwnTeam(shooterInd, 1);
 
-	for (int i = 0; i < Num_queryPoints; i++)
-	{
-		r = (double)rand() * queryRegion / RAND_MAX;
-		theta = (double)rand() * 2 * PI / RAND_MAX;
-		double delX = r * cos(theta);
-		double delY = r * sin(theta);
-		double x = robPosition_OwnTeam(shooterInd, 0) + delX;
-		double y = robPosition_OwnTeam(shooterInd, 1) + delY;
-		// do not accept sample points outside the field
-		while (!((x > -FieldLength / 2) && (x < FieldLength / 2) && (y < FieldWidth / 2) && (y > -FieldWidth / 2)))
-		{
-			r = (double)rand() * queryRegion / RAND_MAX;
-			theta = (double)rand() * 2 * PI / RAND_MAX;
-			double delX = r * cos(theta);
-			double delY = r * sin(theta);
-			double x = robPosition_OwnTeam(shooterInd, 0) + delX;
-			double y = robPosition_OwnTeam(shooterInd, 1) + delY;
-		}
-		// calculate the sorted list of open angles for the sampled point
+  for (int i = 0; i < Num_queryPoints; i++) {
+    r = (double)rand() * queryRegion / RAND_MAX;
+    theta = (double)rand() * 2 * PI / RAND_MAX;
+    double delX = r * cos(theta);
+    double delY = r * sin(theta);
+    double x = robPosition_OwnTeam(shooterInd, 0) + delX;
+    double y = robPosition_OwnTeam(shooterInd, 1) + delY;
+    // do not accept sample points outside the field
+    while (!((x > -FieldLength / 2) && (x < FieldLength / 2) && (y < FieldWidth / 2) && (y > -FieldWidth / 2)))
+    {
+      r = (double)rand() * queryRegion / RAND_MAX;
+      theta = (double)rand() * 2 * PI / RAND_MAX;
+      double delX = r * cos(theta);
+      double delY = r * sin(theta);
+      double x = robPosition_OwnTeam(shooterInd, 0) + delX;
+      double y = robPosition_OwnTeam(shooterInd, 1) + delY;
+    }
+  // calculate the sorted list of open angles for the sampled point
     vector<double> pos(2, 2);
     pos[0] = x;
     pos[1] = y;
-		MatrixXd openAng = openAngleFinder(pos, shooterInd, targetSt, targetEn,  robPosition_OwnTeam,  robPosition_Opponent);
-		if (openAng.size() == 0)
-			queryPoints.row(i) << 0, 0, 0, 0, 0;
-		else
-			queryPoints.row(i) << x, y, openAng(0, 0), openAng(0, 1) - openAng(0, 0), 0; //{x, y, theta_start, del_theta, score}
-	}
-	//Calculate scores as the normalized value of the largest open angles minus a penalty term for distance from the current position of the shooter robot
-	Vector4d optimumPoint; // {x, y, theta_start, theta_end}
-	ArrayXXd dist(queryPoints.rows(),1);
-	MatrixXd penaltyTerm(queryPoints.rows(),2);
-	// if there is no point with an open angle to the goal
-	if (queryPoints.col(3).maxCoeff() == 0)
-		optimumPoint << 0, 0, 0, 0;
-	else
-	{
-		dist = ((queryPoints.col(0).array() - shooterPos[0]).square() + (queryPoints.col(1).array() - shooterPos[1]).square());
-		dist = dist.sqrt();
-		penaltyTerm << queryPoints.col(3), dist.matrix() * alpha / queryRegion;
-		queryPoints.col(4) = queryPoints.col(3) - penaltyTerm.rowwise().minCoeff();
-		if (queryPoints.col(4).maxCoeff() == 0)
-			optimumPoint << 0, 0, 0, 0;
-		else
-		{
-			int maxIndex;
-			double maxScore = queryPoints.col(4).maxCoeff(&maxIndex);
-			queryPoints.col(4) = queryPoints.col(4) / maxScore;
-			optimumPoint << queryPoints(maxIndex, 0), queryPoints(maxIndex, 1), queryPoints(maxIndex, 2), queryPoints(maxIndex, 2) + queryPoints(maxIndex, 3);
-		}
-	}
+    MatrixXd openAng = openAngleFinder(pos, shooterInd, targetSt, targetEn,  robPosition_OwnTeam,  robPosition_Opponent);
+    if (openAng.size() == 0)
+      queryPoints.row(i) << 0, 0, 0, 0, 0;
+    else
+      queryPoints.row(i) << x, y, openAng(0, 0), openAng(0, 1) - openAng(0, 0), 0; //{x, y, theta_start, del_theta, score}
+  }
+  //Calculate scores as the normalized value of the largest open angles minus a penalty term for distance from the current position of the shooter robot
+  Vector4d optimumPoint; // {x, y, theta_start, theta_end}
+  ArrayXXd dist(queryPoints.rows(),1);
+  MatrixXd penaltyTerm(queryPoints.rows(),2);
+  // if there is no point with an open angle to the goal
+  if (queryPoints.col(3).maxCoeff() == 0) {
+    optimumPoint << 0, 0, 0, 0;
+  } else {
+    dist = ((queryPoints.col(0).array() - shooterPos[0]).square() + (queryPoints.col(1).array() - shooterPos[1]).square());
+    dist = dist.sqrt();
+    penaltyTerm << queryPoints.col(3), dist.matrix() * alpha / queryRegion;
+    queryPoints.col(4) = queryPoints.col(3) - penaltyTerm.rowwise().minCoeff();
+    if (queryPoints.col(4).maxCoeff() == 0) {
+      optimumPoint << 0, 0, 0, 0;
+    } else
+    {
+      int maxIndex;
+      double maxScore = queryPoints.col(4).maxCoeff(&maxIndex);
+      queryPoints.col(4) = queryPoints.col(4) / maxScore;
+      optimumPoint << queryPoints(maxIndex, 0), queryPoints(maxIndex, 1), queryPoints(maxIndex, 2), queryPoints(maxIndex, 2) + queryPoints(maxIndex, 3);
+    }
+  }
 
-	return optimumPoint;
+  return optimumPoint;
+}
+
+Eigen::Vector3d Evaluation::GetGoalPositionToBall(double targetAngle) {
+  Eigen::Vector3d goal = SoccerFieldInfo::Instance()->ball;
+  goal[2] = targetAngle;
+  
+  if(targetAngle< 0) {
+    targetAngle = 2*M_PI - targetAngle;
+  }
+  fprintf(stderr, "Before: %f, %f\n", goal[0], goal[1]);
+  if(targetAngle > 0 && targetAngle <= M_PI/2) {
+    goal[0] -= (21.5+90)*cos(targetAngle);
+    goal[1] -= (21.5+90)*sin(targetAngle);
+  } else if(targetAngle > M_PI/2 && targetAngle <= M_PI) {
+    goal[0] += (21.5+89)*abs(sin(M_PI / 2 - targetAngle));
+    goal[1] -= (21.5+89)*abs(cos(M_PI / 2 - targetAngle));
+  } else if(targetAngle > M_PI && targetAngle <= 3* M_PI / 2) {
+    goal[0] += (21.5+89)*abs(sin(3 * M_PI / 2 - targetAngle));
+    goal[1] += (21.5+89)*abs(cos(3 * M_PI / 2 - targetAngle));
+  } else {
+    goal[0] -= (21.5+89)*abs(cos(2 * M_PI - targetAngle));
+    goal[1] += (21.5+89)*abs(sin(2 * M_PI - targetAngle));
+  }
+  return goal;
 }
 
 

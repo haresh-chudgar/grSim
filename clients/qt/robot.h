@@ -85,6 +85,9 @@ class Robot
 
   double kGravity;
   
+  double _maxVelocity;
+  double _maxAngularVelocity;
+  
   int executeKickBallToLocation(Eigen::Vector2d location, double speed, double height, double distOfMaxHeight);
 };
 

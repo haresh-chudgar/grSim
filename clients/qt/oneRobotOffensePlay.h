@@ -46,6 +46,7 @@ class OneRobotOffensePlay : public Play {
     void Execute(); // Executes the state machines of all Robots in question
 
   private:
+    std::vector<Eigen::Vector3d> wayPointsToGoalState;
     BotState offenseRobot;
     vector<Robot*>* _team;
     bool _complete;

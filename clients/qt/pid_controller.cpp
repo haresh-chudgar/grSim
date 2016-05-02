@@ -67,7 +67,7 @@ Eigen::Vector3d PIDController::ComputeCommandVelo(Eigen::Vector3d curr_pos, Eige
   if(command[2] > MAX_ROT_VEL) {
     command[2] = MAX_ROT_VEL;
   }
-//  fprintf(stderr, "PIDController::ComputeCommandVelo %f,%f,%f\n", command[0], command[1], command[2]);
+  fprintf(stderr, "PIDController::ComputeCommandVelo %f,%f,%f\n", command[0], command[1], command[2]);
   return command;
 }
 
