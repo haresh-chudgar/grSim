@@ -32,7 +32,7 @@ void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTea
 }
   
 SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
-:_blueTeam(blueTeam), _yellowTeam(yellowTeam), kFrameRate(1.0/60.0), _robotWithBall(false), _teamInBallPossession(false)
+:_blueTeam(blueTeam), _yellowTeam(yellowTeam), kFrameRate(1.0/60.0), _robotWithBall(false), _teamInBallPossession(false), frameNumber(0)
 {
   blueTeamBots = new vector<BotState>();
   yellowTeamBots = new vector<BotState>();
@@ -64,11 +64,18 @@ void SoccerFieldInfo::receive(char* buffer, int size)
       ball[0] = (*ballState).x();
       ball[1] = (*ballState).y();
       ball[2] = (*ballState).z();
-
-      ballVelocity[0] = (ball[0] - prevX) / kFrameRate / 1000;
-      ballVelocity[1] = (ball[1] - prevY) / kFrameRate / 1000;
-      ballVelocity[2] = (ball[2] - prevZ) / kFrameRate / 1000;
-      fprintf(stderr, "Ball Speed: %f, %f\n", ballVelocity[0], ballVelocity[1]);
+      if(frameNumber == 0) {
+	ballVelocity[0] = 0;
+	ballVelocity[1] = 0;
+	ballVelocity[2] = 0;
+	++frameNumber;
+      } else {
+	ballVelocity[0] = ((ball[0] - prevX) / kFrameRate);
+	ballVelocity[1] = ((ball[1] - prevY) / kFrameRate);
+	ballVelocity[2] = ((ball[2] - prevZ) / kFrameRate);
+      }
+      
+      fprintf(stderr, "Ball Speed(mm/s): %f, %f %f\n", ballVelocity[0], ballVelocity[1], ballVelocity[2]);
       //fprintf(stderr,"Ball Loc: %f, %f, %f\n", (*ballState).x(), (*ballState).y(), (*ballState).z());
     }
 
@@ -79,7 +86,7 @@ void SoccerFieldInfo::receive(char* buffer, int size)
     while(blueTeamBots->size() > frame.robots_blue_size()) {
       blueTeamBots->pop_back();
     }
-    
+
     for(;iter!=frame.robots_blue().end();iter++) {
       SSL_DetectionRobot robot = *iter;
       double prevX = blueTeamBots->at(robot.robot_id())._position[0];

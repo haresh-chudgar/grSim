@@ -57,7 +57,7 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
   std::vector<BotState> *team = SoccerFieldInfo::Instance()->yellowTeamBots;
   std::vector<BotState>::iterator iter = team->begin();
   for(;iter!=team->end();++iter) {
-    double distToBall = (*iter).distanceToLocationFromSpinner(SoccerFieldInfo::Instance()->ball);
+    double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
     if(distToBall < distToNearestYellowBot) {
       nearestYellowBot = *iter;
       distToNearestYellowBot = distToBall;
@@ -69,7 +69,7 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
   team = SoccerFieldInfo::Instance()->blueTeamBots;
   iter = team->begin();
   for(;iter!=team->end();++iter) {
-    double distToBall = (*iter).distanceToLocationFromSpinner(SoccerFieldInfo::Instance()->ball);
+    double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
     if(distToBall < distToNearestBlueBot) {
       nearestBlueBot = *iter;
       distToNearestBlueBot = distToBall;
@@ -79,6 +79,8 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
   
   //If the distance is greater than (ball radius + robot radius: 21.5 + 90, ball is not near the spinner
   //Hence the ball is not in possession. Ball in possession only if it is spinning.
+  distToNearestYellowBot -= (21.5 + 90);
+  distToNearestBlueBot -= (21.5 + 90);
   if(distToNearestBlueBot > 5 && distToNearestYellowBot > 5) {
     return false;
   }
@@ -201,7 +203,7 @@ bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<Intercept
   Vector2d ballSpeed = Vector2d(SoccerFieldInfo::Instance()->ballVelocity[0], 
 				SoccerFieldInfo::Instance()->ballVelocity[1]);
   Vector3d ballPos(SoccerFieldInfo::Instance()->ball);
-  double rMaxVelocity = 2;
+  double rMaxVelocity = 4 * 1000;
   
   std::vector<BotState> *robots = SoccerFieldInfo::Instance()->yellowTeamBots;
   if(isTeamYellow == false)
@@ -210,32 +212,51 @@ bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<Intercept
   std::vector<BotState>::iterator iter = robots->begin();
   for(;iter!=robots->end();++iter) {
     BotState r = *iter;
-    fprintf(stderr, "Robot %f: %f,%f,%f,%f,%f",r._id, r._position[0], r._position[1], ballPos[0], ballPos[1],ballSpeed[0],ballSpeed[1]);
-    
-    Vector2d br = Vector2d(ballPos[0] - r._position[0], ballPos[1] - r._position[1]);
+    //ballPos /= 1000;
+    //r._position /= 1000;
+    fprintf(stderr, "Robot %d: %f,%f,%f,%f,%f,%f\n",r._id, r._position[0], r._position[1], ballPos[0], ballPos[1],ballSpeed[0],ballSpeed[1]);
+    Vector2d br = Vector2d(r._position[0] - ballPos[0], r._position[1] - ballPos[1]);
     double C = pow(br.norm(),2);
     double A = pow(ballSpeed.norm(),2) - pow(rMaxVelocity,2);
     double B = -2 * br.dot(ballSpeed);
     //A x tb^2+ B x tb + C = 0
     double discriminant = B*B - 4*A*C;
-    if(discriminant < 0)
+    fprintf(stderr, "FindInterceptBot ID: %d, discriminant: %f", r._id, discriminant);
+    if(discriminant < 0) {
+      fprintf(stderr, "\n");
       continue;
+    }
     double time1 = (-B + sqrt(discriminant)) / (2*A);
     double time2 = (-B - sqrt(discriminant)) / (2*A);
-    if(time1 > time2 || time1 < 0) {
-      time1 = time2;
+    fprintf(stderr, "Times: %f, %f\n", r._id, time1, time2);
+    if(time1 < 0 && time2 < 0)
+      continue;
+    //Choose min non negative time
+    double chosenTime = min(time1, time2);
+    Vector3d interceptPos = Vector3d(ballPos[0] + chosenTime*ballSpeed[0], ballPos[1] + chosenTime*ballSpeed[1], 0);
+    if(chosenTime < 0 || Evaluation::isOutOfField(interceptPos) == false) {
+      chosenTime = max(time1, time2);
+      interceptPos = Vector3d(ballPos[0] + chosenTime*ballSpeed[0], ballPos[1] + chosenTime*ballSpeed[1], 0);
+      if(Evaluation::isOutOfField(interceptPos) == false) {
+	continue;
+      }
     }
-    Vector3d interceptPos = Vector3d(br[0] + time1*ballSpeed[0], br[1] + time1*ballSpeed[1], 0);
-    fprintf(stderr, "time: %f, location: %f %f", time1, interceptPos[0], interceptPos[1]);
-    interceptingBots->push_back(InterceptInfo(time1, interceptPos, r._id));
+    fprintf(stderr, "id: %d, time1: %f, time2: %f, chosenTime: %f, location: %f %f\n", r._id, time1, time2, chosenTime, interceptPos[0], interceptPos[1]);
+    interceptingBots->push_back(InterceptInfo(chosenTime, interceptPos, r._id));
   }
+  
+  if(interceptingBots->size() == 0)
+    return false;
   
   std::sort(interceptingBots->begin(), interceptingBots->end());
   
-  if(interceptingBots->size() > 0)
-    return true;
-  
-  return false;
+  return true;
+}
+
+bool Evaluation::isOutOfField(Eigen::Vector3d pos) {
+  if(abs(pos[0]) > 3000 || abs(pos[1]) > 2000)
+    return false;
+  return true;
 }
 
 MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooterInd, vector<double> targetSt, vector<double> targetEn, MatrixXd robPosition_OwnTeam, MatrixXd robPosition_Opponent)

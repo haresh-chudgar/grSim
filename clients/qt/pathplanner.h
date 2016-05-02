@@ -42,8 +42,8 @@ class PathPlanner {
 
     bool team_;
     size_t robot_ID_;
-    static constexpr double x_lim_ = 4.5; //mm
-    static constexpr double y_lim_ = 3.0; //mm
+    static constexpr double x_lim_ = 3000; //mm
+    static constexpr double y_lim_ = 2000; //mm
     static constexpr int node_lim_ = 5000;
     static constexpr double destination_epsilon_ = 0.005; //m
     static constexpr double goal_bias_ = 0.15;

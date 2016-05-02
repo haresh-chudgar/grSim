@@ -49,6 +49,7 @@ private:
   SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);
   ~SoccerFieldInfo();
   const double kFrameRate;
+  int frameNumber;
 };
 
 #endif // SOCCERFIELDINFO_H

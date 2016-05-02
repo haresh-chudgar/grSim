@@ -101,6 +101,7 @@ void GoToBallPlay::Execute() {
       } else if(states[i] == 2) { 
 	// Kicking
 	//_team->at(i)->setSpinner(1);
+	
 	_team->at(i)->stopMoving();
 	//_team->at(i)->dribbleToLocation(Eigen::Vector3d(_team->at(i)->CurrentState()[0], _team->at(i)->CurrentState()[1], 225 * M_PI /180));
 	states[i] = 3;

@@ -167,6 +167,7 @@ void OneRobotOffensePlay::Execute() {
 	
       } else if (states[i] == 1) {
         if (_team->at(i)->execute() == 1) {
+	  _team->at(i)->setSpinner(true);
 	  if(wayPointsToGoalState.size() > 0) {
 	    Eigen::Vector3d intermediateGoal = wayPointsToGoalState.back();
 	    _team->at(i)->goToLocation(1, intermediateGoal);
@@ -193,9 +194,6 @@ void OneRobotOffensePlay::Execute() {
 	    _team->at(i)->sendVelocityCommands();
 	    
 	  }
-	  _team->at(i)->setKickSpeed(10, 0);
-	  _team->at(i)->stopMoving();
-	  _team->at(i)->sendVelocityCommands();
 	}
       } else if (states[i] == 3) {
         _complete = true;

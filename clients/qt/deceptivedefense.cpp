@@ -13,7 +13,14 @@ DeceptiveDefense::~DeceptiveDefense() {
 
 // Check if the play is Applicable
 bool DeceptiveDefense::Applicable() {
-  fprintf(stderr, "Checking applicability of defense %d, %d\n", SoccerFieldInfo::Instance()->_teamInBallPossession, SoccerFieldInfo::Instance()->_robotWithBall._isYellow);
+  
+  fprintf(stderr, "Defense Applicability: %f, %f, %f\n", SoccerFieldInfo::Instance()->ballVelocity.norm(), SoccerFieldInfo::Instance()->ballVelocity[0], SoccerFieldInfo::Instance()->ballVelocity[1]);
+  
+  if(SoccerFieldInfo::Instance()->ballVelocity.norm() > 0.5*1000 && SoccerFieldInfo::Instance()->ballVelocity[0] < 0) {
+    fprintf(stderr, "Defense Applicability Returning true\n");
+    return true;
+  }
+  return false;
   if(SoccerFieldInfo::Instance()->_teamInBallPossession == false && SoccerFieldInfo::Instance()->_robotWithBall._isYellow != _isYellowTeam) {
     //fprintf(stderr, "Applicable!\n");
     return true;
@@ -45,8 +52,39 @@ void DeceptiveDefense::AssignRoles() {
   bool isFound = Evaluation::FindInterceptingRobots(_isYellowTeam, &interceptingBots);
   assignments = vector<int>(6);
   if(isFound == true) {
-    assignments[interceptingBots.at(2)._robotId] = 1;
-    _interceptLocation = interceptingBots.at(0)._interceptLocation;
+    /*
+    std::vector<InterceptInfo>::iterator iter = interceptingBots.begin();
+    for(;iter != interceptingBots.end();++iter) {
+      fprintf(stderr, "Intercepting bot: %d, %f, %f, %f %f\n", (*iter)._robotId, (*iter)._time, (*iter)._interceptLocation[0], (*iter)._interceptLocation[1], (*iter)._interceptLocation[2]);
+      if((*iter)._robotId == 0) {
+	intInfo = *iter;
+	break;
+      }
+    }
+    */
+    
+    InterceptInfo intInfo = interceptingBots.at(0);
+    intInfo = interceptingBots.at(1);
+    //assignments[intInfo._robotId] = 1;
+    Eigen::Vector2d ballVel = Eigen::Vector2d(SoccerFieldInfo::Instance()->ballVelocity[0], SoccerFieldInfo::Instance()->ballVelocity[1]);
+    ballVel.normalize();
+    _interceptLocation = intInfo._interceptLocation - Eigen::Vector3d(ballVel[0], ballVel[1], 0)* 5;
+    _team->at(intInfo._robotId)->setSpinner(1);
+    _team->at(intInfo._robotId)->goToLocation(1, _interceptLocation);
+    fprintf(stderr, "Chosen Intercepting bot: %d, %f, %f, %f %f\n", intInfo._robotId, intInfo._time, intInfo._interceptLocation[0], intInfo._interceptLocation[1], intInfo._interceptLocation[2]);
+    
+    assignments[intInfo._robotId] = 1;
+    intInfo = interceptingBots.at(0);
+    _interceptLocation = intInfo._interceptLocation;
+    fprintf(stderr, "Chosen Intercepting bot: %d, %f, %f, %f %f\n", intInfo._robotId, intInfo._time, intInfo._interceptLocation[0], intInfo._interceptLocation[1], intInfo._interceptLocation[2]);
+    //_team->at(intInfo._robotId)->setSpinner(1);
+    //_team->at(intInfo._robotId)->goToLocation(1, _interceptLocation);
+	
+    
+    
+  }
+  else {
+    fprintf(stderr, "Intercepting bot not found \n");
   }
 }
 
@@ -73,6 +111,7 @@ void DeceptiveDefense::Execute() {
   for(size_t i = 0; i < 6; i++) {
     if(assignments[i] == 1) {
       if(states[i] == 0) { // Moving to intercept
+	
 	Eigen::Vector3d robot = _team->at(i)->CurrentState();
         Eigen::Vector3d goal = _interceptLocation;
 	
