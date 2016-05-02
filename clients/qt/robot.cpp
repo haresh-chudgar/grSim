@@ -25,6 +25,14 @@ Robot::Robot(Communicator* communicator, PathPlanner* planner, bool team, int id
   
   _addr = "127.0.0.1";
   _port = (unsigned short)(20011);
+  vTangent = 0;
+  vNormal = 0;
+  vX = 0;
+  vY = 0;
+  vAngular = 0;
+  kickSpeedX = 0;
+  kickSpeedZ = 0;
+  spinnerOn = false;
 }
 
 Robot::~Robot(){}
@@ -125,7 +133,7 @@ int Robot::execute() {
   //fprintf(stderr, "transformed command: %f, %f, %f\n", vTangent, vNormal, vAngular);
   vAngular = (abs(vAngular)/vAngular) * min(abs(vAngular), _maxVelocity);
   
-  sendVelocityCommands();
+  //sendVelocityCommands();
   
   double dist = Eigen::Vector2d((CurrentState() - desiredLocation)[0], (CurrentState() - desiredLocation)[1]).norm();
   fprintf(stderr, "Distance to desired location: %f", dist);
@@ -188,8 +196,10 @@ bool Robot::sendVelocityCommands() {
 
   //_communicator->sendPacket(dgram);
 
+  vTangent = 0;
+  vNormal = 0;
   vX = 0;
-  vX = 0;
+  vY = 0;
   vAngular = 0;
   kickSpeedX = 0;
   kickSpeedZ = 0;

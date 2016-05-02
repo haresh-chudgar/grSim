@@ -25,7 +25,7 @@ GoToBallPlay::GoToBallPlay(bool team) : Play(team), ballAcquiringRobot(false), _
 bool GoToBallPlay::Applicable() {
   
   //bool doesRobotHaveBall = Evaluation::TeamHavingBall(&robot);
-  if(SoccerFieldInfo::Instance()->_teamInBallPossession == false && SoccerFieldInfo::Instance()->_robotWithBall._isYellow != _isYellowTeam) {
+  if(SoccerFieldInfo::Instance()->_teamInBallPossession == false && SoccerFieldInfo::Instance()->ballVelocity.norm() < 0.01*1000) {
   //if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
     fprintf(stderr, "GoToBallPlay::Applicable! \n");
     return true;
