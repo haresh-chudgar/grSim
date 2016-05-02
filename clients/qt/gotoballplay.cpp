@@ -19,7 +19,7 @@
 #include "evaluation.h"
 #include <iostream>
 
-GoToBallPlay::GoToBallPlay() : ballAcquiringRobot(false), _complete(false), doneMoving(false){ }
+GoToBallPlay::GoToBallPlay(bool team) : Play(team), ballAcquiringRobot(false), _complete(false), doneMoving(false){ }
 
 //Precondition: Team should not have ball
 bool GoToBallPlay::Applicable() {

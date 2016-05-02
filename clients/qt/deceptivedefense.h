@@ -7,8 +7,8 @@
 class DeceptiveDefense : public Play
 {
 public:
-  DeceptiveDefense();
-  DeceptiveDefense(bool isTeamYellow=false);
+//  DeceptiveDefense();
+  DeceptiveDefense(bool isTeamYellow);
   ~DeceptiveDefense();
 
   bool Applicable(); // Check if the play is Applicable

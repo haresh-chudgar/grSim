@@ -29,7 +29,7 @@ class OneRobotOffensePlay : public Play {
     double weight ; // Success Rate
     int frames_running; // Number for frames the play has been executing
 
-    OneRobotOffensePlay(); // Constructor
+    OneRobotOffensePlay(bool team); // Constructor
 
     bool Applicable(); // Check if the play is Applicable
 

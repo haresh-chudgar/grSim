@@ -15,7 +15,7 @@ class Play{
     int frames_running; // Number for frames the play has been executing
 
     
-    Play(); // Constructor
+    Play(bool team); // Constructor
 
     virtual bool Applicable() = 0; // Check if the play is Applicable
 
@@ -45,7 +45,7 @@ class ExamplePlay : public Play {
     double weight ; // Success Rate
     int frames_running; // Number for frames the play has been executing
 
-    ExamplePlay(); // Constructor
+    ExamplePlay(bool team); // Constructor
 
     bool Applicable(); // Check if the play is Applicable
 
@@ -70,7 +70,7 @@ class MoveToKick : public Play {
     double weight ; // Success Rate
     int frames_running; // Number for frames the play has been executing
 
-    MoveToKick(); // Constructor
+    MoveToKick(bool team); // Constructor
 
     bool Applicable(); // Check if the play is Applicable
 

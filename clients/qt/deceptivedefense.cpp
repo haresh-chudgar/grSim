@@ -1,11 +1,11 @@
 #include "deceptivedefense.h"
 #include "evaluation.h"
 
-DeceptiveDefense::DeceptiveDefense():_complete(false) {
+//DeceptiveDefense::DeceptiveDefense():_complete(false) {
 
-}
+//}
 
-DeceptiveDefense::DeceptiveDefense(bool isTeamYellow):_isYellowTeam(isTeamYellow),_complete(false) {}
+DeceptiveDefense::DeceptiveDefense(bool isTeamYellow):Play(isTeamYellow),_complete(false) {}
 
 DeceptiveDefense::~DeceptiveDefense() {
 

@@ -19,12 +19,12 @@
 #include "evaluation.h"
 #include <iostream>
 
-OneRobotOffensePlay::OneRobotOffensePlay() : offenseRobot(false), _complete(false){}
+OneRobotOffensePlay::OneRobotOffensePlay(bool team) : Play(team), offenseRobot(false), _complete(false){}
 
 //Precondition: Team should have ball
 bool OneRobotOffensePlay::Applicable() {
   bool has_ball = false;
-  _isYellowTeam = true;
+  //_isYellowTeam = true;
   BotState robot(_isYellowTeam);
   bool doesRobotHaveBall = Evaluation::TeamHavingBall(&robot);
   

@@ -33,7 +33,7 @@ class GoToBallPlay : public Play {
     double weight ; // Success Rate
     int frames_running; // Number for frames the play has been executing
 
-    GoToBallPlay (); // Constructor
+    GoToBallPlay (bool team); // Constructor
 
     bool Applicable(); // Check if the play is Applicable
 

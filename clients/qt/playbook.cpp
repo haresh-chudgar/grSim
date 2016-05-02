@@ -8,7 +8,7 @@
 using namespace std; 
 // ==== Plays ====
 
-Play::Play() {}
+Play::Play(bool team) : _isYellowTeam(team) {}
 
 bool Play::Complete() {
   if(_complete){
@@ -33,7 +33,7 @@ void Play::Begin(vector<Robot*>* team) {
 }
 
 //---Example play---
-ExamplePlay::ExamplePlay() { }
+ExamplePlay::ExamplePlay(bool team) : Play(team){ }
 
 bool ExamplePlay::Applicable() {
   // Lets say Example play is only applicable if the team has the ball
@@ -104,7 +104,7 @@ void ExamplePlay::UpdateWeight() {
 }
 
 //---MoveToKick play (rigged)---
-MoveToKick::MoveToKick() { }
+MoveToKick::MoveToKick(bool team) : Play(team) { }
 
 bool MoveToKick::Applicable() {
   return true;
@@ -265,10 +265,10 @@ void PlayBook::AddPlay(Play* play) {
 }
 
 PlayBook PlayBook::TheYellowBook(){
-  PlayBook the_book(new GoToBallPlay());
-  //the_book.AddPlay(new MoveToKick());
-  the_book.AddPlay(new GoToBallPlay());
-  the_book.AddPlay(new OneRobotOffensePlay());
+  PlayBook the_book(new GoToBallPlay(true));
+  //the_book.AddPlay(new MoveToKick(true));
+  the_book.AddPlay(new GoToBallPlay(true));
+  the_book.AddPlay(new OneRobotOffensePlay(true));
   the_book.ResetWeights();
   return the_book;
 }
