@@ -23,7 +23,6 @@
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
 #include "pid_controller.h"
-#include "controller.h"
 
 #include <eigen3/Eigen/Core>
 
@@ -65,7 +64,6 @@ class Robot
   Communicator* _communicator;
   PathPlanner* _planner;
   PIDController controller;
-  Controller controller2;
   
   double currentTime;
   Eigen::Vector3d _currentState;

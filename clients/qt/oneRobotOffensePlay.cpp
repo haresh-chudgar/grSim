@@ -122,8 +122,14 @@ void OneRobotOffensePlay::Execute() {
         ballPos[0] = SoccerFieldInfo::Instance()->ball[0];
         ballPos[1] = SoccerFieldInfo::Instance()->ball[1];
         ballPos[2] = SoccerFieldInfo::Instance()->ball[2];
-        Eigen::VectorXd shootingPos = Evaluation::openAngleFinder(ballPos, robotId, targetStart, targetEnd, ownTeamPos, otherTeamPos).row(0);
-
+	
+	Eigen::MatrixXd shootingPosMatrix= Evaluation::openAngleFinder(ballPos, robotId, targetStart, targetEnd, ownTeamPos, otherTeamPos);
+	if(shootingPosMatrix.rows() == 0) {
+	  fprintf(stderr, "No valid shot\n");
+	  continue;
+	}
+        Eigen::VectorXd shootingPos = shootingPosMatrix.row(0);
+	
         fprintf(stderr, "Calculating shooting angle!\n");
         Eigen::Vector3d goal = _team->at(i)->CurrentState();
         fprintf(stderr, "Robot State: %f  %f %f\n", goal[0], goal[1], goal[2]);
