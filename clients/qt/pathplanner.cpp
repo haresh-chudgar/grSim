@@ -84,13 +84,16 @@ pair<RRTNode, RRTNode> PathPlanner::NearestNodes(vector<RRTNode> FRRT, vector<RR
 vector<Eigen::Vector3d> PathPlanner::SmoothWaypoints(vector<Eigen::Vector3d> waypoints, 
 						     vector<Eigen::Vector2d> dyn_obj_loc) {
   vector<Eigen::Vector3d> smoothed_waypoints;
-  //can be extended to find more than one smoothed endpoint... depends on how frequently we re-plan
-  for (size_t i=waypoints.size()-1; i>=0; i++) {
-    if (!checkCollisions(waypoints[0], waypoints[i], dyn_obj_loc)) {
-      smoothed_waypoints.push_back(waypoints[i]);
-      return smoothed_waypoints;
+  int end_index = 1;
+  while (end_index != waypoints.size()-1) {
+    for (size_t i=waypoints.size()-1; i>end_index; i--) {
+      if (!checkCollisions(waypoints[end_index], waypoints[i], dyn_obj_loc)) {
+        smoothed_waypoints.push_back(waypoints[i]);
+        end_index = i;
+      }
     }
   }
+  return smoothed_waypoints;
 }
 
 vector<Eigen::Vector3d> PathPlanner::FindWaypoints(vector<RRTNode> FRRT, vector<RRTNode> BRRT,
