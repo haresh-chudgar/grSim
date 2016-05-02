@@ -101,13 +101,13 @@ class PlayBook{
     void ResetWeights(); // Reset the weights of all plays
 
     void AddPlay(Play* play); // Adds a play to the PlayBook
-    
+    void UpdateWeight(Play* play, int success);
     static PlayBook TheYellowBook();
     static PlayBook TheBlueBook();
   private:
     vector<Play*> _plays;
     vector<Play*> _legal_plays;
-    void UpdateWeight(Play* play, int success);
+    
 };
 
 

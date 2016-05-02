@@ -137,7 +137,7 @@ int Robot::execute() {
   
   double dist = Eigen::Vector2d((CurrentState() - desiredLocation)[0], (CurrentState() - desiredLocation)[1]).norm();
   fprintf(stderr, "Distance to desired location: %f", dist);
-  if(dist < 5) {
+  if(dist < 3) {
     fprintf(stderr, "Executed move to location!\n");
     return 1;
   }

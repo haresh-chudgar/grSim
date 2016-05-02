@@ -59,6 +59,9 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
   }
   
   if(_play == NULL || _play->Complete()) {
+    // if (_play->Complete()) {
+    //   _playbook->UpdateWeight(_play, 1);
+    // }
     if( _team) {
       fprintf(stderr, "SoccerTeam::SimCallback selecting new play  %d\n",_play==NULL);
     }
@@ -71,7 +74,7 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
     if(_play != NULL)
       _play->Execute();
   }
-  
+
   for(size_t i = 0; i < _robots.size(); i++) {
         _robots[i]-> sendVelocityCommands();
       }

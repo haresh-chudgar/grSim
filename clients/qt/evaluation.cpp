@@ -508,19 +508,20 @@ Eigen::Vector3d Evaluation::GetGoalPositionToBall(double targetAngle) {
   if(targetAngle< 0) {
     targetAngle = 2*M_PI - targetAngle;
   }
+  int robot_radius = 50;
   fprintf(stderr, "Before: %f, %f\n", goal[0], goal[1]);
   if(targetAngle > 0 && targetAngle <= M_PI/2) {
-    goal[0] -= (21.5+90)*cos(targetAngle);
-    goal[1] -= (21.5+90)*sin(targetAngle);
+    goal[0] -= (21.5+robot_radius)*cos(targetAngle);
+    goal[1] -= (21.5+robot_radius)*sin(targetAngle);
   } else if(targetAngle > M_PI/2 && targetAngle <= M_PI) {
-    goal[0] += (21.5+89)*abs(sin(M_PI / 2 - targetAngle));
-    goal[1] -= (21.5+89)*abs(cos(M_PI / 2 - targetAngle));
+    goal[0] += (21.5+robot_radius)*abs(sin(M_PI / 2 - targetAngle));
+    goal[1] -= (21.5+robot_radius)*abs(cos(M_PI / 2 - targetAngle));
   } else if(targetAngle > M_PI && targetAngle <= 3* M_PI / 2) {
-    goal[0] += (21.5+89)*abs(sin(3 * M_PI / 2 - targetAngle));
-    goal[1] += (21.5+89)*abs(cos(3 * M_PI / 2 - targetAngle));
+    goal[0] += (21.5+robot_radius)*abs(sin(3 * M_PI / 2 - targetAngle));
+    goal[1] += (21.5+robot_radius)*abs(cos(3 * M_PI / 2 - targetAngle));
   } else {
-    goal[0] -= (21.5+89)*abs(cos(2 * M_PI - targetAngle));
-    goal[1] += (21.5+89)*abs(sin(2 * M_PI - targetAngle));
+    goal[0] -= (21.5+robot_radius)*abs(cos(2 * M_PI - targetAngle));
+    goal[1] += (21.5+robot_radius)*abs(sin(2 * M_PI - targetAngle));
   }
   return goal;
 }

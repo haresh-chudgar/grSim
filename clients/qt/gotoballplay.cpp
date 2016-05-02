@@ -150,6 +150,8 @@ void GoToBallPlay::Begin(vector<Robot*>* team) {
   assignments.clear();
   states.clear();
   _team = team;
+  doneMoving = false;
+  _complete = false;
   for(size_t i = 0; i < _team->size(); i++) {
     states.push_back(0);
   }
