@@ -16,7 +16,7 @@
  */
 
 #include "robot.h"
-#include "pathplanner.h"
+//#include "pathplanner.h"
 #include "soccerfieldinfo.h"
 
 Robot::Robot(Communicator* communicator, PathPlanner* planner, bool team, int id)
@@ -58,6 +58,7 @@ int Robot::dribbleToLocation(Eigen::Vector3d location) {
   currentTime = 0.2;
   desiredLocation = location;
   initialLocation = CurrentState();
+  controller2 = Controller();
   controller = PIDController();
 
   return execute();
@@ -119,7 +120,14 @@ int Robot::execute() {
   desiredState[1] = desiredLocation[1] + coeffecients[0][1];
   desiredState[2] = desiredLocation[2] + coeffecients[0][2];
 
+  _currentVelocity = controller2.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
+
+  fprintf(stderr, "NEW COMMAND VELO: %f, %f, %f \n", _currentVelocity[0], _currentVelocity[1], _currentVelocity[2]);
+
   _currentVelocity = controller.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
+
+  fprintf(stderr, "OLD COMMAND VELO: %f, %f, %f \n", _currentVelocity[0], _currentVelocity[1], _currentVelocity[2]);
+  
   vAngular = _currentVelocity[2];
   vX = _currentVelocity[0];
   vY = _currentVelocity[1];
