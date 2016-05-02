@@ -31,9 +31,10 @@ class Controller {
 				       Eigen::Vector3d curr_velo, Eigen::Vector3d des_velo);
 
     std::vector<double> ComputeCommandVoltage();
+    
   private:
     double Normalize(double norm_me, double w_f);
-    std::vector<double> DetermineBangBangCaseAndUpdate(double wdot_0, double w_f, bool rotation);
+    std::vector<double> DetermineBangBangCaseAndUpdate(double wdot_0, double w_f, double amax, double vmax);
     std::vector<double> Case1(double wdot_0, double w_f);
     std::vector<double> Case2(double wdot_0, double w_f);
     std::vector<double> Case3(double wdot_0, double w_f);
@@ -47,10 +48,13 @@ class Controller {
     static constexpr double l_ = 0.08; // m (radius)
     static constexpr double h_ = 0.05; // m 
     //Below values need to be for single dimensions, ie x,y,z,theta
-    static constexpr double MAX_TRANS_ACC = 5.0; // m/s^2
-    static constexpr double MAX_ROT_ACC = 4*3.14159; // rad/s^2
-    static constexpr double MAX_TRANS_VEL = 5.0; // m/s
-    static constexpr double MAX_ROT_VEL = 4*3.14159; // rad/s
+    static constexpr double MAX_TRANS_ACC = 3.0; // m/s^2
+    static constexpr double MAX_ROT_ACC = 2*3.14159; // rad/s^2
+    static constexpr double MAX_TRANS_VEL = 3.0; // m/s
+    static constexpr double dt_ = 1/60.0; // s
+    static constexpr double MAX_ROT_VEL = 2*3.14159; // rad/s
 };
 
+//constexpr double Controller::dt_;
 #endif 
+

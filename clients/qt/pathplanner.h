@@ -24,7 +24,7 @@
 using namespace std;
 class PathPlanner {
   public:
-    PathPlanner(const int robot_ID, const bool team);
+    PathPlanner(const size_t robot_ID, const bool team);
     ~PathPlanner();
    
     std::vector<Eigen::Vector3d> FindPath(Eigen::Vector3d start_pos, Eigen::Vector3d goal_pos);
@@ -41,9 +41,9 @@ class PathPlanner {
     double fRand(double fMin, double fMax);
 
     bool team_;
-    int robot_ID_;
-    static constexpr double x_lim_ = 3.0; //mm
-    static constexpr double y_lim_ = 2.0; //mm
+    size_t robot_ID_;
+    static constexpr double x_lim_ = 4.5; //mm
+    static constexpr double y_lim_ = 3.0; //mm
     static constexpr int node_lim_ = 5000;
     static constexpr double destination_epsilon_ = 0.005; //m
     static constexpr double goal_bias_ = 0.15;
