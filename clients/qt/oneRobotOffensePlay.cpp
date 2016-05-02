@@ -54,9 +54,8 @@ void OneRobotOffensePlay::AssignRoles() {
   BotState robot(_isYellowTeam);
   Evaluation::TeamHavingBall(&robot);
 
-  
   assignments = vector<int>(6);
-  assignments[3] = 1;
+  assignments[robot._id] = 1;
 }
 
 void OneRobotOffensePlay::Begin(vector<Robot*>* team) {

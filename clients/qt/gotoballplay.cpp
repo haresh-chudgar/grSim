@@ -59,12 +59,13 @@ bool GoToBallPlay::Success() {
 }
 
 
-//TODO currently hard coded, need conversion between BotState and robotId
+
 void GoToBallPlay::AssignRoles() { 
   
-  double distance = Evaluation::ClosestRobotToBall(_isYellowTeam, &ballAcquiringRobot);
+  Evaluation::ClosestRobotToBall(_isYellowTeam, &ballAcquiringRobot);
   assignments = vector<int>(6);
-  assignments[3] = 1;
+  
+  assignments[ballAcquiringRobot._id] = 1;
 }
 
 void GoToBallPlay::Execute() { 
@@ -74,7 +75,7 @@ void GoToBallPlay::Execute() {
     if(assignments[i] == 1) {
       if(states[i] == 0) { // Moving to Ball
         Eigen::Vector3d ball = SoccerFieldInfo::Instance()->ball;
-	fprintf(stderr, "************ball location: %f %f %f\n",ball[0], ball[1], ball[2]);
+        //fprintf(stderr, "************ball location: %f %f %f\n",ball[0], ball[1], ball[2]);
         Eigen::Vector3d robot = _team->at(i)->CurrentState();
         Eigen::Vector3d goal = ball;
 	
@@ -83,9 +84,9 @@ void GoToBallPlay::Execute() {
 
         // sets the desired angle so the robot points at the goal
         goal[2] = atan2(robot[1]-goal[1], robot[0]-goal[0])+M_PI;
-	fprintf(stderr, "Before: %f, %f\n", goal[0], goal[1]);
-	goal = Evaluation::GetGoalPositionToBall(goal[2]);
-	fprintf(stderr, "After: %f, %f, %f\n", goal[0], goal[1], goal[2] * 180 / M_PI);
+        //fprintf(stderr, "Before: %f, %f\n", goal[0], goal[1]);
+        goal = Evaluation::GetGoalPositionToBall(goal[2]);
+        //fprintf(stderr, "After: %f, %f, %f\n", goal[0], goal[1], goal[2] * 180 / M_PI);
 	
         // Call Move
         _team->at(i)->goToLocation(1, goal);
@@ -93,7 +94,7 @@ void GoToBallPlay::Execute() {
         //_team->at(i)->goToLocation(1, ball);
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
-	  Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
+	  //Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
 	  //fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
 	  if (_team->at(i)->execute() == 1) {
 	    states[i] = 2;
@@ -121,7 +122,7 @@ void GoToBallPlay::Execute() {
 	  
 	}*/
       } else {
-	Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
+	//Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
 	//fprintf(stderr, "BallVel %f %f %f\n", ballVel[0], ballVel[1], ballVel[2]);
 
 	//if (_team->at(i)->execute() == 1) {
