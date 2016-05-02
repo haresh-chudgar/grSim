@@ -279,6 +279,7 @@ MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooter
 	double del_y2 = targetEnd(1) - shooterPos(1);
 	double rho_1 = sqrt(del_x1 * del_x1 + del_y1 * del_y1);
 	double rho_2 = sqrt(del_x2 * del_x2 + del_y2 * del_y2);
+	double goalDist = (rho_1 + rho_2) / 2;
 
 	// The margin from the post considering the ball diameter
 	double marg1 = atan(BallRadius / rho_1);
@@ -334,12 +335,15 @@ MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooter
 
 
 	MatrixXd viewAng(robPosition_All.rows(), 2);
+	VectorXd distanceVec(robPosition_All.rows());
 	for (int k = 0; k < robPosition_All.rows(); k++)
 	{
 		double del_x = robPosition_All(k, 0) - shooterPos(0);
 		double del_y = robPosition_All(k, 1) - shooterPos(1);
 		double theta_k = atan2(del_y, del_x);
 		double rho_k = sqrt(del_x * del_x + del_y * del_y);
+		distanceVec(k) = rho_k;
+		
 		if (flag_2pi)
 		{
 			if (theta_k < 0)
@@ -354,7 +358,7 @@ MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooter
 	vector<int> indexTmp;
 	for (int i = 0; i < viewAng.rows(); i++)
 	{
-		if (!((viewAng(i, 1) < goalAng(0)) || (viewAng(i, 0) > goalAng(1))))
+		if (!((viewAng(i, 1) < goalAng(0)) || (viewAng(i, 0) > goalAng(1)) || (distanceVec(i) > goalDist) ))
 			indexTmp.push_back(i);
 	}
 
