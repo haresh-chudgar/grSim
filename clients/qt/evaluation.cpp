@@ -203,8 +203,8 @@ bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<Intercept
   Vector2d ballSpeed = Vector2d(SoccerFieldInfo::Instance()->ballVelocity[0], 
 				SoccerFieldInfo::Instance()->ballVelocity[1]);
   Vector3d ballPos(SoccerFieldInfo::Instance()->ball);
-  double rMaxVelocity = 4 * 1000;
-  
+  double rMaxVelocity = 2 * 1000;
+  double deltaT = 0.2;
   std::vector<BotState> *robots = SoccerFieldInfo::Instance()->yellowTeamBots;
   if(isTeamYellow == false)
     robots = SoccerFieldInfo::Instance()->blueTeamBots;
@@ -216,9 +216,9 @@ bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<Intercept
     //r._position /= 1000;
     fprintf(stderr, "Robot %d: %f,%f,%f,%f,%f,%f\n",r._id, r._position[0], r._position[1], ballPos[0], ballPos[1],ballSpeed[0],ballSpeed[1]);
     Vector2d br = Vector2d(r._position[0] - ballPos[0], r._position[1] - ballPos[1]);
-    double C = pow(br.norm(),2);
+    double C = pow(br.norm(),2) - pow(deltaT*rMaxVelocity,2);
     double A = pow(ballSpeed.norm(),2) - pow(rMaxVelocity,2);
-    double B = -2 * br.dot(ballSpeed);
+    double B = 2 * (-br.dot(ballSpeed) + deltaT*pow(rMaxVelocity,2));
     //A x tb^2+ B x tb + C = 0
     double discriminant = B*B - 4*A*C;
     fprintf(stderr, "FindInterceptBot ID: %d, discriminant: %f", r._id, discriminant);
@@ -233,16 +233,18 @@ bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<Intercept
       continue;
     //Choose min non negative time
     double chosenTime = min(time1, time2);
-    Vector3d interceptPos = Vector3d(ballPos[0] + chosenTime*ballSpeed[0], ballPos[1] + chosenTime*ballSpeed[1], 0);
-    if(chosenTime < 0 || Evaluation::isOutOfField(interceptPos) == false) {
+    Vector3d interceptPos = Vector3d(ballPos[0] + (chosenTime+deltaT)*ballSpeed[0], ballPos[1] + (chosenTime+deltaT)*ballSpeed[1], 0);
+    fprintf(stderr, "id: %d, time1: %f, time2: %f, chosenTime: %f, location: %f %f\n", r._id, time1, time2, (chosenTime+deltaT), interceptPos[0], interceptPos[1]);
+    if(chosenTime < 0 || Evaluation::isOutOfField(interceptPos) == true) {
       chosenTime = max(time1, time2);
-      interceptPos = Vector3d(ballPos[0] + chosenTime*ballSpeed[0], ballPos[1] + chosenTime*ballSpeed[1], 0);
-      if(Evaluation::isOutOfField(interceptPos) == false) {
+      interceptPos = Vector3d(ballPos[0] + (chosenTime+deltaT)*ballSpeed[0], ballPos[1] + (chosenTime+deltaT)*ballSpeed[1], 0);
+      fprintf(stderr, "id: %d, time1: %f, time2: %f, chosenTime: %f, location: %f %f\n", r._id, time1, time2, (chosenTime+deltaT), interceptPos[0], interceptPos[1]);
+      if(Evaluation::isOutOfField(interceptPos) == true) {
 	continue;
       }
     }
-    fprintf(stderr, "id: %d, time1: %f, time2: %f, chosenTime: %f, location: %f %f\n", r._id, time1, time2, chosenTime, interceptPos[0], interceptPos[1]);
-    interceptingBots->push_back(InterceptInfo(chosenTime, interceptPos, r._id));
+    //fprintf(stderr, "id: %d, time1: %f, time2: %f, chosenTime: %f, location: %f %f\n", r._id, time1, time2, (chosenTime+deltaT), interceptPos[0], interceptPos[1]);
+    interceptingBots->push_back(InterceptInfo((chosenTime+deltaT), interceptPos, r._id));
   }
   
   if(interceptingBots->size() == 0)
@@ -255,8 +257,8 @@ bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<Intercept
 
 bool Evaluation::isOutOfField(Eigen::Vector3d pos) {
   if(abs(pos[0]) > 3000 || abs(pos[1]) > 2000)
-    return false;
-  return true;
+    return true;
+  return false;
 }
 
 MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooterInd, vector<double> targetSt, vector<double> targetEn, MatrixXd robPosition_OwnTeam, MatrixXd robPosition_Opponent)
@@ -508,20 +510,19 @@ Eigen::Vector3d Evaluation::GetGoalPositionToBall(double targetAngle) {
   if(targetAngle< 0) {
     targetAngle = 2*M_PI - targetAngle;
   }
-  int robot_radius = 50;
   fprintf(stderr, "Before: %f, %f\n", goal[0], goal[1]);
   if(targetAngle > 0 && targetAngle <= M_PI/2) {
-    goal[0] -= (21.5+robot_radius)*cos(targetAngle);
-    goal[1] -= (21.5+robot_radius)*sin(targetAngle);
+    goal[0] -= (21.5+90)*cos(targetAngle);
+    goal[1] -= (21.5+90)*sin(targetAngle);
   } else if(targetAngle > M_PI/2 && targetAngle <= M_PI) {
-    goal[0] += (21.5+robot_radius)*abs(sin(M_PI / 2 - targetAngle));
-    goal[1] -= (21.5+robot_radius)*abs(cos(M_PI / 2 - targetAngle));
+    goal[0] += (21.5+89)*abs(sin(M_PI / 2 - targetAngle));
+    goal[1] -= (21.5+89)*abs(cos(M_PI / 2 - targetAngle));
   } else if(targetAngle > M_PI && targetAngle <= 3* M_PI / 2) {
-    goal[0] += (21.5+robot_radius)*abs(sin(3 * M_PI / 2 - targetAngle));
-    goal[1] += (21.5+robot_radius)*abs(cos(3 * M_PI / 2 - targetAngle));
+    goal[0] += (21.5+89)*abs(sin(3 * M_PI / 2 - targetAngle));
+    goal[1] += (21.5+89)*abs(cos(3 * M_PI / 2 - targetAngle));
   } else {
-    goal[0] -= (21.5+robot_radius)*abs(cos(2 * M_PI - targetAngle));
-    goal[1] += (21.5+robot_radius)*abs(sin(2 * M_PI - targetAngle));
+    goal[0] -= (21.5+89)*abs(cos(2 * M_PI - targetAngle));
+    goal[1] += (21.5+89)*abs(sin(2 * M_PI - targetAngle));
   }
   return goal;
 }
