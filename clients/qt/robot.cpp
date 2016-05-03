@@ -20,7 +20,7 @@
 #include "soccerfieldinfo.h"
 
 Robot::Robot(Communicator* communicator, PathPlanner* planner, bool team, int id)
-:_communicator(communicator), isYellowTeam(team), playerID(id), _planner(planner)
+:_communicator(communicator), isYellowTeam(team), playerID(id), _planner(planner), currentFrame(0)
 {
   
   _addr = "127.0.0.1";
@@ -109,16 +109,27 @@ int Robot::execute() {
   currentTime += (1.0/60.0);
 //  fprintf(stderr, "currentTime %f\n", currentTime);
 
-  coeffecients = _planner->FindPath(CurrentState()/1000, desiredLocation/1000);
-  //fprintf(stderr, "Size of coeffecients: %d\n", coeffecients.size());
-
+  //fprintf(stderr, "CurrentState: %f, %f, %f\ndesiredLocation: %f, %f, %f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2], desiredLocation[0], desiredLocation[1], desiredLocation[2]);
+  
+  //if(currentFrame == 0) 
+  {
+    currentWaypointIndex = 0;
+    //Pass parameters in millimeters
+    coeffecients = _planner->FindPath(CurrentState(), desiredLocation);
+    fprintf(stderr, "Size of coeffecients: %d\n", coeffecients.size());
+  }
+  currentFrame += 1;
+  //currentFrame = (currentFrame + 1) % 10;
+  
   // TODO(KARL) check if planner can generate trajectory, return -1 if not
 
   Eigen::Vector3d desiredState;
-  desiredState[0] = desiredLocation[0] + coeffecients[0][0];
-  desiredState[1] = desiredLocation[1] + coeffecients[0][1];
-  desiredState[2] = desiredLocation[2] + coeffecients[0][2];
-
+  desiredState[0] = coeffecients[currentWaypointIndex][0];
+  desiredState[1] = coeffecients[currentWaypointIndex][1];
+  desiredState[2] = coeffecients[currentWaypointIndex][2];
+  
+  fprintf(stderr, "desiredState: %f, %f, %f\n", desiredState[0], desiredState[1], desiredState[2]);
+  
   _currentVelocity = controller.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
   vAngular = _currentVelocity[2];
   vX = _currentVelocity[0];
@@ -131,15 +142,18 @@ int Robot::execute() {
   vNormal = (abs(vNormal)/vNormal) * min(abs(vNormal), _maxVelocity);
   vNormal /= 1000.;
   //fprintf(stderr, "transformed command: %f, %f, %f\n", vTangent, vNormal, vAngular);
-  vAngular = (abs(vAngular)/vAngular) * min(abs(vAngular), _maxVelocity);
+  //vAngular = min(abs(vAngular), _maxVelocity);
   
-  //sendVelocityCommands();
+  sendVelocityCommands();
   
-  double dist = Eigen::Vector2d((CurrentState() - desiredLocation)[0], (CurrentState() - desiredLocation)[1]).norm();
-  fprintf(stderr, "Distance to desired location: %f", dist);
+  double dist = Eigen::Vector2d((CurrentState() - desiredState)[0], (CurrentState() - desiredState)[1]).norm();
+  fprintf(stderr, "Distance to desired location: %f \n", dist);
   if(dist < 3) {
-    fprintf(stderr, "Executed move to location!\n");
-    return 1;
+    ++currentWaypointIndex;
+    if(currentWaypointIndex > coeffecients.size() - 1) {
+      fprintf(stderr, "Executed move to location!\n");
+      return 1;
+    }
   }
   
   return 0;
@@ -161,7 +175,7 @@ int Robot::goToLocation(int currentFrame, Eigen::Vector3d location) {
 // Sends the robot's velocity commands to the simulator
 // All velocities are relative to the global coordinate frame
 bool Robot::sendVelocityCommands() {
-  
+  fprintf(stderr, "sendValocity: %f, %f, %f\n", vTangent, vNormal, vAngular);
   grSim_Packet packet;
   
   packet.mutable_commands()->set_isteamyellow(isYellowTeam);

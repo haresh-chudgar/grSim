@@ -68,7 +68,7 @@ void DeceptiveDefense::AssignRoles() {
     //assignments[intInfo._robotId] = 1;
     Eigen::Vector2d ballVel = Eigen::Vector2d(SoccerFieldInfo::Instance()->ballVelocity[0], SoccerFieldInfo::Instance()->ballVelocity[1]);
     ballVel.normalize();
-    _interceptLocation = intInfo._interceptLocation - Eigen::Vector3d(ballVel[0], ballVel[1], 0)* 5;
+    _interceptLocation = intInfo._interceptLocation;// - Eigen::Vector3d(ballVel[0], ballVel[1], 0)* 5;
     _team->at(intInfo._robotId)->setSpinner(1);
     _team->at(intInfo._robotId)->goToLocation(1, _interceptLocation);
     fprintf(stderr, "Chosen Intercepting bot: %d, %f, %f, %f %f\n", intInfo._robotId, intInfo._time, intInfo._interceptLocation[0], intInfo._interceptLocation[1], intInfo._interceptLocation[2]);
@@ -79,8 +79,6 @@ void DeceptiveDefense::AssignRoles() {
     fprintf(stderr, "Chosen Intercepting bot: %d, %f, %f, %f %f\n", intInfo._robotId, intInfo._time, intInfo._interceptLocation[0], intInfo._interceptLocation[1], intInfo._interceptLocation[2]);
     //_team->at(intInfo._robotId)->setSpinner(1);
     //_team->at(intInfo._robotId)->goToLocation(1, _interceptLocation);
-	
-    
     
   }
   else {
@@ -112,17 +110,7 @@ void DeceptiveDefense::Execute() {
     if(assignments[i] == 1) {
       if(states[i] == 0) { // Moving to intercept
 	
-	Eigen::Vector3d robot = _team->at(i)->CurrentState();
-        Eigen::Vector3d goal = _interceptLocation;
-	
-	goal[2] = atan2(robot[1]-goal[1], robot[0]-goal[0])+M_PI;
-	Eigen::Vector3d offset = (robot-goal);
-	offset[2] = 0;
-	      offset.normalize();
-        offset = offset*70;
-        goal += offset;
-	
-	_team->at(i)->goToLocation(1, goal);
+	_team->at(i)->goToLocation(1, _interceptLocation);
         _team->at(i)->setSpinner(1);
 	states[i] = 1;
       } else if(states[i] == 1) { // Checking for location

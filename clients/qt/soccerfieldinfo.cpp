@@ -75,7 +75,7 @@ void SoccerFieldInfo::receive(char* buffer, int size)
 	ballVelocity[2] = ((ball[2] - prevZ) / kFrameRate);
       }
       
-      fprintf(stderr, "Ball Speed(mm/s): %f, %f %f\n", ballVelocity[0], ballVelocity[1], ballVelocity[2]);
+      //fprintf(stderr, "Ball Speed(mm/s): %f, %f %f\n", ballVelocity[0], ballVelocity[1], ballVelocity[2]);
       //fprintf(stderr,"Ball Loc: %f, %f, %f\n", (*ballState).x(), (*ballState).y(), (*ballState).z());
     }
 

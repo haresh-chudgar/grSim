@@ -28,9 +28,8 @@ class PathPlanner {
     ~PathPlanner();
    
     std::vector<Eigen::Vector3d> FindPath(Eigen::Vector3d start_pos, Eigen::Vector3d goal_pos);
-    std::vector<Eigen::Vector3d> FindPath();
-    Eigen::Vector3d start_pos_;
-    Eigen::Vector3d goal_pos_;
+    Eigen::Vector3d start_pos_;	//In millimeters
+    Eigen::Vector3d goal_pos_;	//In millimeters
 
   private:
     double distToLineSeg(Eigen::Vector2d v, Eigen::Vector2d w, Eigen::Vector2d p);
@@ -44,10 +43,9 @@ class PathPlanner {
     size_t robot_ID_;
     static constexpr double x_lim_ = 3000; //mm
     static constexpr double y_lim_ = 2000; //mm
-    static constexpr int node_lim_ = 5000;
-    static constexpr double destination_epsilon_ = 0.005; //m
+    static constexpr int node_lim_ = 1000; //Number of nodes allowed in tree
+    static constexpr double destination_epsilon_ = 5.0; //mm
     static constexpr double goal_bias_ = 0.15;
-    static constexpr double robot_radius_ = 0.08; //m
 };
 
 #endif

@@ -75,9 +75,11 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
       _play->Execute();
   }
 
+  /*
   for(size_t i = 0; i < _robots.size(); i++) {
-        _robots[i]-> sendVelocityCommands();
-      }
+    _robots[i]-> sendVelocityCommands();
+  }
+  */
 }
 
 // Initialize the robots for the team

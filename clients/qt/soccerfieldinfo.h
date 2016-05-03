@@ -26,6 +26,9 @@
 #include "soccerteam.h"
 #include "BotState.h"
 
+#define BALL_RADIUS 21.5 //In millimeters
+#define ROBOT_RADIUS 89 //In millimeters
+
 using namespace std;
 class SoccerTeam;
 class SoccerFieldInfo

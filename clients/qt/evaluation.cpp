@@ -75,7 +75,7 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
       distToNearestBlueBot = distToBall;
     }
   }
-  fprintf(stderr, "Nearest Blue Bot: %f, %f, %f\n Nearest Yellow Bot: %f, %f, %f\n", nearestBlueBot._position[0], nearestBlueBot._position[1], distToNearestBlueBot, nearestYellowBot._position[0], nearestYellowBot._position[1], distToNearestYellowBot);
+  //fprintf(stderr, "Nearest Blue Bot: %f, %f, %f\n Nearest Yellow Bot: %f, %f, %f\n", nearestBlueBot._position[0], nearestBlueBot._position[1], distToNearestBlueBot, nearestYellowBot._position[0], nearestYellowBot._position[1], distToNearestYellowBot);
   
   //If the distance is greater than (ball radius + robot radius: 21.5 + 90, ball is not near the spinner
   //Hence the ball is not in possession. Ball in possession only if it is spinning.
@@ -202,9 +202,15 @@ bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<Intercept
   
   Vector2d ballSpeed = Vector2d(SoccerFieldInfo::Instance()->ballVelocity[0], 
 				SoccerFieldInfo::Instance()->ballVelocity[1]);
+  
+  Vector2d ballSpeedNorm = ballSpeed;
+  ballSpeedNorm.normalize();
+  //Heading of robot changed to facing the ball in the opposite direction of its velocity vector
+  double headingOfRobot = atan2(-ballSpeedNorm[1], -ballSpeedNorm[0]);
+  fprintf(stderr, "heading calculation %f, %f, %f\n", headingOfRobot, ballSpeedNorm[0], ballSpeedNorm[1]);
   Vector3d ballPos(SoccerFieldInfo::Instance()->ball);
   double rMaxVelocity = 2 * 1000;
-  double deltaT = 0.2;
+  double deltaT = 0.3;
   std::vector<BotState> *robots = SoccerFieldInfo::Instance()->yellowTeamBots;
   if(isTeamYellow == false)
     robots = SoccerFieldInfo::Instance()->blueTeamBots;
@@ -212,8 +218,6 @@ bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<Intercept
   std::vector<BotState>::iterator iter = robots->begin();
   for(;iter!=robots->end();++iter) {
     BotState r = *iter;
-    //ballPos /= 1000;
-    //r._position /= 1000;
     fprintf(stderr, "Robot %d: %f,%f,%f,%f,%f,%f\n",r._id, r._position[0], r._position[1], ballPos[0], ballPos[1],ballSpeed[0],ballSpeed[1]);
     Vector2d br = Vector2d(r._position[0] - ballPos[0], r._position[1] - ballPos[1]);
     double C = pow(br.norm(),2) - pow(deltaT*rMaxVelocity,2);
@@ -233,16 +237,17 @@ bool Evaluation::FindInterceptingRobots(bool isTeamYellow, std::vector<Intercept
       continue;
     //Choose min non negative time
     double chosenTime = min(time1, time2);
-    Vector3d interceptPos = Vector3d(ballPos[0] + (chosenTime+deltaT)*ballSpeed[0], ballPos[1] + (chosenTime+deltaT)*ballSpeed[1], 0);
+    Vector3d interceptPos = Vector3d(ballPos[0] + (chosenTime+deltaT)*ballSpeed[0], ballPos[1] + (chosenTime+deltaT)*ballSpeed[1], headingOfRobot);
     fprintf(stderr, "id: %d, time1: %f, time2: %f, chosenTime: %f, location: %f %f\n", r._id, time1, time2, (chosenTime+deltaT), interceptPos[0], interceptPos[1]);
     if(chosenTime < 0 || Evaluation::isOutOfField(interceptPos) == true) {
       chosenTime = max(time1, time2);
-      interceptPos = Vector3d(ballPos[0] + (chosenTime+deltaT)*ballSpeed[0], ballPos[1] + (chosenTime+deltaT)*ballSpeed[1], 0);
+      interceptPos = Vector3d(ballPos[0] + (chosenTime+deltaT)*ballSpeed[0], ballPos[1] + (chosenTime+deltaT)*ballSpeed[1], headingOfRobot);
       fprintf(stderr, "id: %d, time1: %f, time2: %f, chosenTime: %f, location: %f %f\n", r._id, time1, time2, (chosenTime+deltaT), interceptPos[0], interceptPos[1]);
       if(Evaluation::isOutOfField(interceptPos) == true) {
 	continue;
       }
     }
+    fprintf(stderr, "Done with FindInterceptingBot!\n");
     //fprintf(stderr, "id: %d, time1: %f, time2: %f, chosenTime: %f, location: %f %f\n", r._id, time1, time2, (chosenTime+deltaT), interceptPos[0], interceptPos[1]);
     interceptingBots->push_back(InterceptInfo((chosenTime+deltaT), interceptPos, r._id));
   }
@@ -503,26 +508,15 @@ VectorXd Evaluation::shotEvaluator(double queryRegion, int Num_queryPoints, int 
 }
 
 Eigen::Vector3d Evaluation::GetGoalPositionToBall(double targetAngle) {
-  Eigen::Vector3d goal = SoccerFieldInfo::Instance()->ball;
+  
+  Eigen::Vector3d ballLocation = SoccerFieldInfo::Instance()->ball;
+  Eigen::Vector3d goal = ballLocation;
+  
+  double offset = BALL_RADIUS + ROBOT_RADIUS - 5;
+  goal[0] -= offset*cos(targetAngle);
+  goal[1] -= offset*sin(targetAngle);
   goal[2] = targetAngle;
   
-  if(targetAngle< 0) {
-    targetAngle = 2*M_PI - targetAngle;
-  }
-  fprintf(stderr, "Before: %f, %f\n", goal[0], goal[1]);
-  if(targetAngle > 0 && targetAngle <= M_PI/2) {
-    goal[0] -= (21.5+90)*cos(targetAngle);
-    goal[1] -= (21.5+90)*sin(targetAngle);
-  } else if(targetAngle > M_PI/2 && targetAngle <= M_PI) {
-    goal[0] += (21.5+89)*abs(sin(M_PI / 2 - targetAngle));
-    goal[1] -= (21.5+89)*abs(cos(M_PI / 2 - targetAngle));
-  } else if(targetAngle > M_PI && targetAngle <= 3* M_PI / 2) {
-    goal[0] += (21.5+89)*abs(sin(3 * M_PI / 2 - targetAngle));
-    goal[1] += (21.5+89)*abs(cos(3 * M_PI / 2 - targetAngle));
-  } else {
-    goal[0] -= (21.5+89)*abs(cos(2 * M_PI - targetAngle));
-    goal[1] += (21.5+89)*abs(sin(2 * M_PI - targetAngle));
-  }
   return goal;
 }
 

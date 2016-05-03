@@ -65,7 +65,9 @@ class Robot
   PathPlanner* _planner;
   PIDController controller;
   
+  int currentWaypointIndex;
   double currentTime;
+  int currentFrame;
   Eigen::Vector3d _currentState;
   Eigen::Vector3d _currentVelocity;
   

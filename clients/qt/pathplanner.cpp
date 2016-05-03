@@ -50,9 +50,8 @@ bool PathPlanner::checkCollisions(Eigen::Vector3d v, Eigen::Vector3d w,
   Eigen::Vector2d v_(v(0),v(1));
   Eigen::Vector2d w_(w(0),w(1));
   for (size_t i=0; i<dyn_obj_loc.size(); i++) {
-    //Eigen::Vector2d p_(dyn_obj_loc[i](0), dyn_obj_loc[i](1));
     dst = distToLineSeg(v_, w_, dyn_obj_loc[i]);
-    if (dst <= robot_radius_*2) {
+    if (dst <= ROBOT_RADIUS*2) {
       return true;
     }
   }
@@ -93,6 +92,7 @@ vector<Eigen::Vector3d> PathPlanner::SmoothWaypoints(vector<Eigen::Vector3d> way
       }
     }
   }
+  //fprintf(stderr, "PathPlanner::SmoothWaypoints %d\n", smoothed_waypoints.size());
   return smoothed_waypoints;
 }
 
@@ -109,7 +109,7 @@ vector<Eigen::Vector3d> PathPlanner::FindWaypoints(vector<RRTNode> FRRT, vector<
     parent = prev.getParent();
   }
 
-  for (size_t i=temp_waypoints.size()-1; i>=0; i--) {
+  for (int i=temp_waypoints.size()-1; i>=0; i--) {
     waypoints.push_back(temp_waypoints[i]);
   }
 
@@ -129,10 +129,10 @@ double PathPlanner::fRand(double fMin, double fMax) {
     return fMin + f * (fMax - fMin);
 }
 
-
 std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Eigen::Vector3d goal_pos) {
   vector<Eigen::Vector3d> path;
   vector<Eigen::Vector3d> temp_path;
+  //srand(time(NULL));
  
   vector<BotState>* blue_team = SoccerFieldInfo::Instance()->blueTeamBots;
   vector<BotState>* yellow_team = SoccerFieldInfo::Instance()->yellowTeamBots;
@@ -165,13 +165,13 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
 
   //check that goal state is not also a collision state
   if (fabs(goal_pos_(0)) > x_lim_ || fabs(goal_pos_(1)) > y_lim_) {
-    fprintf(stderr, "%f  %f %f %f\n", goal_pos_(0), x_lim_, goal_pos_(1), y_lim_);
+    //fprintf(stderr, "%f  %f %f %f\n", goal_pos_(0), x_lim_, goal_pos_(1), y_lim_);
     std::cout << "Goal out of bounds, returning empty path." << std::endl;
     return path;
   }
   for (size_t i=0; i<dyn_obj_loc.size(); i++) {
     double dst = sqrt(pow((goal_pos_(0)-dyn_obj_loc[i](0)),2) + pow((goal_pos_(1)-dyn_obj_loc[i](1)),2));
-    if (dst <= robot_radius_*2) {
+    if (dst <= ROBOT_RADIUS*2) {
       std::cout << "Goal located within obstacle... proceeding anyway." << std::endl;
     }
   }
@@ -179,6 +179,7 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
   //try direct solution first
   if (!checkCollisions(start_pos_, goal_pos_, dyn_obj_loc)) {
     path.push_back(goal_pos_);
+    //fprintf(stderr, "found a path \n");
     return path;
   }
 
@@ -198,7 +199,7 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
 
   vector<Eigen::Vector3d> waypoints;
 
-  while (num_nodes > node_lim_) { 
+  while (num_nodes < node_lim_) { 
     //check for completion
     pair<RRTNode, RRTNode> nearest = NearestNodes(FRRT, BRRT);
     f_cand = nearest.first.getPose();
@@ -207,29 +208,37 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
     if (dst < destination_epsilon_) {
       //we did it!
       temp_path = FindWaypoints(FRRT, BRRT, nearest.first, nearest.second);
-      path = SmoothWaypoints(temp_path, dyn_obj_loc);
-      return path;
+      //path = SmoothWaypoints(temp_path, dyn_obj_loc);
+      //fprintf(stderr, "found a path \n");
+      return temp_path;
+      //return path;
     }
+    //fprintf(stderr, "path complete check\n");
 
     //Try to expand forward tree
     alpha = fRand(0.0, 1.0);
+    //fprintf(stderr, "alpha: %f \n", alpha);
     if (alpha < goal_bias_) {
       //find nearest node pair in trees and try to link
       pair<RRTNode, RRTNode> nearest = NearestNodes(FRRT, BRRT);
       expand = nearest.first.getPose(); //forward tree node
       target = nearest.second.getPose(); //backward tree node
+      //fprintf(stderr, "target: %f %f %f\n", target[0], target[1], target[2]);
+      //fprintf(stderr, "expand: %f %f %f\n", expand[0], expand[1], expand[2]);
       if (!checkCollisions(expand, target, dyn_obj_loc)) {
         //we did it!
         temp_path = FindWaypoints(FRRT, BRRT, nearest.first, nearest.second);
-        path = SmoothWaypoints(temp_path, dyn_obj_loc);
-        return path;
+        //path = SmoothWaypoints(temp_path, dyn_obj_loc);
+	//fprintf(stderr, "found a path \n");
+        return temp_path;
+	//return path;
       }
     }
     else {
       //choose expansion node uniformly at random from all nodes
       int node_index = rand()%FRRT.size();
       expand = FRRT[node_index].getPose();
-      beta = fRand(0.05, 0.5);
+      beta = fRand(20, 200); //mm
       theta = fRand(-3.14159, 3.14159);
       Eigen::Vector3d extension(cos(theta),sin(theta),0);
       extension *= beta;
@@ -238,9 +247,11 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
         //add to tree
         RRTNode new_node = RRTNode(node_index, target);
         FRRT.push_back(new_node);
+	////fprintf(stderr, "new_node: %f %f %f\n", target[0], target[1], target[2]);
         num_nodes++;
       }
     }
+    //fprintf(stderr, "expanded forwards tree\n");
 
     //Try to expand backward tree
     alpha = fRand(0.0, 1.0);
@@ -252,15 +263,17 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
       if (!checkCollisions(expand, target, dyn_obj_loc)) {
         //we did it!
         temp_path = FindWaypoints(FRRT, BRRT, nearest.first, nearest.second);
-        path = SmoothWaypoints(temp_path, dyn_obj_loc);
-        return path;
+        //path = SmoothWaypoints(temp_path, dyn_obj_loc);
+	//fprintf(stderr, "found a path \n");
+	return temp_path;
+        //return path;
       }
     }
     else {
       //choose expansion node uniformly at random from all nodes
       int node_index = rand()%BRRT.size();
       expand = BRRT[node_index].getPose();
-      beta = fRand(0.05, 0.5);
+      beta = fRand(20, 200);
       theta = fRand(-3.14159, 3.14159);
       Eigen::Vector3d extension(cos(theta),sin(theta),0);
       extension *= beta;
@@ -269,13 +282,17 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
         //add to tree
         RRTNode new_node = RRTNode(node_index, target);
         BRRT.push_back(new_node);
+	////fprintf(stderr, "new_node: %f %f %f\n", target[0], target[1], target[2]);
         num_nodes++;
       }
-    }
+    }   
+    //fprintf(stderr, "expanded backwards tree\n");
+
+    //fprintf(stderr, "Num nodes: %d\n", num_nodes);
   }
   if (num_nodes > node_lim_) {
     std::cout << "maximum number of nodes expanded, returning empty list" << std::endl;
   }
-
+  
   return path;
 }

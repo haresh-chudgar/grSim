@@ -128,42 +128,43 @@ void OneRobotOffensePlay::Execute() {
 	  fprintf(stderr, "No valid shot\n");
 	  continue;
 	}
+	for(int i = 0; i < shootingPosMatrix.rows(); ++i) {
+	  Eigen::VectorXd shootingPos =  shootingPosMatrix.row(i);
+	  fprintf(stderr, "Shooting Pos %d: %f, %f\n", i, shootingPos[0], shootingPos[1]);
+	}
         Eigen::VectorXd shootingPos = shootingPosMatrix.row(0);
 	
         fprintf(stderr, "Calculating shooting angle!\n");
         Eigen::Vector3d goal = _team->at(i)->CurrentState();
         fprintf(stderr, "Robot State: %f  %f %f\n", goal[0], goal[1], goal[2]);
 
-        goal = SoccerFieldInfo::Instance()->ball;
-        goal[2] = (shootingPos[0] + shootingPos[1]) / 2;
-
-
 // 	double changeInAngle = (goal[2] - _team->at(i)->CurrentState()[2]) / 2;
 //         goal[0] = 2 * 89 * sin(changeInAngle) * cos(changeInAngle);
 //         goal[1] = 2 * 89 * sin(changeInAngle) * sin(changeInAngle);
 // 	
-        goal = Evaluation::GetGoalPositionToBall(goal[2]);
-        Eigen::Vector3d goalStateToKickFrom = goal;
+	double desiredShotAngle = (shootingPos[0] + shootingPos[1]) / 2;
+        Eigen::Vector3d goalStateToKickFrom = Evaluation::GetGoalPositionToBall(desiredShotAngle);
         wayPointsToGoalState.push_back(goalStateToKickFrom);
         fprintf(stderr, "Final goal: %f, %f, %f\n", goalStateToKickFrom[0], goalStateToKickFrom[1], goalStateToKickFrom[2] * 180 / M_PI);
 
         Eigen::Vector2d robotAxis(cos(_team->at(i)->CurrentState()[2]), sin(_team->at(i)->CurrentState()[2]));
-        Eigen::Vector2d goalSateAxis(cos(goalStateToKickFrom[2]), sin(goalStateToKickFrom[2]));
+        Eigen::Vector2d goalStateAxis(cos(goalStateToKickFrom[2]), sin(goalStateToKickFrom[2]));
 
-        if(robotAxis.dot(goalSateAxis) > 0) {
+        if(robotAxis.dot(goalStateAxis) > 0) {
           //Go Directly after backing up
-          fprintf(stderr, "robotAxis%f %f  %f\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", robotAxis[0], robotAxis[1], (double)robotAxis.dot(goalSateAxis));
+          fprintf(stderr, "robotAxis%f %f  %f\n", robotAxis[0], robotAxis[1], (double)robotAxis.dot(goalStateAxis));
         } else { 
-          fprintf(stderr, "robotAxis angle>90%f %f  %f\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n", robotAxis[0], robotAxis[1], (double)robotAxis.dot(goalSateAxis));
-          //Decide how to go?
-          //Rotate robot axis by 90 degrees
+          fprintf(stderr, "robotAxis angle>90%f %f  %f\n", robotAxis[0], robotAxis[1], (double)robotAxis.dot(goalStateAxis));
+          
+	  //Decide how to go?
 
+	  //Rotate robot axis by 90 degrees
           double temp = robotAxis[0]; //-sin(theta)
           robotAxis[0] = -robotAxis[1];//cos(theta)
-
           robotAxis[1] = temp;
+	  
           Eigen::Vector3d wayPoint;
-          if(robotAxis.dot(goalSateAxis) >= 0) {
+          if(robotAxis.dot(goalStateAxis) >= 0) {
             wayPoint = Evaluation::GetGoalPositionToBall(_team->at(i)->CurrentState()[2] + M_PI/2);
           } else {
             wayPoint = Evaluation::GetGoalPositionToBall(_team->at(i)->CurrentState()[2] - M_PI/2);
@@ -184,13 +185,14 @@ void OneRobotOffensePlay::Execute() {
         _team->at(i)->goToLocation(1, goal);
 
         states[i] = 1;
-	
+
       } else if (states[i] == 1) {
 
         if (_team->at(i)->execute() == 1) {
           _team->at(i)->setSpinner(true);
           if(wayPointsToGoalState.size() > 0) {
-            Eigen::Vector3d intermediateGoal = wayPointsToGoalState.back();
+	    Eigen::Vector3d intermediateGoal = wayPointsToGoalState.back();
+            fprintf(stderr, "Going to waypoint: %f, %f, %f\n", intermediateGoal[0], intermediateGoal[1], intermediateGoal[2]);
             _team->at(i)->goToLocation(1, intermediateGoal);
             wayPointsToGoalState.pop_back();
          } else {
