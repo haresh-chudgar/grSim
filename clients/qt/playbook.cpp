@@ -8,23 +8,25 @@
 using namespace std; 
 // ==== Plays ====
 
-Play::Play(bool team) : _isYellowTeam(team) {}
+Play::Play(bool isYellowTeam) : _isYellowTeam(isYellowTeam) {}
 
+// TODO update CompleteCondition to store a metric for quality of completion
 bool Play::Complete() {
   if(_complete){
     return true;
   } else if(this->CompleteCondition()){
     _complete = true;
-    this->UpdateWeight();
+    //this->UpdateWeight();
   }
+  return false;
 }
 
-void Play::Begin(vector<Robot*>* team) {
+void Play::Begin(vector<Robot*>* robots) {
   assignments.clear();
   states.clear();
-  _team = team;
+  _robots = robots;
   _complete = false;
-  for(size_t i = 0; i < _team->size(); i++) {
+  for(size_t i = 0; i < _robots->size(); i++) {
     states.push_back(0);
   }
   // First bot is always the goalie (more complex plays could pull the goalie to another role)
@@ -34,13 +36,13 @@ void Play::Begin(vector<Robot*>* team) {
 }
 
 //---Example play---
-ExamplePlay::ExamplePlay(bool team) : Play(team){ }
+ExamplePlay::ExamplePlay(bool isYellowTeam) : Play(isYellowTeam){ }
 
 bool ExamplePlay::Applicable() {
   // Lets say Example play is only applicable if the team has the ball
   bool has_ball;
   return has_ball;
-  // Can be based on team predicates, predicates based on analyzing opponents state
+  // Can be based on isYellowTeam predicates, predicates based on analyzing opponents state
   // or more complicated functions per class
 }
 
@@ -48,7 +50,7 @@ bool ExamplePlay::CompleteCondition() {
   // Lets say Example play is complete as soon as we don't have the ball
   bool has_ball;
   return !has_ball;
-  // Can be based on team predicates, predicates based on analyzing opponents state
+  // Can be based on isYellowTeam predicates, predicates based on analyzing opponents state
   // or more complicated functions per class
 }
 
@@ -59,14 +61,14 @@ bool ExamplePlay::Success() {
   // Lets say Example play is successful if we scored because of this play
    bool scored;
   return scored;
-  // Can be based on team predicates, predicates based on analyzing opponents state
+  // Can be based on isYellowTeam predicates, predicates based on analyzing opponents state
   // or more complicated functions per class
 }
 
 void ExamplePlay::AssignRoles() { 
   // Roles are just numbers, can be enums in each class if necessary
   // used inside state machine
-  for(size_t i = 1; i < _team->size() - 1; i++) {
+  for(size_t i = 1; i < _robots->size() - 1; i++) {
     bool closestToBall;
     bool forward;
     // If the robot has the ball he's the priority (the kicker)
@@ -85,7 +87,7 @@ void ExamplePlay::AssignRoles() {
 void ExamplePlay::Execute() { 
   // Roles are just numbers, can be enums in each class if necessary
   // used inside state machine
-  for(size_t i = 1; i < _team->size() - 1; i++) {
+  for(size_t i = 1; i < _robots->size() - 1; i++) {
     if(assignments[i] == 0) {
       // Kicker
     } else if (assignments[i] == 1) {
@@ -99,13 +101,10 @@ void ExamplePlay::Execute() {
   frames_running++;
 }
 
-// Should in general be used by all plays to update based on success
-void ExamplePlay::UpdateWeight() {
-  // Write weight updating
-}
+
 
 //---MoveToKick play (rigged)---
-MoveToKick::MoveToKick(bool team) : Play(team) { }
+MoveToKick::MoveToKick(bool isYellowTeam) : Play(isYellowTeam) { }
 
 bool MoveToKick::Applicable() {
   return true;
@@ -133,7 +132,7 @@ void MoveToKick::Execute() {
     if(assignments[i] == 0) {
       if(states[i] == 0) { // Moving to Ball
         Eigen::Vector3d ball = SoccerFieldInfo::Instance()->ball;
-        Eigen::Vector3d robot = _team->at(i)->CurrentState();
+        Eigen::Vector3d robot = _isYellowTeam->at(i)->CurrentState();
         Eigen::Vector3d goal = (ball-robot);
         Eigen::Vector3d offset = (ball-robot);
 	offset.normalize();
@@ -145,7 +144,7 @@ void MoveToKick::Execute() {
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
         Eigen::Vector3d ball = SoccerFieldInfo::Instance()->ball;
-	Eigen::Vector3d robot = _team->at(i)->CurrentState();
+	Eigen::Vector3d robot = _isYellowTeam->at(i)->CurrentState();
         Eigen::Vector3d goal = (ball-robot);
         Eigen::Vector3d offset = (ball-robot);
 	offset.normalize();
@@ -172,15 +171,16 @@ bool MoveToKick::Complete() {
     return true;
   } else if(this->CompleteCondition()){
     _complete = true;
-    this->UpdateWeight();
+    //this->UpdateWeight();
   }
+  return false;
 }
 
-void MoveToKick::Begin(vector<Robot*>* team) {
+void MoveToKick::Begin(vector<Robot*>* isYellowTeam) {
   assignments.clear();
   states.clear();
-  _team = team;
-  for(size_t i = 0; i < _team->size(); i++) {
+  _isYellowTeam = isYellowTeam;
+  for(size_t i = 0; i < _isYellowTeam->size(); i++) {
     states.push_back(0);
   }
   // First bot is always the goalie (more complex plays could pull the goalie to another role)
@@ -189,10 +189,6 @@ void MoveToKick::Begin(vector<Robot*>* team) {
   this->Execute();
 }
 
-// Should in general be used by all plays to update based on success
-void MoveToKick::UpdateWeight() {
-  // Write weight updating
-}
 
 // ===== PlayBook =====
 // The play passed into the constructor will be a default play 
@@ -222,12 +218,9 @@ Play* PlayBook::PlaySelection() {
       r -= legal_plays[i]->weight;
     }
   } 
-  
-
-  if(legal_plays.size() == 0) 
-    return NULL;
-  else
-    return legal_plays.at(0); //Haresh: Hardcoding to first play
+  // Should never happen
+  fprintf(stderr, "No Legal Play found by playbook"); 
+  return NULL;
 }
 
 void PlayBook::ResetWeights() {
@@ -246,6 +239,7 @@ void PlayBook::UpdateWeight(Play* play, int success) {
   }
   double play_probability = play->weight / sum_weightsN;
   double m = 0; //m is a reward weighting multiplier
+  // m values are taken from: (get url)
   if(success == -1) {
     m = 2.0/3.0; // Failure
   } else if(success == 0) {
@@ -276,8 +270,7 @@ PlayBook PlayBook::TheYellowBook(){
 
 PlayBook PlayBook::TheBlueBook(){
   PlayBook the_book(new DeceptiveDefense(false));
-  
-  // Add all created blue team plays to the_book
+  // Add all created blue isYellowTeam plays to the_book
   the_book.AddPlay(new DeceptiveDefense(false));
   the_book.ResetWeights();
   return the_book;

@@ -40,7 +40,7 @@ GLWidget::GLWidget(QWidget *parent,ConfigWidget* _cfg)
     forms[5] = new RobotsFomation(4);  //inside type 2
     ssl = new SSLWorld(this,cfg,forms[2],forms[2]);
     Current_robot = 0;
-    Current_team = 0;
+    Current_isYellowTeam = 0;
     cammode = 0;
     setMouseTracking(true);
 
@@ -127,7 +127,7 @@ void GLWidget::selectRobot()
     if (clicked_robot!=-1)
     {
         Current_robot = clicked_robot%ROBOT_COUNT;
-        Current_team = clicked_robot/ROBOT_COUNT;
+        Current_isYellowTeam = clicked_robot/ROBOT_COUNT;
         emit selectedRobot();
     }
 }
@@ -136,13 +136,13 @@ void GLWidget::resetRobot()
 {
     if (Current_robot!=-1)
     {
-        ssl->robots[robotIndex(Current_robot, Current_team)]->resetRobot();
+        ssl->robots[robotIndex(Current_robot, Current_isYellowTeam)]->resetRobot();
     }
 }
 
 void GLWidget::switchRobotOnOff()
 {
-    int k = robotIndex(Current_robot, Current_team);
+    int k = robotIndex(Current_robot, Current_isYellowTeam);
     if (Current_robot!=-1)
     {
         if (ssl->robots[k]->on==true)
@@ -161,7 +161,7 @@ void GLWidget::switchRobotOnOff()
 
 void GLWidget::resetCurrentRobot()
 {       
-    ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
+    ssl->robots[robotIndex(Current_robot,Current_isYellowTeam)]->resetRobot();
 }
 
 void GLWidget::moveCurrentRobot()
@@ -169,7 +169,7 @@ void GLWidget::moveCurrentRobot()
     ssl->show3DCursor = true;
     ssl->cursor_radius = cfg->robotSettings.RobotRadius;
     state = 1;
-    moving_robot_id = robotIndex(Current_robot,Current_team);
+    moving_robot_id = robotIndex(Current_robot,Current_isYellowTeam);
 }
 
 void GLWidget::moveBall()
@@ -346,7 +346,7 @@ void GLWidget::paintGL()
     if (cammode==1)
     {
         dReal x,y,z;
-        int R = robotIndex(Current_robot,Current_team);
+        int R = robotIndex(Current_robot,Current_isYellowTeam);
         ssl->robots[R]->getXY(x,y);z = 0.3;
         ssl->g->setViewpoint(x,y,z,ssl->robots[R]->getDir(),-25,0);
     }
@@ -428,7 +428,7 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
     }
     const dReal S = 0.30;
     const dReal BallForce = 0.2;
-    int R = robotIndex(Current_robot,Current_team);
+    int R = robotIndex(Current_robot,Current_isYellowTeam);
     switch (cmd) {
     case 't': case 'T': ssl->robots[R]->incSpeed(0,-S);ssl->robots[R]->incSpeed(1,S);ssl->robots[R]->incSpeed(2,-S);ssl->robots[R]->incSpeed(3,S);break;
     case 'g': case 'G': ssl->robots[R]->incSpeed(0,S);ssl->robots[R]->incSpeed(1,-S);ssl->robots[R]->incSpeed(2,S);ssl->robots[R]->incSpeed(3,-S);break;
@@ -479,13 +479,13 @@ void GLWidget::yellowRobotsMenuTriggered(QAction *act)
     reform(1,act->text());
 }
 
-void GLWidget::reform(int team,const QString& act)
+void GLWidget::reform(int isYellowTeam,const QString& act)
 {
-    if (act==tr("Put all inside with formation 1")) forms[2]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all inside with formation 2")) forms[3]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all outside") && team==0) forms[0]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all outside") && team==1) forms[1]->resetRobots(ssl->robots,team);
-    if (act==tr("Put all out of field")) forms[4]->resetRobots(ssl->robots,team);    
+    if (act==tr("Put all inside with formation 1")) forms[2]->resetRobots(ssl->robots,isYellowTeam);
+    if (act==tr("Put all inside with formation 2")) forms[3]->resetRobots(ssl->robots,isYellowTeam);
+    if (act==tr("Put all outside") && isYellowTeam==0) forms[0]->resetRobots(ssl->robots,isYellowTeam);
+    if (act==tr("Put all outside") && isYellowTeam==1) forms[1]->resetRobots(ssl->robots,isYellowTeam);
+    if (act==tr("Put all out of field")) forms[4]->resetRobots(ssl->robots,isYellowTeam);    
 }
 
 void GLWidget::moveBallHere()
@@ -499,7 +499,7 @@ void GLWidget::moveBallHere()
 void GLWidget::lockCameraToRobot()
 {
     cammode = -1;
-    lockedIndex = robotIndex(Current_robot,Current_team);//clicked_robot;
+    lockedIndex = robotIndex(Current_robot,Current_isYellowTeam);//clicked_robot;
 }
 
 void GLWidget::lockCameraToBall()
@@ -509,8 +509,8 @@ void GLWidget::lockCameraToBall()
 
 void GLWidget::moveRobotHere()
 {
-    ssl->robots[robotIndex(Current_robot,Current_team)]->setXY(ssl->cursor_x,ssl->cursor_y);
-    ssl->robots[robotIndex(Current_robot,Current_team)]->resetRobot();
+    ssl->robots[robotIndex(Current_robot,Current_isYellowTeam)]->setXY(ssl->cursor_x,ssl->cursor_y);
+    ssl->robots[robotIndex(Current_robot,Current_isYellowTeam)]->resetRobot();
 }
 
 GLWidgetGraphicsView::GLWidgetGraphicsView(QGraphicsScene *scene,GLWidget *_glwidget)

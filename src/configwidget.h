@@ -152,12 +152,12 @@ public:
   DEF_VALUE(double,Double,noiseDeviation_angle)
   DEF_VALUE(bool,Bool,vanishing)
   DEF_VALUE(double,Double,ball_vanishing)
-  DEF_VALUE(double,Double,blue_team_vanishing)
-  DEF_VALUE(double,Double,yellow_team_vanishing)
+  DEF_VALUE(double,Double,blue_isYellowTeam_vanishing)
+  DEF_VALUE(double,Double,yellow_isYellowTeam_vanishing)
   DEF_VALUE(std::string, String, plotter_addr)
   DEF_VALUE(int, Int, plotter_port)
   DEF_VALUE(bool, Bool, plotter)  
-  void loadRobotSettings(QString team);
+  void loadRobotSettings(QString isYellowTeam);
 public slots:  
   void loadRobotsSettings();
 };

@@ -21,6 +21,7 @@
 #include <qiodevice.h>
 #include "evaluation.h"
 
+//TODO replace botstate with robot*
 static SoccerFieldInfo* _instance = NULL;
 
 SoccerFieldInfo* SoccerFieldInfo::Instance() {
@@ -32,7 +33,7 @@ void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTea
 }
   
 SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
-:_blueTeam(blueTeam), _yellowTeam(yellowTeam), kFrameRate(1.0/60.0), _robotWithBall(false), _teamInBallPossession(false), frameNumber(0)
+:_blueTeam(blueTeam), _yellowTeam(yellowTeam), kFrameRate(1.0/60.0), _robotWithBall(false), _isYellowTeamInBallPossession(false), frameNumber(0)
 {
   blueTeamBots = new vector<BotState>();
   yellowTeamBots = new vector<BotState>();
@@ -132,12 +133,12 @@ void SoccerFieldInfo::receive(char* buffer, int size)
     BotState robotHavingBall(false);
     bool isBallInPossession = Evaluation::TeamHavingBall(&robotHavingBall);
     if(isBallInPossession == false) {
-      _teamInBallPossession = false;
+      _isYellowTeamInBallPossession = false;
       //Dont update robotWithBall to keep the information about which robot kicked it
       //fprintf(stderr, "Ball out of possession\n");
     }
     else {
-      _teamInBallPossession = true;
+      _isYellowTeamInBallPossession = true;
       _robotWithBall = robotHavingBall;
       //fprintf(stderr, "Ball possession %d %d\n", _robotWithBall._id, _robotWithBall._isYellow);
     }

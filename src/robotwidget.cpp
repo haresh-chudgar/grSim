@@ -30,9 +30,9 @@ RobotWidget::RobotWidget(QWidget* parent)
 {
     QGridLayout *layout = new QGridLayout;
     robotpic = new QLabel;
-    teamCombo = new QComboBox(this);
-    teamCombo->addItem("Blue");
-    teamCombo->addItem("Yellow");
+    isYellowTeamCombo = new QComboBox(this);
+    isYellowTeamCombo->addItem("Blue");
+    isYellowTeamCombo->addItem("Yellow");
     robotCombo = new QComboBox(this);
 
     // Add items to the combo box dynamically 
@@ -55,7 +55,7 @@ RobotWidget::RobotWidget(QWidget* parent)
     setPoseBtn = new QPushButton("Set Position");
     layout->addWidget(robotpic,0,0,5,1);
     layout->addWidget(new QLabel("Team"),0,1);
-    layout->addWidget(teamCombo,0,2);
+    layout->addWidget(isYellowTeamCombo,0,2);
     layout->addWidget(new QLabel("Index"),1,1);
     layout->addWidget(robotCombo,1,2);
     layout->addWidget(new QLabel("Velocity"),2,1);

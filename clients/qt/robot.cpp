@@ -19,8 +19,8 @@
 #include "pathplanner.h"
 #include "soccerfieldinfo.h"
 
-Robot::Robot(Communicator* communicator, PathPlanner* planner, bool team, int id)
-:_communicator(communicator), isYellowTeam(team), playerID(id), _planner(planner), currentFrame(0)
+Robot::Robot(Communicator* communicator, PathPlanner* planner, bool isYellowTeam, int id)
+:_communicator(communicator), isYellowTeam(isYellowTeam), playerID(id), _planner(planner), currentFrame(0)
 {
   
   _addr = "127.0.0.1";
@@ -99,6 +99,7 @@ void Robot::stopMoving() {
   sendVelocityCommands();
 }
 
+// TODO this shouldn't be used for checks, should be called from one loop for all bots
 // Executes the robot's movement towards the desiredLocation
 // Returns
 //    1   - success
@@ -107,7 +108,7 @@ void Robot::stopMoving() {
 int Robot::execute() {
   
   currentTime += (1.0/60.0);
-//  fprintf(stderr, "currentTime %f\n", currentTime);
+  //  fprintf(stderr, "currentTime %f\n", currentTime);
 
   //fprintf(stderr, "CurrentState: %f, %f, %f\ndesiredLocation: %f, %f, %f\n", CurrentState()[0], CurrentState()[1], CurrentState()[2], desiredLocation[0], desiredLocation[1], desiredLocation[2]);
   
@@ -116,12 +117,10 @@ int Robot::execute() {
     currentWaypointIndex = 0;
     //Pass parameters in millimeters
     coeffecients = _planner->FindPath(CurrentState(), desiredLocation);
-    fprintf(stderr, "Size of coeffecients: %d\n", coeffecients.size());
+    //fprintf(stderr, "Size of coeffecients: %d\n", coeffecients.size());
   }
   currentFrame += 1;
   //currentFrame = (currentFrame + 1) % 10;
-  
-  // TODO(KARL) check if planner can generate trajectory, return -1 if not
 
   Eigen::Vector3d desiredState;
   desiredState[0] = coeffecients[currentWaypointIndex][0];
@@ -130,6 +129,7 @@ int Robot::execute() {
   
   fprintf(stderr, "desiredState: %f, %f, %f\n", desiredState[0], desiredState[1], desiredState[2]);
   
+  // Computing velocities
   _currentVelocity = controller.ComputeCommandVelo(CurrentState(), desiredState, _currentVelocity, Eigen::Vector3d(0,0,0));
   vAngular = _currentVelocity[2];
   vX = _currentVelocity[0];
@@ -148,6 +148,7 @@ int Robot::execute() {
   
   double dist = Eigen::Vector2d((CurrentState() - desiredState)[0], (CurrentState() - desiredState)[1]).norm();
   fprintf(stderr, "Distance to desired location: %f \n", dist);
+  //TODO units?
   if(dist < 3) {
     ++currentWaypointIndex;
     if(currentWaypointIndex > coeffecients.size() - 1) {

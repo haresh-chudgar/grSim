@@ -32,7 +32,7 @@ class RobotWidget : public QDockWidget
 public:    
     RobotWidget(QWidget* parent);
     void setPicture(QImage* img);
-    QComboBox *teamCombo,*robotCombo;
+    QComboBox *isYellowTeamCombo,*robotCombo;
     QLabel *robotpic;
     QLabel *vellabel,*acclabel;
     QPushButton *resetBtn,*locateBtn;

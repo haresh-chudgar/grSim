@@ -25,9 +25,9 @@
 //TODO: Use KD-Tree to store points
 //      Cache waypoints in the manner of J. Bruce and M. Veloso in ERRT (2002)
 //      Improve smoothing
-PathPlanner::PathPlanner(size_t robot_ID, bool team) { // team = isYellow
+PathPlanner::PathPlanner(size_t robot_ID, bool isYellowTeam) { // isYellowTeam = isYellow
   robot_ID_ = robot_ID;
-  team_ = team;
+  isYellowTeam_ = isYellowTeam;
 }
 
 PathPlanner::~PathPlanner() {}
@@ -134,28 +134,28 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
   vector<Eigen::Vector3d> temp_path;
   //srand(time(NULL));
  
-  vector<BotState>* blue_team = SoccerFieldInfo::Instance()->blueTeamBots;
-  vector<BotState>* yellow_team = SoccerFieldInfo::Instance()->yellowTeamBots;
+  vector<BotState>* blue_isYellowTeam = SoccerFieldInfo::Instance()->blueTeamBots;
+  vector<BotState>* yellow_isYellowTeam = SoccerFieldInfo::Instance()->yellowTeamBots;
 
   vector<Eigen::Vector2d> dyn_obj_loc;
   Eigen::Vector2d new_loc; //assume all objects have the same radii
-  for (size_t i=0; i<blue_team->size(); i++) {
-    if (team_) {
-      new_loc << blue_team[0][i]._position(0), blue_team[0][i]._position(1);
+  for (size_t i=0; i<blue_isYellowTeam->size(); i++) {
+    if (isYellowTeam_) {
+      new_loc << blue_isYellowTeam[0][i]._position(0), blue_isYellowTeam[0][i]._position(1);
       dyn_obj_loc.push_back(new_loc);
     }
     else if (robot_ID_ != i) {
-      new_loc << blue_team[0][i]._position(0), blue_team[0][i]._position(1);
+      new_loc << blue_isYellowTeam[0][i]._position(0), blue_isYellowTeam[0][i]._position(1);
       dyn_obj_loc.push_back(new_loc);
     }
   }
-  for (size_t i=0; i<yellow_team->size(); i++) {
-    if (!team_) {
-      new_loc << yellow_team[0][i]._position(0), yellow_team[0][i]._position(1);
+  for (size_t i=0; i<yellow_isYellowTeam->size(); i++) {
+    if (!isYellowTeam_) {
+      new_loc << yellow_isYellowTeam[0][i]._position(0), yellow_isYellowTeam[0][i]._position(1);
       dyn_obj_loc.push_back(new_loc);
     }
     else if (robot_ID_ != i) {
-      new_loc << yellow_team[0][i]._position(0), yellow_team[0][i]._position(1);
+      new_loc << yellow_isYellowTeam[0][i]._position(0), yellow_isYellowTeam[0][i]._position(1);
       dyn_obj_loc.push_back(new_loc);
     }
   }

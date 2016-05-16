@@ -29,7 +29,7 @@ class OneRobotOffensePlay : public Play {
     double weight ; // Success Rate
     int frames_running; // Number for frames the play has been executing
 
-    OneRobotOffensePlay(bool team); // Constructor
+    OneRobotOffensePlay(bool isYellowTeam); // Constructor
 
     bool Applicable(); // Check if the play is Applicable
 
@@ -41,14 +41,12 @@ class OneRobotOffensePlay : public Play {
 
     void AssignRoles();  // Assigns all Robots to the best role given the options
 
-    void Begin(vector<Robot*>* team); // Begins the play initializing all components
-
     void Execute(); // Executes the state machines of all Robots in question
 
   private:
     std::vector<Eigen::Vector3d> wayPointsToGoalState;
     BotState offenseRobot;
-    vector<Robot*>* _team;
+    vector<Robot*>* _robots;
     bool _complete;
     virtual void UpdateWeight();
 };

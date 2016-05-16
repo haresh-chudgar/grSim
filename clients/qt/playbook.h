@@ -15,7 +15,7 @@ class Play{
     int frames_running; // Number for frames the play has been executing
 
     
-    Play(bool team); // Constructor
+    Play(bool isYellowTeam); // Constructor
 
     virtual bool Applicable() = 0; // Check if the play is Applicable
 
@@ -27,15 +27,16 @@ class Play{
 
     virtual void AssignRoles()= 0;  // Assigns all Robots to the best role given the options
 
-    virtual void Begin(vector<Robot*>* team); // Begins the play initializing all components
+    virtual void Begin(vector<Robot*>* robots); // Begins the play initializing all components
 
     virtual void Execute()= 0; // Executes the state machines of all Robots in question
   
     bool _isYellowTeam;
+    
+    vector<Robot*>* _robots;
   private:
     bool _complete;
-    vector<Robot*>* _team;
-    virtual void UpdateWeight() = 0;
+    
 };
 
 class ExamplePlay : public Play {
@@ -45,7 +46,7 @@ class ExamplePlay : public Play {
     double weight ; // Success Rate
     int frames_running; // Number for frames the play has been executing
 
-    ExamplePlay(bool team); // Constructor
+    ExamplePlay(bool isYellowTeam); // Constructor
 
     bool Applicable(); // Check if the play is Applicable
 
@@ -58,9 +59,8 @@ class ExamplePlay : public Play {
     void Execute(); // Executes the state machines of all Robots in question
   
   private:
-    vector<Robot*>* _team;
+    vector<Robot*>* _isYellowTeam;
     bool _complete;
-    virtual void UpdateWeight();
 };
 
 class MoveToKick : public Play {
@@ -70,7 +70,7 @@ class MoveToKick : public Play {
     double weight ; // Success Rate
     int frames_running; // Number for frames the play has been executing
 
-    MoveToKick(bool team); // Constructor
+    MoveToKick(bool isYellowTeam); // Constructor
 
     bool Applicable(); // Check if the play is Applicable
 
@@ -82,14 +82,13 @@ class MoveToKick : public Play {
 
     void AssignRoles();  // Assigns all Robots to the best role given the options
 
-    void Begin(vector<Robot*>* team); // Begins the play initializing all components
+    void Begin(vector<Robot*>* isYellowTeam); // Begins the play initializing all components
 
     void Execute(); // Executes the state machines of all Robots in question
   
   private:
-    vector<Robot*>* _team;
+    vector<Robot*>* _isYellowTeam;
     bool _complete;
-    virtual void UpdateWeight();
 };
 
 class PlayBook{

@@ -51,14 +51,14 @@ public:
     QAction* moveRobotHereAct;
     QAction* changeCamModeAct;
     QMenu *cameraMenu;
-    int Current_robot,Current_team,cammode;
+    int Current_robot,Current_isYellowTeam,cammode;
     int lockedIndex;
     bool ctrl,alt,kickingball;
     double kickpower;
     bool fullScreen;
     void update3DCursor(int mouse_x,int mouse_y);
     void putBall(dReal x,dReal y);
-    void reform(int team,const QString& act);    
+    void reform(int isYellowTeam,const QString& act);    
     void step();
 public slots:
     void moveRobot();

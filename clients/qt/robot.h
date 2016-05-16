@@ -29,7 +29,7 @@
 class Robot
 {
  public:
-  Robot(Communicator* communicator, PathPlanner* planner, const bool team, const int id);
+  Robot(Communicator* communicator, PathPlanner* planner, const bool isYellowTeam, const int id);
 
   ~Robot();
     

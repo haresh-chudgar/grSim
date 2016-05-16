@@ -20,7 +20,7 @@ Copyright (C) 2011, Parsian Robotic Center (eew.aut.ac.ir/~parsian/grsim)
 GUI and program
 ============
 
-DONE **separate team parameters
+DONE **separate isYellowTeam parameters
 
 
 DONE f12

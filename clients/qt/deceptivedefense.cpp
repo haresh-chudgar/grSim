@@ -21,7 +21,7 @@ bool DeceptiveDefense::Applicable() {
     return true;
   }
   return false;
-  if(SoccerFieldInfo::Instance()->_teamInBallPossession == false && SoccerFieldInfo::Instance()->_robotWithBall._isYellow != _isYellowTeam) {
+  if(SoccerFieldInfo::Instance()->_isYellowTeamInBallPossession == false && SoccerFieldInfo::Instance()->_robotWithBall._isYellow != _isYellowTeam) {
     //fprintf(stderr, "Applicable!\n");
     return true;
   }
@@ -34,7 +34,7 @@ bool DeceptiveDefense::Complete() {
 
 // Check if the play is over
 bool DeceptiveDefense::CompleteCondition() {
-  if(SoccerFieldInfo::Instance()->_teamInBallPossession == true && SoccerFieldInfo::Instance()->_robotWithBall._isYellow == _isYellowTeam) {
+  if(SoccerFieldInfo::Instance()->_isYellowTeamInBallPossession == true && SoccerFieldInfo::Instance()->_robotWithBall._isYellow == _isYellowTeam) {
     fprintf(stderr, "Complete!\n");
     return true;
   }
@@ -69,16 +69,16 @@ void DeceptiveDefense::AssignRoles() {
     Eigen::Vector2d ballVel = Eigen::Vector2d(SoccerFieldInfo::Instance()->ballVelocity[0], SoccerFieldInfo::Instance()->ballVelocity[1]);
     ballVel.normalize();
     _interceptLocation = intInfo._interceptLocation;// - Eigen::Vector3d(ballVel[0], ballVel[1], 0)* 5;
-    _team->at(intInfo._robotId)->setSpinner(1);
-    _team->at(intInfo._robotId)->goToLocation(1, _interceptLocation);
+    _robots->at(intInfo._robotId)->setSpinner(1);
+    _robots->at(intInfo._robotId)->goToLocation(1, _interceptLocation);
     fprintf(stderr, "Chosen Intercepting bot: %d, %f, %f, %f %f\n", intInfo._robotId, intInfo._time, intInfo._interceptLocation[0], intInfo._interceptLocation[1], intInfo._interceptLocation[2]);
     
     assignments[intInfo._robotId] = 1;
     intInfo = interceptingBots.at(0);
     _interceptLocation = intInfo._interceptLocation;
     fprintf(stderr, "Chosen Intercepting bot: %d, %f, %f, %f %f\n", intInfo._robotId, intInfo._time, intInfo._interceptLocation[0], intInfo._interceptLocation[1], intInfo._interceptLocation[2]);
-    //_team->at(intInfo._robotId)->setSpinner(1);
-    //_team->at(intInfo._robotId)->goToLocation(1, _interceptLocation);
+    //_isYellowTeam->at(intInfo._robotId)->setSpinner(1);
+    //_isYellowTeam->at(intInfo._robotId)->goToLocation(1, _interceptLocation);
     
   }
   else {
@@ -87,12 +87,12 @@ void DeceptiveDefense::AssignRoles() {
 }
 
 // Begins the play initializing all components
-void DeceptiveDefense::Begin(vector<Robot*>* team) {
+void DeceptiveDefense::Begin(vector<Robot*>* isYellowTeam) {
   assignments.clear();
   states.clear();
-  _team = team;
+  _isYellowTeam = isYellowTeam;
   
-  for(size_t i = 0; i < _team->size(); i++) {
+  for(size_t i = 0; i < _robots->size(); i++) {
     states.push_back(0);
   }
   
@@ -110,19 +110,19 @@ void DeceptiveDefense::Execute() {
     if(assignments[i] == 1) {
       if(states[i] == 0) { // Moving to intercept
 	
-	_team->at(i)->goToLocation(1, _interceptLocation);
-        _team->at(i)->setSpinner(1);
+        _robots->at(i)->goToLocation(1, _interceptLocation);
+        _robots->at(i)->setSpinner(1);
 	states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
-	if (_team->at(i)->execute() == 1) {
+        if (_robots->at(i)->execute() == 1) {
           states[i] = 2;
         }
       } else if(states[i] == 2) { // Kicking
 	fprintf(stderr, "Done with moving\n");
-        _team->at(i)->setSpinner(0);
+        _robots->at(i)->setSpinner(0);
         
-        _team->at(i)->setKickSpeed(1, 1);
-        _team->at(i)->sendVelocityCommands();
+        _robots->at(i)->setKickSpeed(1, 1);
+        _robots->at(i)->sendVelocityCommands();
         // Call Kick
         states[i]++;
       }  else {

@@ -3,6 +3,8 @@
 #include <eigen3/Eigen/Core>
 #include <math.h>
 
+//TODO Remove, this is completely redundant
+
 class BotState {
 public:
   // x, y, theta

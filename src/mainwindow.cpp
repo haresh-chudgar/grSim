@@ -181,7 +181,7 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(dockconfig, SIGNAL(closeSignal(bool)), this, SLOT(showHideConfig(bool)));
     QObject::connect(glwidget, SIGNAL(selectedRobot()), this, SLOT(updateRobotLabel()));
     QObject::connect(robotwidget->robotCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentRobot()));
-    QObject::connect(robotwidget->teamCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentTeam()));
+    QObject::connect(robotwidget->isYellowTeamCombo,SIGNAL(currentIndexChanged(int)),this,SLOT(changeCurrentTeam()));
     QObject::connect(robotwidget->resetBtn,SIGNAL(clicked()),glwidget,SLOT(resetCurrentRobot()));
     QObject::connect(robotwidget->locateBtn,SIGNAL(clicked()),glwidget,SLOT(moveCurrentRobot()));
     QObject::connect(robotwidget->onOffBtn,SIGNAL(clicked()),glwidget,SLOT(switchRobotOnOff()));
@@ -227,9 +227,9 @@ MainWindow::MainWindow(QWidget *parent)
     this->showMaximized();
     this->setWindowTitle("grSim");
 
-    robotwidget->teamCombo->setCurrentIndex(0);
+    robotwidget->isYellowTeamCombo->setCurrentIndex(0);
     robotwidget->robotCombo->setCurrentIndex(0);
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
+    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_isYellowTeam)]->img);
     robotwidget->id = 0;
     scene = new QGraphicsScene(0,0,800,600);    
 }
@@ -253,16 +253,16 @@ void MainWindow::showHideSimulator(bool v)
 void MainWindow::changeCurrentRobot()
 {
     glwidget->Current_robot=robotwidget->robotCombo->currentIndex();    
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
-    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_isYellowTeam)]->img);
+    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_isYellowTeam);
     robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
 }
 
 void MainWindow::changeCurrentTeam()
 {
-    glwidget->Current_team=robotwidget->teamCombo->currentIndex();
-    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_team)]->img);
-    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_team);
+    glwidget->Current_isYellowTeam=robotwidget->isYellowTeamCombo->currentIndex();
+    robotwidget->setPicture(glwidget->ssl->robots[robotIndex(glwidget->Current_robot,glwidget->Current_isYellowTeam)]->img);
+    robotwidget->id = robotIndex(glwidget->Current_robot, glwidget->Current_isYellowTeam);
     robotwidget->changeRobotOnOff(robotwidget->id, glwidget->ssl->robots[robotwidget->id]->on);
 }
 
@@ -289,7 +289,7 @@ void MainWindow::update()
     if (glwidget->ssl->g->isGraphicsEnabled()) glwidget->updateGL();
     else glwidget->step();
 
-    int R = robotIndex(glwidget->Current_robot,glwidget->Current_team);
+    int R = robotIndex(glwidget->Current_robot,glwidget->Current_isYellowTeam);
 
     const dReal* vv = dBodyGetLinearVel(glwidget->ssl->robots[R]->chassis->body);
     static dVector3 lvv;
@@ -328,9 +328,9 @@ void MainWindow::update()
 
 void MainWindow::updateRobotLabel()
 {
-    robotwidget->teamCombo->setCurrentIndex(glwidget->Current_team);
+    robotwidget->isYellowTeamCombo->setCurrentIndex(glwidget->Current_isYellowTeam);
     robotwidget->robotCombo->setCurrentIndex(glwidget->Current_robot);
-    robotwidget->id = robotIndex(glwidget->Current_robot,glwidget->Current_team);
+    robotwidget->id = robotIndex(glwidget->Current_robot,glwidget->Current_isYellowTeam);
     robotwidget->changeRobotOnOff(robotwidget->id,glwidget->ssl->robots[robotwidget->id]->on);
 }
 
@@ -417,7 +417,7 @@ void MainWindow::toggleFullScreen(bool a)
 
 void MainWindow::setCurrentRobotPosition()
 {
-    int i = robotIndex(glwidget->Current_robot,glwidget->Current_team);
+    int i = robotIndex(glwidget->Current_robot,glwidget->Current_isYellowTeam);
     bool ok1=false,ok2=false,ok3=false;
     dReal x = robotwidget->getPoseWidget->x->text().toFloat(&ok1);
     dReal y = robotwidget->getPoseWidget->y->text().toFloat(&ok2);

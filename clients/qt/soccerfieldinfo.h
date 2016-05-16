@@ -42,7 +42,7 @@ public:
   Eigen::Vector3d ball;
   Eigen::Vector3d ballVelocity;
   
-  bool _teamInBallPossession;
+  bool _isYellowTeamInBallPossession;
   BotState _robotWithBall;
   
   std::vector<BotState> *yellowTeamBots;

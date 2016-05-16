@@ -21,11 +21,11 @@
 using namespace std;
 using namespace Eigen;
 
-SoccerTeam::SoccerTeam(const bool team, // true = yellow, false = blue
+SoccerTeam::SoccerTeam(const bool isYellowTeam,
                        Communicator* communicator, 
                        PlayBook* playbook,
                        const int num_robots):
-  _team(team),
+  _isYellowTeam(isYellowTeam),
   _communicator(communicator),
   _playbook(playbook),
   _num_robots(num_robots),
@@ -42,8 +42,9 @@ SoccerTeam::~SoccerTeam() {
 
 // Callback for incoming state information from the simulator
 void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *blueRobots, vector<BotState> *yellowRobots) {
-
-  if(_team == true) {
+  
+  // Save robot states based on isYellowTeam
+  if(_isYellowTeam == true) {
     vector<BotState>::iterator iter1 = yellowRobots->begin();
     vector<Robot*>::iterator iter2 = _robots.begin();
     for(;iter1!=yellowRobots->end();++iter1,++iter2) {
@@ -58,23 +59,18 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
     }
   }
   
+  // Play Selection and handling
   if(_play == NULL || _play->Complete()) {
-    // if (_play->Complete()) {
-    //   _playbook->UpdateWeight(_play, 1);
-    // }
-    if( _team) {
-      fprintf(stderr, "SoccerTeam::SimCallback selecting new play  %d\n",_play==NULL);
+    if (_play->Complete()) {
+      _playbook->UpdateWeight(_play, 1);
     }
     _play = _playbook->PlaySelection();
-    if(_play != NULL) {
-      _play->_isYellowTeam = _team;
-      _play->Begin(&_robots);
-    }
+    _play->_isYellowTeam = _isYellowTeam;
+    _play->Begin(&_robots);
   } else {
-    if(_play != NULL)
-      _play->Execute();
+    _play->Execute();
   }
-
+  
   /*
   for(size_t i = 0; i < _robots.size(); i++) {
     _robots[i]-> sendVelocityCommands();
@@ -82,18 +78,11 @@ void SoccerTeam::SimCallback(int frameNumber, Vector3d ball, vector<BotState> *b
   */
 }
 
-// Initialize the robots for the team
+// Initialize the robots for the isYellowTeam
 void SoccerTeam::StartRobots(int num_robots) {
   for(int i = 0; i < num_robots; i++) {
-    PathPlanner* planner = new PathPlanner(i, _team);
-    _robots.push_back(new Robot(_communicator, planner, _team, i));
-  }
-  //Could potentially initialize the positions of the robots if desired (from a list of positions)
-}
-
-void SoccerTeam::FindKickAnglesOf(Robot* robot) {
-  if(robot->isYellowTeam == true) { 
-    
+    PathPlanner* planner = new PathPlanner(i, _isYellowTeam);
+    _robots.push_back(new Robot(_communicator, planner, _isYellowTeam, i));
   }
 }
 

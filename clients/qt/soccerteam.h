@@ -35,7 +35,7 @@ class Play;
 
 class SoccerTeam{
 public:
-    SoccerTeam(const bool team, 
+    SoccerTeam(const bool isYellowTeam, 
                Communicator* communicator,
                PlayBook* playbook,
                const int num_robots);
@@ -47,7 +47,7 @@ public:
     bool scored;
     Play* _play;
 private:
-  const bool _team;
+  const bool _isYellowTeam;
   Communicator* _communicator;
   const int _num_robots;
   PlayBook* _playbook;

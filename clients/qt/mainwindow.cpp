@@ -5,6 +5,7 @@
 
 #define NUM_ROBOTS 6
 
+// Display Settings for the control GUI
 MainWindow::MainWindow(QWidget *parent) : QDialog(parent), udpsocket(this), communicator(&udpsocket), bluebook(PlayBook::TheBlueBook()), ybook(PlayBook::TheYellowBook()),
       blueTeam(false, &communicator, &bluebook, NUM_ROBOTS), yellowTeam(true, &communicator, &ybook, NUM_ROBOTS)
 {
@@ -90,6 +91,7 @@ MainWindow::~MainWindow()
     fieldInfoSocket->close();
 }
 
+// Set up socket connection with GRSIM
 void MainWindow::listenToGRSim() {
   
   quint16 port = 10020;
@@ -105,16 +107,16 @@ void MainWindow::listenToGRSim() {
   fieldInfoSocket = new QUdpSocket(this);
   bool isSuccess = fieldInfoSocket->bind(*net_address, port, QUdpSocket::ShareAddress | QUdpSocket::ReuseAddressHint);
   if (isSuccess == false) {
-    //fprintf(stderr, "Unable to bind UDP socket on port %d: %s\n", port, fieldInfoSocket->errorString().toStdString().c_str());
+    fprintf(stderr, "Unable to bind UDP socket on port %d: %s\n", port, fieldInfoSocket->errorString().toStdString().c_str());
   }
   if(!fieldInfoSocket->joinMulticastGroup(*net_address, *net_interface)) {
-    //fprintf(stderr, "Unable to join UDP multicast on %s: %d %s\n", net_address->toString().toStdString().c_str(), port, fieldInfoSocket->errorString().toStdString().c_str());
+    fprintf(stderr, "Unable to join UDP multicast on %s: %d %s\n", net_address->toString().toStdString().c_str(), port, fieldInfoSocket->errorString().toStdString().c_str());
   }
   
   isSuccess = QObject::connect(fieldInfoSocket,SIGNAL(readyRead()),this,SLOT(recvFieldInfo()));
-  ////fprintf(stderr, "%d\n", isSuccess);
 }
 
+// Fills SoccerFieldInfo class
 void MainWindow::recvFieldInfo()
 {
   QHostAddress sender;

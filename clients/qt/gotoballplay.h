@@ -33,7 +33,7 @@ class GoToBallPlay : public Play {
     double weight ; // Success Rate
     int frames_running; // Number for frames the play has been executing
 
-    GoToBallPlay (bool team); // Constructor
+    GoToBallPlay (bool isYellowTeam); // Constructor
 
     bool Applicable(); // Check if the play is Applicable
 
@@ -45,13 +45,13 @@ class GoToBallPlay : public Play {
 
     void AssignRoles();  // Assigns all Robots to the best role given the options
 
-    void Begin(vector<Robot*>* team); // Begins the play initializing all components
+    void Begin(vector<Robot*>* robots); // Begins the play initializing all components
 
     void Execute(); // Executes the state machines of all Robots in question
   
   private:
     BotState ballAcquiringRobot;
-    vector<Robot*>* _team;
+    vector<Robot*>* _robots;
     bool _complete;
     virtual void UpdateWeight();
     bool doneMoving;

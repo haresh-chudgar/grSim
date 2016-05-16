@@ -44,9 +44,9 @@ dReal fric(dReal f)
     return f;
 }
 
-int robotIndex(int robot,int team)
+int robotIndex(int robot,int isYellowTeam)
 {
-    return robot + team*ROBOT_COUNT;
+    return robot + isYellowTeam*ROBOT_COUNT;
 }
 
 bool wheelCallBack(dGeomID o1,dGeomID o2,PSurface* s)
@@ -477,18 +477,18 @@ void SSLWorld::recvActions()
         if (size > 0)
         {
             packet.ParseFromArray(in_buffer, size);
-            int team=0;
+            int isYellowTeam=0;
             if (packet.has_commands())
             {
                 if (packet.commands().has_isteamyellow())
                 {
-                    if (packet.commands().isteamyellow()) team=1;
+                    if (packet.commands().isteamyellow()) isYellowTeam=1;
                 }
                 for (int i=0;i<packet.commands().robot_commands_size();i++)
                 {
                     if (!packet.commands().robot_commands(i).has_id()) continue;
                     int k = packet.commands().robot_commands(i).id();
-                    int id = robotIndex(k, team);
+                    int id = robotIndex(k, isYellowTeam);
                     if ((id < 0) || (id >= ROBOT_COUNT*2)) continue;
                     bool wheels = false;
                     if (packet.commands().robot_commands(i).has_wheelsspeed())
@@ -534,7 +534,7 @@ void SSLWorld::recvActions()
                     status = k;
                     if (robots[id]->kicker->isTouchingBall()) status = status | 8;
                     if (robots[id]->on) status = status | 240;
-                    if (team == 0)
+                    if (isYellowTeam == 0)
                         blueStatusSocket->writeDatagram(&status,1,sender,cfg->BlueStatusSendPort());
                     else
                         yellowStatusSocket->writeDatagram(&status,1,sender,cfg->YellowStatusSendPort());
@@ -545,11 +545,11 @@ void SSLWorld::recvActions()
             {
                 for (int i=0;i<packet.replacement().robots_size();i++)
                 {
-                    int team = 0;
+                    int isYellowTeam = 0;
                     if (packet.replacement().robots(i).has_yellowteam())
                     {
-                        if (packet.replacement().robots(i).yellowteam())
-                            team = 1;
+                      if (packet.replacement().robots(i).yellowteam())
+                            isYellowTeam = 1;
                     }
                     if (!packet.replacement().robots(i).has_id()) continue;
                     int k = packet.replacement().robots(i).id();
@@ -557,7 +557,7 @@ void SSLWorld::recvActions()
                     if (packet.replacement().robots(i).has_x()) x = packet.replacement().robots(i).x();
                     if (packet.replacement().robots(i).has_y()) y = packet.replacement().robots(i).y();
                     if (packet.replacement().robots(i).has_dir()) dir = packet.replacement().robots(i).dir();
-                    int id = robotIndex(k, team);
+                    int id = robotIndex(k, isYellowTeam);
                     if ((id < 0) || (id >= ROBOT_COUNT*2)) continue;
                     robots[id]->setXY(x,y);
                     robots[id]->resetRobot();
@@ -631,7 +631,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         vball->set_confidence(0.9 + rand0_1()*0.1);
     }
     for(int i = 0; i < ROBOT_COUNT; i++){
-        if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_team_vanishing()))
+        if ((cfg->vanishing()==false) || (rand0_1() > cfg->blue_isYellowTeam_vanishing()))
         {
             if (!robots[i]->on) continue;
             SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_blue();
@@ -647,7 +647,7 @@ SSL_WrapperPacket* SSLWorld::generatePacket()
         }
     }
     for(int i = ROBOT_COUNT; i < ROBOT_COUNT*2; i++){
-        if ((cfg->vanishing()==false) || (rand0_1() > cfg->yellow_team_vanishing()))
+        if ((cfg->vanishing()==false) || (rand0_1() > cfg->yellow_isYellowTeam_vanishing()))
         {
             if (!robots[i]->on) continue;
             SSL_DetectionRobot* rob = packet->mutable_detection()->add_robots_yellow();
@@ -699,45 +699,45 @@ RobotsFomation::RobotsFomation(int type)
 {
     if (type==0)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33, 1.22};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25, 0.0};
-        setAll(teamPosX,teamPosY);
+        dReal isYellowTeamPosX[ROBOT_COUNT] = {2.2, 1.0 , 1.0, 1.0, 0.33, 1.22};
+        dReal isYellowTeamPosY[ROBOT_COUNT] = {0.0, -0.75 , 0.0, 0.75, 0.25, 0.0};
+        setAll(isYellowTeamPosX,isYellowTeamPosY);
     }
     if (type==1)
     {
-        dReal teamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7, 2.4};
-        dReal teamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0, 0.0};
-        setAll(teamPosX,teamPosY);
+        dReal isYellowTeamPosX[ROBOT_COUNT] = {1.0, 1.0, 1.0, 0.33, 1.7, 2.4};
+        dReal isYellowTeamPosY[ROBOT_COUNT] = {0.75, 0.0, -0.75, -0.25, 0.0, 0.0};
+        setAll(isYellowTeamPosX,isYellowTeamPosY);
     }
     if (type==2)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.8};
-        dReal teamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5, -1.5};
-        setAll(teamPosX,teamPosY);
+        dReal isYellowTeamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.8};
+        dReal isYellowTeamPosY[ROBOT_COUNT] = {0.0, -0.3, 0.3, 0.0, 1.5, -1.5};
+        setAll(isYellowTeamPosX,isYellowTeamPosY);
     }
     if (type==3)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.1};
-        dReal teamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 6.2};
-        setAll(teamPosX,teamPosY);
+        dReal isYellowTeamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 0.1};
+        dReal isYellowTeamPosY[ROBOT_COUNT] = {5.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 6.2};
+        setAll(isYellowTeamPosX,isYellowTeamPosY);
     }
     if (type==4)
     {
-        dReal teamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1};
-        dReal teamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5};
-        setAll(teamPosX,teamPosY);
+        dReal isYellowTeamPosX[ROBOT_COUNT] = {2.8, 2.5, 2.5, 0.8, 0.8, 1.1};
+        dReal isYellowTeamPosY[ROBOT_COUNT] = {5+0.0, 5-0.3, 5+0.3, 5+0.0, 5+1.5, 5.5};
+        setAll(isYellowTeamPosX,isYellowTeamPosY);
     }
     if (type==-1)
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 2.2};
-        dReal teamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7, -2.7};
-        setAll(teamPosX,teamPosY);
+        dReal isYellowTeamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 2.2};
+        dReal isYellowTeamPosY[ROBOT_COUNT] = {-2.7,-2.7,-2.7,-2.7,-2.7, -2.7};
+        setAll(isYellowTeamPosX,isYellowTeamPosY);
     }
     if (type==-2)
     {
-        dReal teamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 0.22};
-        dReal teamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3, -2.3};
-        setAll(teamPosX,teamPosY);
+        dReal isYellowTeamPosX[ROBOT_COUNT] = {-0.8, -0.4, 0, 0.4, 0.8, 0.22};
+        dReal isYellowTeamPosY[ROBOT_COUNT] = {-2.3,-2.3,-2.3,-2.3,-2.3, -2.3};
+        setAll(isYellowTeamPosX,isYellowTeamPosY);
     }
 }
 
@@ -767,14 +767,14 @@ void RobotsFomation::loadFromFile(const QString& filename)
     }
 }
 
-void RobotsFomation::resetRobots(Robot** r,int team)
+void RobotsFomation::resetRobots(Robot** r,int isYellowTeam)
 {
     dReal dir=-1;
-    if (team==1) dir = 1;
+    if (isYellowTeam==1) dir = 1;
     for (int k=0;k<ROBOT_COUNT;k++)
     {
-        r[robotIndex(k,team)]->setXY(x[k]*dir,y[k]);
-        r[robotIndex(k,team)]->resetRobot();
+        r[robotIndex(k,isYellowTeam)]->setXY(x[k]*dir,y[k]);
+        r[robotIndex(k,isYellowTeam)]->resetRobot();
     }
 }
 

@@ -100,10 +100,10 @@ class RobotsFomation {
         RobotsFomation(int type);
         void setAll(dReal *xx,dReal *yy);
         void loadFromFile(const QString& filename);
-        void resetRobots(Robot** r,int team);
+        void resetRobots(Robot** r,int isYellowTeam);
 };
 
 dReal fric(dReal f);
-int robotIndex(int robot,int team);
+int robotIndex(int robot,int isYellowTeam);
 
 #endif // SSLWORLD_H

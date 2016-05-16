@@ -24,7 +24,7 @@
 using namespace std;
 class PathPlanner {
   public:
-    PathPlanner(const size_t robot_ID, const bool team);
+    PathPlanner(const size_t robot_ID, const bool isYellowTeam);
     ~PathPlanner();
    
     std::vector<Eigen::Vector3d> FindPath(Eigen::Vector3d start_pos, Eigen::Vector3d goal_pos);
@@ -39,7 +39,7 @@ class PathPlanner {
     vector<Eigen::Vector3d> SmoothWaypoints(vector<Eigen::Vector3d> waypoints, vector<Eigen::Vector2d> dyn_obj_loc);
     double fRand(double fMin, double fMax);
 
-    bool team_;
+    bool isYellowTeam_;
     size_t robot_ID_;
     static constexpr double x_lim_ = 3000; //mm
     static constexpr double y_lim_ = 2000; //mm

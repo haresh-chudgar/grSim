@@ -49,14 +49,14 @@ struct DefenseBot
 bool Evaluation::TeamHavingBall(BotState *robot) {
   
   //If the ball's z is more than its diameter, ball is in the air.
-  if(SoccerFieldInfo::Instance()->ball[2] > 21.5*2)
+  if(SoccerFieldInfo::Instance()->ball[2] > 21.5*2) {
     return false;
-  
+  }
   double distToNearestYellowBot = DBL_MAX;
   BotState nearestYellowBot(true);
-  std::vector<BotState> *team = SoccerFieldInfo::Instance()->yellowTeamBots;
-  std::vector<BotState>::iterator iter = team->begin();
-  for(;iter!=team->end();++iter) {
+  std::vector<BotState> *isYellowTeam = SoccerFieldInfo::Instance()->yellowTeamBots;
+  std::vector<BotState>::iterator iter = isYellowTeam->begin();
+  for(;iter!=isYellowTeam->end();++iter) {
     double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
     if(distToBall < distToNearestYellowBot) {
       nearestYellowBot = *iter;
@@ -66,9 +66,9 @@ bool Evaluation::TeamHavingBall(BotState *robot) {
   
   double distToNearestBlueBot = DBL_MAX;
   BotState nearestBlueBot(false);
-  team = SoccerFieldInfo::Instance()->blueTeamBots;
-  iter = team->begin();
-  for(;iter!=team->end();++iter) {
+  isYellowTeam = SoccerFieldInfo::Instance()->blueTeamBots;
+  iter = isYellowTeam->begin();
+  for(;iter!=isYellowTeam->end();++iter) {
     double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
     if(distToBall < distToNearestBlueBot) {
       nearestBlueBot = *iter;
@@ -181,13 +181,13 @@ double Evaluation::ClosestRobotToBall(bool isTeamYellow, BotState* robot) {
   
   double distToNearestBot = DBL_MAX;
   
-  std::vector<BotState> *team = SoccerFieldInfo::Instance()->yellowTeamBots;
+  std::vector<BotState> *isYellowTeam = SoccerFieldInfo::Instance()->yellowTeamBots;
   if(isTeamYellow == false) {
-    team = SoccerFieldInfo::Instance()->blueTeamBots;
+    isYellowTeam = SoccerFieldInfo::Instance()->blueTeamBots;
   }
   
-  std::vector<BotState>::iterator iter = team->begin();
-  for(;iter!=team->end();++iter) {
+  std::vector<BotState>::iterator iter = isYellowTeam->begin();
+  for(;iter!=isYellowTeam->end();++iter) {
     double distToBall = (*iter).distanceToLocation(SoccerFieldInfo::Instance()->ball);
     if(distToBall < distToNearestBot) {
       *robot = *iter;
@@ -318,10 +318,10 @@ MatrixXd Evaluation::openAngleFinder(vector<double> shooterPosition, int shooter
 	goalAng << min(ang1, ang2), max(ang1, ang2);
 
 	// Calculating the viewing angle from the query point to all the
-	// opponent robots(Only opponent robots are assumed as obstacles since own team robots can be moved to free the viewing angle to the goal)
+	// opponent robots(Only opponent robots are assumed as obstacles since own isYellowTeam robots can be moved to free the viewing angle to the goal)
 	// ******************** DO: CHANGE IT TO ALL ROBOTS RATHER THAN ONLY OPPONENT ONES*************
 
-	// Defining a matrix containing all the opponent robots and own team robots except the one from own team possesing the ball
+	// Defining a matrix containing all the opponent robots and own isYellowTeam robots except the one from own isYellowTeam possesing the ball
 	MatrixXd robPosition_All(robPosition_Opponent.rows() + robPosition_OwnTeam.rows() - 1, robPosition_Opponent.cols());
 	robPosition_All.block(0, 0, robPosition_Opponent.rows(), robPosition_All.cols()) = robPosition_Opponent;
 	int count = 0;

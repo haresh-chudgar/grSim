@@ -103,21 +103,21 @@ ConfigWidget::ConfigWidget()
     VarListPtr vanishing_vars(new VarList("Vanishing probability"));
         comm_vars->addChild(vanishing_vars);
         ADD_VALUE(gauss_vars,Bool,vanishing,false,"Vanishing")
-        ADD_VALUE(vanishing_vars,Double,blue_team_vanishing,0,"Blue team")
-        ADD_VALUE(vanishing_vars,Double,yellow_team_vanishing,0,"Yellow team")
+        ADD_VALUE(vanishing_vars,Double,blue_isYellowTeam_vanishing,0,"Blue isYellowTeam")
+        ADD_VALUE(vanishing_vars,Double,yellow_isYellowTeam_vanishing,0,"Yellow isYellowTeam")
         ADD_VALUE(vanishing_vars,Double,ball_vanishing,0,"Ball")
     world=VarXML::read(world,(QDir::homePath() + QString("/.grsim.xml")).toStdString());
 
 
     QDir dir;
-    std::string blueteam = v_BlueTeam->getString();
+    std::string blueisYellowTeam = v_BlueTeam->getString();
     geo_vars->removeChild(v_BlueTeam);
 
-    std::string yellowteam = v_YellowTeam->getString();
+    std::string yellowisYellowTeam = v_YellowTeam->getString();
     geo_vars->removeChild(v_YellowTeam);
 
-    ADD_ENUM(StringEnum,BlueTeam,blueteam.c_str(),"Blue Team");
-    ADD_ENUM(StringEnum,YellowTeam,yellowteam.c_str(),"Yellow Team");
+    ADD_ENUM(StringEnum,BlueTeam,blueisYellowTeam.c_str(),"Blue Team");
+    ADD_ENUM(StringEnum,YellowTeam,yellowisYellowTeam.c_str(),"Yellow Team");
 
     dir.setCurrent(qApp->applicationDirPath()+"/../config/");
     dir.setNameFilters(QStringList() << "*.ini");
@@ -147,8 +147,8 @@ ConfigWidget::ConfigWidget()
     END_ENUM(geo_vars,BlueTeam)
     END_ENUM(geo_vars,YellowTeam)
 
-  v_BlueTeam->setString(blueteam);
-  v_YellowTeam->setString(yellowteam);
+  v_BlueTeam->setString(blueisYellowTeam);
+  v_YellowTeam->setString(yellowisYellowTeam);
 
   tmodel->setRootItems(world);
 
@@ -188,9 +188,9 @@ void ConfigWidget::loadRobotsSettings()
     blueSettings = robotSettings;
 }
 
-void ConfigWidget::loadRobotSettings(QString team)
+void ConfigWidget::loadRobotSettings(QString isYellowTeam)
 {
-    QString ss = qApp->applicationDirPath()+QString("/../config/")+QString("%1.ini").arg(team);
+    QString ss = qApp->applicationDirPath()+QString("/../config/")+QString("%1.ini").arg(isYellowTeam);
     robot_settings = new QSettings(ss, QSettings::IniFormat);
     robotSettings.RobotCenterFromKicker = robot_settings->value("Geometery/CenterFromKicker", 0.073).toDouble();
     robotSettings.RobotRadius = robot_settings->value("Geometery/Radius", 0.09).toDouble();

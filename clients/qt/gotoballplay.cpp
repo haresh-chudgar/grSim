@@ -19,13 +19,13 @@
 #include "evaluation.h"
 #include <iostream>
 
-GoToBallPlay::GoToBallPlay(bool team) : Play(team), ballAcquiringRobot(false), _complete(false), doneMoving(false){ }
+GoToBallPlay::GoToBallPlay(bool isYellowTeam) : Play(isYellowTeam), ballAcquiringRobot(false), _complete(false), doneMoving(false){ }
 
 //Precondition: Team should not have ball
 bool GoToBallPlay::Applicable() {
   
   //bool doesRobotHaveBall = Evaluation::TeamHavingBall(&robot);
-  if(SoccerFieldInfo::Instance()->_teamInBallPossession == false && SoccerFieldInfo::Instance()->ballVelocity.norm() < 0.01*1000) {
+  if(SoccerFieldInfo::Instance()->_isYellowTeamInBallPossession == false && SoccerFieldInfo::Instance()->ballVelocity.norm() < 0.01*1000) {
   //if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
     fprintf(stderr, "GoToBallPlay::Applicable! \n");
     return true;
@@ -39,7 +39,7 @@ bool GoToBallPlay::CompleteCondition() {
     return false;
   }
   
-  if(SoccerFieldInfo::Instance()->_teamInBallPossession == true && SoccerFieldInfo::Instance()->_robotWithBall._isYellow == _isYellowTeam)
+  if(SoccerFieldInfo::Instance()->_isYellowTeamInBallPossession == true && SoccerFieldInfo::Instance()->_robotWithBall._isYellow == _isYellowTeam)
     return true;
   return false;
 
@@ -76,7 +76,7 @@ void GoToBallPlay::Execute() {
       if(states[i] == 0) { // Moving to Ball
         Eigen::Vector3d ball = SoccerFieldInfo::Instance()->ball;
         //fprintf(stderr, "************ball location: %f %f %f\n",ball[0], ball[1], ball[2]);
-        Eigen::Vector3d robot = _team->at(i)->CurrentState();
+        Eigen::Vector3d robot = _robots->at(i)->CurrentState();
         Eigen::Vector3d goal = ball;
 	
         // sets the desired angle to the robot's current angle
@@ -89,25 +89,25 @@ void GoToBallPlay::Execute() {
         //fprintf(stderr, "After: %f, %f, %f\n", goal[0], goal[1], goal[2] * 180 / M_PI);
 	
         // Call Move
-        _team->at(i)->goToLocation(1, goal);
-        _team->at(i)->setSpinner(0);
-        //_team->at(i)->goToLocation(1, ball);
+        _robots->at(i)->goToLocation(1, goal);
+        _robots->at(i)->setSpinner(0);
+        //_isYellowTeam->at(i)->goToLocation(1, ball);
         states[i] = 1;
       } else if(states[i] == 1) { // Checking for location
-	  //Eigen::Vector3d vel = _team->at(i)->CurrentVelocity();
+	  //Eigen::Vector3d vel = _isYellowTeam->at(i)->CurrentVelocity();
 	  //fprintf(stderr, "robotVel %f %f %f\n", vel[0], vel[1], vel[2]);
-	  if (_team->at(i)->execute() == 1) {
+        if (_robots->at(i)->execute() == 1) {
 	    states[i] = 2;
 	  }
       } else if(states[i] == 2) { 
 	// Kicking
-	//_team->at(i)->setSpinner(1);
+	//_isYellowTeam->at(i)->setSpinner(1);
 	
-	_team->at(i)->stopMoving();
-	//_team->at(i)->dribbleToLocation(Eigen::Vector3d(_team->at(i)->CurrentState()[0], _team->at(i)->CurrentState()[1], 225 * M_PI /180));
+        _robots->at(i)->stopMoving();
+	//_isYellowTeam->at(i)->dribbleToLocation(Eigen::Vector3d(_isYellowTeam->at(i)->CurrentState()[0], _isYellowTeam->at(i)->CurrentState()[1], 225 * M_PI /180));
 	states[i] = 3;
 	/*
-	Eigen::Vector2d r = Eigen::Vector2d(_team->at(i)->CurrentState()[0], _team->at(i)->CurrentState()[1]);
+	Eigen::Vector2d r = Eigen::Vector2d(_isYellowTeam->at(i)->CurrentState()[0], _isYellowTeam->at(i)->CurrentState()[1]);
 	Eigen::Vector2d loc = Eigen::Vector2d(SoccerFieldInfo::Instance()->ball[0], SoccerFieldInfo::Instance()->ball[1]);
 	double distance = (r - loc).norm();
 	fprintf(stderr, "Distance: %f\n", distance);
@@ -117,15 +117,15 @@ void GoToBallPlay::Execute() {
 	} else {
 	  // Call Kick
 	  fprintf(stderr, "Kicking\n");
-	  _team->at(i)->setKickSpeed(2, 0);
-	  _team->at(i)->sendVelocityCommands();
+	  _isYellowTeam->at(i)->setKickSpeed(2, 0);
+	  _isYellowTeam->at(i)->sendVelocityCommands();
 	  
 	}*/
       } else {
 	//Eigen::Vector3d ballVel = SoccerFieldInfo::Instance()->ballVelocity;
 	//fprintf(stderr, "BallVel %f %f %f\n", ballVel[0], ballVel[1], ballVel[2]);
 
-	//if (_team->at(i)->execute() == 1) {
+	//if (_isYellowTeam->at(i)->execute() == 1) {
           doneMoving = true;
         //}
       }
@@ -146,13 +146,13 @@ bool GoToBallPlay::Complete() {
   return _complete;
 }
 
-void GoToBallPlay::Begin(vector<Robot*>* team) {
+void GoToBallPlay::Begin(vector<Robot*>* isYellowTeam) {
   assignments.clear();
   states.clear();
-  _team = team;
+  _isYellowTeam = isYellowTeam;
   doneMoving = false;
   _complete = false;
-  for(size_t i = 0; i < _team->size(); i++) {
+  for(size_t i = 0; i < _robots->size(); i++) {
     states.push_back(0);
   }
   // First bot is always the goalie (more complex plays could pull the goalie to another role)
