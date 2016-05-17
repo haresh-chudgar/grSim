@@ -33,7 +33,7 @@ void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTea
 }
   
 SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam, Communicator* communicator)
-:_blueTeam(blueTeam), _yellowTeam(yellowTeam), communicator(communicator), kFrameRate(1.0/60.0), _robotWithBall(false), _isYellowTeamInBallPossession(false), frameNumber(0)
+:_blueTeam(blueTeam), _yellowTeam(yellowTeam), communicator(communicator), kFrameRate(1.0/60.0), _isYellowTeamInBallPossession(false), frameNumber(0)
 {
   blue_bots = new vector<Robot*>();
   yellow_bots = new vector<Robot*>();

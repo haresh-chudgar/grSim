@@ -25,7 +25,6 @@
 #include <vector>
 #include "communicator.h"
 #include "soccerteam.h"
-#include "BotState.h"
 #include "robot.h"
 
 #define BALL_RADIUS 21.5 //In millimeters
@@ -45,7 +44,6 @@ public:
   Eigen::Vector3d ballVelocity;
   
   bool _isYellowTeamInBallPossession;
-  BotState _robotWithBall;
   
   std::vector<Robot*>* yellow_bots;
   std::vector<Robot*>* blue_bots;

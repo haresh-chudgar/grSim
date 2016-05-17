@@ -17,9 +17,10 @@
 
 #include "gotoballplay.h"
 #include "evaluation.h"
+#include "soccerfieldinfo.h"
 #include <iostream>
 
-GoToBallPlay::GoToBallPlay(bool isYellowTeam) : Play(isYellowTeam), ballAcquiringRobot(false), _complete(false), doneMoving(false){ }
+GoToBallPlay::GoToBallPlay(bool isYellowTeam) : Play(isYellowTeam), _complete(false), doneMoving(false){ }
 
 //Precondition: Team should not have ball
 bool GoToBallPlay::Applicable() {
@@ -60,8 +61,8 @@ void GoToBallPlay::AssignRoles() {
   
   //Evaluation::ClosestRobotToBall(_isYellowTeam, &ballAcquiringRobot);
   assignments = vector<int>(6);
-  
-  assignments[ballAcquiringRobot._id] = 1;
+  // TODO fix this for new closest to ball method
+  assignments[0] = 1;
 }
 
 void GoToBallPlay::Execute() { 

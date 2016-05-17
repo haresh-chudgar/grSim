@@ -20,7 +20,6 @@
 
 #include "soccerfieldinfo.h"
 #include "playbook.h"
-#include "BotState.h"
 
 class OneRobotOffensePlay : public Play {
   public:
@@ -45,7 +44,6 @@ class OneRobotOffensePlay : public Play {
 
   private:
     std::vector<Eigen::Vector3d> wayPointsToGoalState;
-    BotState offenseRobot;
     vector<Robot*>* _robots;
     bool _complete;
     virtual void UpdateWeight();

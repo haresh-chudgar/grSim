@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include <iostream>
 #include <QGridLayout>
 #include <QDebug>
 #include <QMessageBox>
@@ -93,7 +94,7 @@ MainWindow::~MainWindow()
 
 // Set up socket connection with GRSIM
 void MainWindow::listenToGRSim() {
-  
+  std::cout << "msg from grsm" << std::endl;
   quint16 port = 10020;
   QHostAddress *net_address = new QHostAddress(QString("224.5.23.2"));
   QNetworkInterface *net_interface = new QNetworkInterface(QNetworkInterface::interfaceFromName(""));

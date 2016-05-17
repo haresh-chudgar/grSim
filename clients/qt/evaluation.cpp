@@ -34,18 +34,18 @@ const double FieldLength = 6000; //mm
 const double FieldWidth = 4000;
 const double alpha = 0.00; // a constant proportional to the importance of distance in the query points' score
 
-struct DefenseBot
-{
-    double _angle;
-    BotState _botPosition;
-
-    DefenseBot(double angle, Robot* botPosition) : _angle(angle), _botPosition(botPosition) {}
-
-    bool operator < (const DefenseBot bot) const
-    {
-        return (_angle < bot._angle);
-    }
-};
+// struct DefenseBot
+// {
+//     double _angle;
+//     BotState _botPosition;
+// 
+//     DefenseBot(double angle, Robot* botPosition) : _angle(angle), _botPosition(botPosition) {}
+// 
+//     bool operator < (const DefenseBot bot) const
+//     {
+//         return (_angle < bot._angle);
+//     }
+// };
 
 int Evaluation::TeamHavingBall(bool isYellowTeam) {
   

@@ -1,5 +1,6 @@
 #include "deceptivedefense.h"
 #include "evaluation.h"
+#include "soccerfieldinfo.h"
 
 //DeceptiveDefense::DeceptiveDefense():_complete(false) {
 

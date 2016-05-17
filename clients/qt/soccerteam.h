@@ -24,7 +24,6 @@
 #include "evaluation.h"
 #include <eigen3/Eigen/Core>
 #include "kdtree2.h"
-#include "BotState.h"
 
 
 using namespace std; 

@@ -2,7 +2,6 @@
 #define DECEPTIVEDEFENSE_H
 
 #include "playbook.h"
-#include "BotState.h"
 
 class DeceptiveDefense : public Play
 {

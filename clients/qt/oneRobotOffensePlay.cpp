@@ -21,23 +21,21 @@
 
 //TODO if it uses BotState, it's wrong
 
-OneRobotOffensePlay::OneRobotOffensePlay(bool isYellowTeam) : Play(isYellowTeam), offenseRobot(false), _complete(false){}
+OneRobotOffensePlay::OneRobotOffensePlay(bool isYellowTeam) : Play(isYellowTeam), _complete(false){}
 
 //Precondition: Team should have ball
 //TODO botState and teamHavingBall evaluation need to be changed
 bool OneRobotOffensePlay::Applicable() {
-  bool has_ball = false;
-  //_isYellowTeam = true;
-  BotState robot(_isYellowTeam);
-  bool doesRobotHaveBall = false;
-  //bool doesRobotHaveBall = Evaluation::TeamHavingBall(&robot);
-  
-  if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
-    has_ball = true;
+  int possession = 0;
+  if(_isYellowTeam){
+    SoccerFieldInfo::Instance()->_yellowTeam->_possession;
+  } else{
+    SoccerFieldInfo::Instance()->_blueTeam->_possession;
   }
-  
-  fprintf(stderr, "OneRobotOffensePlay::Applicable %d %d %d %d %d\n", has_ball, doesRobotHaveBall, robot._isYellow == _isYellowTeam, robot._isYellow, _isYellowTeam);
-  return has_ball;
+  if(possession = 1) {
+    return true;
+  }  
+  return false;
 }
 
 bool OneRobotOffensePlay::Complete() {
@@ -54,10 +52,9 @@ bool OneRobotOffensePlay::Success() {
 
 //TODO this is a static assignment?
 void OneRobotOffensePlay::AssignRoles() {
-  BotState robot(_isYellowTeam);
 
   assignments = vector<int>(6);
-  assignments[robot._id] = 1;
+  assignments[0] = 1;
 }
 
 

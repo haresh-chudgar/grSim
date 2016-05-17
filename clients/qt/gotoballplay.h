@@ -19,7 +19,6 @@
 #define GOTOBALLPLAY_H
 
 #include "playbook.h"
-#include "BotState.h"
 
 typedef enum _GoToBallRoles {
   None,
@@ -50,7 +49,6 @@ class GoToBallPlay : public Play {
     void Execute(); // Executes the state machines of all Robots in question
   
   private:
-    BotState ballAcquiringRobot;
     vector<Robot*>* _robots;
     bool _complete;
     virtual void UpdateWeight();
