@@ -19,9 +19,9 @@
 #define SOCCERTEAM_H
  
 #include "playbook.h"
-#include "communicator.h"
 #include "robot.h"
 #include "pathplanner.h"
+#include "evaluation.h"
 #include <eigen3/Eigen/Core>
 #include "kdtree2.h"
 #include "BotState.h"
@@ -35,20 +35,19 @@ class Play;
 
 class SoccerTeam{
 public:
-    SoccerTeam(const bool isYellowTeam, 
-               Communicator* communicator,
+    SoccerTeam(const bool isYellowTeam,
                PlayBook* playbook,
                const int num_robots);
     ~SoccerTeam();
-    void SimCallback(int frameNumber, Vector3d ball, vector<BotState> *blueRobots, vector<BotState> *yellowRobots);
+    void SimCallback(int frameNumber, Vector3d ball, vector<Robot*>* blueRobots, vector<Robot*>* yellowRobots);
     void StartRobots(int num_robots);
     vector<Robot*> _robots;
     bool has_ball;
     bool scored;
     Play* _play;
+    int _possession; // 0 neither has possesion, 1 this team has possesion, -1 opponent has possesion
 private:
   const bool _isYellowTeam;
-  Communicator* _communicator;
   const int _num_robots;
   PlayBook* _playbook;
   

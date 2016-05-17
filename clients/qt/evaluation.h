@@ -21,11 +21,13 @@
 #include <eigen3/Eigen/Core>
 #include <vector>
 #include "soccerfieldinfo.h"
+#include "robot.h"
 
 typedef struct _KickAngles  {
   double _opening;
-  BotState _p1, _p2;
-  _KickAngles(double opening, BotState p1, BotState p2):_opening(opening), _p1(p1), _p2(p2) {
+  Robot* _p1; 
+  Robot* _p2;
+  _KickAngles(double opening, Robot* p1, Robot* p2):_opening(opening), _p1(p1), _p2(p2) {
   }
 }KickAngles;
 
@@ -47,8 +49,8 @@ class Evaluation
 {
 public:
   static bool FindInterceptingRobots(bool isTeamYellow, std::vector<InterceptInfo> *interceptingBots);
-  static double ClosestRobotToBall(bool isTeamYellow, BotState* robot);
-  static bool TeamHavingBall(BotState *robot);
+  static int ClosestRobotToBall(bool isTeamYellow);
+  static int TeamHavingBall(bool isTeamYellow);
   static std::vector<KickAngles> EvaluateKickDirection(bool isYellowTeamKicking, Eigen::Vector2d kickFrom, Eigen::Vector2d kickToStart, Eigen::Vector2d kickToEnd);
   static Eigen::MatrixXd openAngleFinder(std::vector<double> shooterPosition, int shooterInd, std::vector<double> targetSt, std::vector<double> targetEn, Eigen::MatrixXd robPosition_OwnTeam, Eigen::MatrixXd robPosition_Opponent);
   static Eigen::VectorXd shotEvaluator(double queryRegion, int Num_queryPoints, int shooterInd, std::vector<double> targetSt, std::vector<double> targetEn, Eigen::MatrixXd robPosition_OwnTeam, Eigen::MatrixXd robPosition_Opponent);    

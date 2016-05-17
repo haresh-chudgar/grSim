@@ -18,6 +18,7 @@
 #include "pathplanner.h"
 #include "soccerfieldinfo.h"
 #include <vector>
+#include "robot.h"
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
@@ -134,28 +135,28 @@ std::vector<Eigen::Vector3d> PathPlanner::FindPath(Eigen::Vector3d start_pos, Ei
   vector<Eigen::Vector3d> temp_path;
   //srand(time(NULL));
  
-  vector<BotState>* blue_isYellowTeam = SoccerFieldInfo::Instance()->blueTeamBots;
-  vector<BotState>* yellow_isYellowTeam = SoccerFieldInfo::Instance()->yellowTeamBots;
+  vector<Robot*>* blue_team = SoccerFieldInfo::Instance()->blue_bots;
+  vector<Robot*>* yellow_team = SoccerFieldInfo::Instance()->yellow_bots;
 
   vector<Eigen::Vector2d> dyn_obj_loc;
   Eigen::Vector2d new_loc; //assume all objects have the same radii
-  for (size_t i=0; i<blue_isYellowTeam->size(); i++) {
+  for (size_t i=0; i<blue_team->size(); i++) {
     if (isYellowTeam_) {
-      new_loc << blue_isYellowTeam[0][i]._position(0), blue_isYellowTeam[0][i]._position(1);
+      new_loc << blue_team[0][i]->_currentPosition(0), blue_team[0][i]->_currentPosition(1);
       dyn_obj_loc.push_back(new_loc);
     }
     else if (robot_ID_ != i) {
-      new_loc << blue_isYellowTeam[0][i]._position(0), blue_isYellowTeam[0][i]._position(1);
+      new_loc << blue_team[0][i]->_currentPosition(0), blue_team[0][i]->_currentPosition(1);
       dyn_obj_loc.push_back(new_loc);
     }
   }
-  for (size_t i=0; i<yellow_isYellowTeam->size(); i++) {
+  for (size_t i=0; i<yellow_team->size(); i++) {
     if (!isYellowTeam_) {
-      new_loc << yellow_isYellowTeam[0][i]._position(0), yellow_isYellowTeam[0][i]._position(1);
+      new_loc << yellow_team[0][i]->_currentPosition(0), yellow_team[0][i]->_currentPosition(1);
       dyn_obj_loc.push_back(new_loc);
     }
     else if (robot_ID_ != i) {
-      new_loc << yellow_isYellowTeam[0][i]._position(0), yellow_isYellowTeam[0][i]._position(1);
+      new_loc << yellow_team[0][i]->_currentPosition(0), yellow_team[0][i]->_currentPosition(1);
       dyn_obj_loc.push_back(new_loc);
     }
   }

@@ -23,8 +23,10 @@
 #include <QMutex>
 #include <eigen3/Eigen/Core>
 #include <vector>
+#include "communicator.h"
 #include "soccerteam.h"
 #include "BotState.h"
+#include "robot.h"
 
 #define BALL_RADIUS 21.5 //In millimeters
 #define ROBOT_RADIUS 89 //In millimeters
@@ -35,7 +37,7 @@ class SoccerFieldInfo
 {
 public:
   static SoccerFieldInfo* Instance();
-  static void CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);
+  static void CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTeam, Communicator* communicator);
   
   void receive(char* buffer, int size);
   
@@ -45,11 +47,13 @@ public:
   bool _isYellowTeamInBallPossession;
   BotState _robotWithBall;
   
-  std::vector<BotState> *yellowTeamBots;
-  std::vector<BotState> *blueTeamBots;
-  SoccerTeam *_blueTeam, *_yellowTeam;
+  std::vector<Robot*>* yellow_bots;
+  std::vector<Robot*>* blue_bots;
+  SoccerTeam* _blueTeam;
+  SoccerTeam* _yellowTeam;
+  Communicator* communicator;
 private:
-  SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam);
+  SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam, Communicator* communicator);
   ~SoccerFieldInfo();
   const double kFrameRate;
   int frameNumber;

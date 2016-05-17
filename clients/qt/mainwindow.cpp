@@ -7,12 +7,12 @@
 
 // Display Settings for the control GUI
 MainWindow::MainWindow(QWidget *parent) : QDialog(parent), udpsocket(this), communicator(&udpsocket), bluebook(PlayBook::TheBlueBook()), ybook(PlayBook::TheYellowBook()),
-      blueTeam(false, &communicator, &bluebook, NUM_ROBOTS), yellowTeam(true, &communicator, &ybook, NUM_ROBOTS)
+      blueTeam(false, &bluebook, NUM_ROBOTS), yellowTeam(true, &ybook, NUM_ROBOTS)
 {
   fieldInfoSocket = NULL;
   listenToGRSim();
   
-  SoccerFieldInfo::CreateInstance(&blueTeam, &yellowTeam);
+  SoccerFieldInfo::CreateInstance(&blueTeam, &yellowTeam, &communicator);
   
   QGridLayout* layout = new QGridLayout(this);
   edtIp = new QLineEdit("127.0.0.1", this);

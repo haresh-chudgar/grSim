@@ -29,7 +29,8 @@ bool OneRobotOffensePlay::Applicable() {
   bool has_ball = false;
   //_isYellowTeam = true;
   BotState robot(_isYellowTeam);
-  bool doesRobotHaveBall = Evaluation::TeamHavingBall(&robot);
+  bool doesRobotHaveBall = false;
+  //bool doesRobotHaveBall = Evaluation::TeamHavingBall(&robot);
   
   if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
     has_ball = true;
@@ -51,11 +52,9 @@ bool OneRobotOffensePlay::Success() {
   return false;
 }
 
-
-//TODO currently hard coded, need conversion between BotState and robotId
+//TODO this is a static assignment?
 void OneRobotOffensePlay::AssignRoles() {
   BotState robot(_isYellowTeam);
-  Evaluation::TeamHavingBall(&robot);
 
   assignments = vector<int>(6);
   assignments[robot._id] = 1;
@@ -92,11 +91,11 @@ void OneRobotOffensePlay::Execute() {
         MatrixXd otherTeamPos(6, 2);
         
         // TODO botstates
-        std::vector<BotState>* otherTeamBots;
+        std::vector<Robot*>* otherTeamBots;
         if (_isYellowTeam) {
-          otherTeamBots = SoccerFieldInfo::Instance()->blueTeamBots;
+          otherTeamBots = SoccerFieldInfo::Instance()->blue_bots;
         } else {
-          otherTeamBots = SoccerFieldInfo::Instance()->yellowTeamBots;
+          otherTeamBots = SoccerFieldInfo::Instance()->yellow_bots;
         }
        
         // Fills in matrix from bot states
@@ -104,8 +103,8 @@ void OneRobotOffensePlay::Execute() {
           ownTeamPos(k, 0) = _robots->at(k)->CurrentState()[0];
           ownTeamPos(k, 1) = _robots->at(k)->CurrentState()[1];
             
-          otherTeamPos(k, 0) = otherTeamBots->at(k)._position[0];
-          otherTeamPos(k, 1) = otherTeamBots->at(k)._position[1];
+          otherTeamPos(k, 0) = otherTeamBots->at(k)->_currentPosition[0];
+          otherTeamPos(k, 1) = otherTeamBots->at(k)->_currentPosition[1];
         }
         // TODO Could be an eigen vector? 
         std::vector<double> ballPos(3, 0);

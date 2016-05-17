@@ -19,12 +19,12 @@
 #include "pathplanner.h"
 #include "soccerfieldinfo.h"
 
-Robot::Robot(Communicator* communicator, PathPlanner* planner, bool isYellowTeam, int id)
-:_communicator(communicator), isYellowTeam(isYellowTeam), playerID(id), _planner(planner), currentFrame(0)
+Robot::Robot( bool isYellowTeam, int id)
+: isYellowTeam(isYellowTeam), playerID(id), currentFrame(0)
 {
   
-  _addr = "127.0.0.1";
-  _port = (unsigned short)(20011);
+//   _addr = "127.0.0.1";
+//   _port = (unsigned short)(20011);
   vTangent = 0;
   vNormal = 0;
   vX = 0;
@@ -38,12 +38,12 @@ Robot::Robot(Communicator* communicator, PathPlanner* planner, bool isYellowTeam
 Robot::~Robot(){}
 
 void Robot::setCurrentState(Eigen::Vector3d currentState, Eigen::Vector3d currentVelocity) {
-  _currentState = currentState;
+  _currentPosition = currentState;
   _currentVelocity = currentVelocity;
 }
 
 Eigen::Vector3d Robot::CurrentState() {
-  return _currentState;
+  return _currentPosition;
 }
 
 Eigen::Vector3d Robot::CurrentVelocity() {
@@ -116,7 +116,8 @@ int Robot::execute() {
   {
     currentWaypointIndex = 0;
     //Pass parameters in millimeters
-    coeffecients = _planner->FindPath(CurrentState(), desiredLocation);
+    PathPlanner planner = PathPlanner(playerID, isYellowTeam);
+    coeffecients = planner.FindPath(CurrentState(), desiredLocation);
     //fprintf(stderr, "Size of coeffecients: %d\n", coeffecients.size());
   }
   currentFrame += 1;
@@ -135,10 +136,10 @@ int Robot::execute() {
   vX = _currentVelocity[0];
   vY = _currentVelocity[1];
   
-  vTangent =  vX * cos(_currentState[2]) + vY * sin(_currentState[2]);
+  vTangent =  vX * cos(_currentPosition[2]) + vY * sin(_currentPosition[2]);
   vTangent = (abs(vTangent)/vTangent) * min(abs(vTangent), _maxVelocity);
   vTangent /= 1000.;
-  vNormal = min(- vX * sin(_currentState[2]) + vY * cos(_currentState[2]), _maxVelocity);
+  vNormal = min(- vX * sin(_currentPosition[2]) + vY * cos(_currentPosition[2]), _maxVelocity);
   vNormal = (abs(vNormal)/vNormal) * min(abs(vNormal), _maxVelocity);
   vNormal /= 1000.;
   //fprintf(stderr, "transformed command: %f, %f, %f\n", vTangent, vNormal, vAngular);
@@ -206,7 +207,9 @@ bool Robot::sendVelocityCommands() {
   QByteArray dgram;
   dgram.resize(packet.ByteSize());
   packet.SerializeToArray(dgram.data(), dgram.size());
-  _communicator->sendPacket(dgram);
+  
+  SoccerFieldInfo::Instance()->communicator->sendPacket(dgram);
+  
   //udpsocket.writeDatagram(dgram, _addr, _port);
 
   //_communicator->sendPacket(dgram);

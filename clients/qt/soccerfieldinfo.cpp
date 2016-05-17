@@ -28,15 +28,15 @@ SoccerFieldInfo* SoccerFieldInfo::Instance() {
   return _instance;
 }
 
-void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTeam) {
-  _instance = new SoccerFieldInfo(blueTeam, yellowTeam);
+void SoccerFieldInfo::CreateInstance(SoccerTeam* blueTeam, SoccerTeam* yellowTeam, Communicator* communicator) {
+  _instance = new SoccerFieldInfo(blueTeam, yellowTeam, communicator);
 }
   
-SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam)
-:_blueTeam(blueTeam), _yellowTeam(yellowTeam), kFrameRate(1.0/60.0), _robotWithBall(false), _isYellowTeamInBallPossession(false), frameNumber(0)
+SoccerFieldInfo::SoccerFieldInfo(SoccerTeam* blueTeam, SoccerTeam* yellowTeam, Communicator* communicator)
+:_blueTeam(blueTeam), _yellowTeam(yellowTeam), communicator(communicator), kFrameRate(1.0/60.0), _robotWithBall(false), _isYellowTeamInBallPossession(false), frameNumber(0)
 {
-  blueTeamBots = new vector<BotState>();
-  yellowTeamBots = new vector<BotState>();
+  blue_bots = new vector<Robot*>();
+  yellow_bots = new vector<Robot*>();
 }
 
 SoccerFieldInfo::~SoccerFieldInfo()
@@ -81,67 +81,61 @@ void SoccerFieldInfo::receive(char* buffer, int size)
     }
 
     google::protobuf::RepeatedPtrField<SSL_DetectionRobot>::const_iterator iter = frame.robots_blue().begin();
-    while(blueTeamBots->size() < frame.robots_blue_size()) {
-      blueTeamBots->push_back(BotState(false));
-    }
-    while(blueTeamBots->size() > frame.robots_blue_size()) {
-      blueTeamBots->pop_back();
+    
+    if(frameNumber == 0) {
+      for(size_t i = 0; i < frame.robots_blue_size(); i++) {
+        blue_bots->push_back(new Robot(false, i));
+      }
+      for(size_t i = 0; i < frame.robots_yellow_size(); i++) {
+        yellow_bots->push_back(new Robot(true, i));
+      }
     }
 
     for(;iter!=frame.robots_blue().end();iter++) {
       SSL_DetectionRobot robot = *iter;
-      double prevX = blueTeamBots->at(robot.robot_id())._position[0];
-      double prevY = blueTeamBots->at(robot.robot_id())._position[1];
-      double prevTheta = blueTeamBots->at(robot.robot_id())._position[2];
+      double prevX = blue_bots->at(robot.robot_id())->_currentPosition[0];
+      double prevY = blue_bots->at(robot.robot_id())->_currentPosition[1];
+      double prevTheta = blue_bots->at(robot.robot_id())->_currentPosition[2];
 
-      blueTeamBots->at(robot.robot_id())._position[0] = robot.x();
-      blueTeamBots->at(robot.robot_id())._position[1] = robot.y();
-      blueTeamBots->at(robot.robot_id())._position[2] = robot.orientation();
-      blueTeamBots->at(robot.robot_id())._id = robot.robot_id();
+      blue_bots->at(robot.robot_id())->_currentPosition[0] = robot.x();
+      blue_bots->at(robot.robot_id())->_currentPosition[1] = robot.y();
+      blue_bots->at(robot.robot_id())->_currentPosition[2] = robot.orientation();
 
-      
-      blueTeamBots->at(robot.robot_id())._velocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
-      blueTeamBots->at(robot.robot_id())._velocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
-      blueTeamBots->at(robot.robot_id())._velocity[2] = (robot.orientation()-prevTheta) / kFrameRate;
+      blue_bots->at(robot.robot_id())->_currentVelocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
+      blue_bots->at(robot.robot_id())->_currentVelocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
+      blue_bots->at(robot.robot_id())->_currentVelocity[2] = (robot.orientation()-prevTheta) / kFrameRate;
     }
     
-    iter = frame.robots_yellow().begin();
-    while(yellowTeamBots->size() < frame.robots_blue_size()) {
-      yellowTeamBots->push_back(BotState(true));
-    }
-    while(yellowTeamBots->size() > frame.robots_blue_size()) {
-      yellowTeamBots->pop_back();
-    }
     for(;iter!=frame.robots_yellow().end();iter++) {
       SSL_DetectionRobot robot = *iter;
-      double prevX = yellowTeamBots->at(robot.robot_id())._position[0];
-      double prevY = yellowTeamBots->at(robot.robot_id())._position[1];
-      double prevTheta = yellowTeamBots->at(robot.robot_id())._position[2];
+      double prevX = yellow_bots->at(robot.robot_id())->_currentPosition[0];
+      double prevY = yellow_bots->at(robot.robot_id())->_currentPosition[1];
+      double prevTheta = yellow_bots->at(robot.robot_id())->_currentPosition[2];
 
-      yellowTeamBots->at(robot.robot_id())._position[0] = robot.x();
-      yellowTeamBots->at(robot.robot_id())._position[1] = robot.y();
-      yellowTeamBots->at(robot.robot_id())._position[2] = robot.orientation();
-      yellowTeamBots->at(robot.robot_id())._id = robot.robot_id();
+      yellow_bots->at(robot.robot_id())->_currentPosition[0] = robot.x();
+      yellow_bots->at(robot.robot_id())->_currentPosition[1] = robot.y();
+      yellow_bots->at(robot.robot_id())->_currentPosition[2] = robot.orientation();
 
-      yellowTeamBots->at(robot.robot_id())._velocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
-      yellowTeamBots->at(robot.robot_id())._velocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
-      yellowTeamBots->at(robot.robot_id())._velocity[2] = (robot.orientation()-prevTheta) / kFrameRate;
+      yellow_bots->at(robot.robot_id())->_currentVelocity[0] = (robot.x()-prevX) / kFrameRate / 1000;
+      yellow_bots->at(robot.robot_id())->_currentVelocity[1] = (robot.y()-prevY) / kFrameRate / 1000;
+      yellow_bots->at(robot.robot_id())->_currentVelocity[2] = (robot.orientation()-prevTheta) / kFrameRate;
     }
-    _blueTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
-    _yellowTeam->SimCallback(frame.frame_number(), ball, blueTeamBots, yellowTeamBots);
+    _blueTeam->SimCallback(frame.frame_number(), ball, blue_bots, yellow_bots);
+    _yellowTeam->SimCallback(frame.frame_number(), ball, blue_bots, yellow_bots);
     
-    BotState robotHavingBall(false);
-    bool isBallInPossession = Evaluation::TeamHavingBall(&robotHavingBall);
-    if(isBallInPossession == false) {
-      _isYellowTeamInBallPossession = false;
-      //Dont update robotWithBall to keep the information about which robot kicked it
-      //fprintf(stderr, "Ball out of possession\n");
-    }
-    else {
-      _isYellowTeamInBallPossession = true;
-      _robotWithBall = robotHavingBall;
-      //fprintf(stderr, "Ball possession %d %d\n", _robotWithBall._id, _robotWithBall._isYellow);
-    }
+    //TODO ball possession needs to be reworked (possibly moved)
+//     robot robotHavingBall(false, 90);
+//     bool isBallInPossession = Evaluation::TeamHavingBall(&robotHavingBall);
+//     if(isBallInPossession == false) {
+//       _isYellowTeamInBallPossession = false;
+//       //Dont update robotWithBall to keep the information about which robot kicked it
+//       //fprintf(stderr, "Ball out of possession\n");
+//     }
+//     else {
+//       _isYellowTeamInBallPossession = true;
+//       _robotWithBall = robotHavingBall;
+//       //fprintf(stderr, "Ball possession %d %d\n", _robotWithBall._id, _robotWithBall._isYellow);
+//     }
   }
 }
 

@@ -18,7 +18,6 @@
 #ifndef ROBOT_H
 #define ROBOT_H
 
-#include "communicator.h"
 #include "pathplanner.h"
 #include "grSim_Packet.pb.h"
 #include "grSim_Commands.pb.h"
@@ -29,7 +28,7 @@
 class Robot
 {
  public:
-  Robot(Communicator* communicator, PathPlanner* planner, const bool isYellowTeam, const int id);
+  Robot(const bool isYellowTeam, const int id);
 
   ~Robot();
     
@@ -57,19 +56,16 @@ class Robot
   
   const bool isYellowTeam;
   int playerID;
+  Eigen::Vector3d _currentPosition;
+  Eigen::Vector3d _currentVelocity;
   
  private:
-  QHostAddress _addr;
-  quint16 _port;
-  Communicator* _communicator;
-  PathPlanner* _planner;
   PIDController controller;
   
   int currentWaypointIndex;
   double currentTime;
   int currentFrame;
-  Eigen::Vector3d _currentState;
-  Eigen::Vector3d _currentVelocity;
+  
   
   Eigen::Vector3d initialLocation;
   Eigen::Vector3d desiredLocation;

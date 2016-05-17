@@ -23,10 +23,13 @@ GoToBallPlay::GoToBallPlay(bool isYellowTeam) : Play(isYellowTeam), ballAcquirin
 
 //Precondition: Team should not have ball
 bool GoToBallPlay::Applicable() {
-  
-  //bool doesRobotHaveBall = Evaluation::TeamHavingBall(&robot);
-  if(SoccerFieldInfo::Instance()->_isYellowTeamInBallPossession == false && SoccerFieldInfo::Instance()->ballVelocity.norm() < 0.01*1000) {
-  //if(doesRobotHaveBall == true && robot._isYellow == _isYellowTeam) {
+  int possession;
+  if(_isYellowTeam) {
+    possession = SoccerFieldInfo::Instance()->_yellowTeam->_possession;
+  } else {
+    possession = SoccerFieldInfo::Instance()->_blueTeam->_possession;
+  }
+  if(possession == 0 && SoccerFieldInfo::Instance()->ballVelocity.norm() < 0.01*1000) {
     fprintf(stderr, "GoToBallPlay::Applicable! \n");
     return true;
   }
@@ -35,23 +38,16 @@ bool GoToBallPlay::Applicable() {
 
 bool GoToBallPlay::CompleteCondition() {
 
-  if (!doneMoving) {
-    return false;
+  int possession;
+  if(_isYellowTeam) {
+    possession = SoccerFieldInfo::Instance()->_yellowTeam->_possession;
+  } else {
+    possession = SoccerFieldInfo::Instance()->_blueTeam->_possession;
   }
-  
-  if(SoccerFieldInfo::Instance()->_isYellowTeamInBallPossession == true && SoccerFieldInfo::Instance()->_robotWithBall._isYellow == _isYellowTeam)
+
+  if(possession != 0) {
     return true;
-  return false;
-
-  bool has_ball = false;
-  
-  bool doesRobotHaveBall = Evaluation::TeamHavingBall(&ballAcquiringRobot);
-
-  if(doesRobotHaveBall == true && ballAcquiringRobot._isYellow == _isYellowTeam) {
-    has_ball = true;
   }
-  fprintf(stderr, "GoToBallPlay::CompleteCondition %d\n", has_ball);
-  return has_ball;
 }
 
 bool GoToBallPlay::Success() {  
@@ -62,7 +58,7 @@ bool GoToBallPlay::Success() {
 
 void GoToBallPlay::AssignRoles() { 
   
-  Evaluation::ClosestRobotToBall(_isYellowTeam, &ballAcquiringRobot);
+  //Evaluation::ClosestRobotToBall(_isYellowTeam, &ballAcquiringRobot);
   assignments = vector<int>(6);
   
   assignments[ballAcquiringRobot._id] = 1;
