@@ -14,7 +14,15 @@ DeceptiveDefense::~DeceptiveDefense() {
 
 // Check if the play is Applicable
 bool DeceptiveDefense::Applicable() {
-  
+  // NEW VERSION: checks if opponent has the ball, if so, it is applicable. This should be more nuanced in the future.  
+  int placeholder = 1;
+  if (placeholder) { //how to get whether yellow team has the ball or not?
+    return true;
+  }
+  return false;
+
+  /*
+  OLD VERSION: 
   fprintf(stderr, "Defense Applicability: %f, %f, %f\n", SoccerFieldInfo::Instance()->ballVelocity.norm(), SoccerFieldInfo::Instance()->ballVelocity[0], SoccerFieldInfo::Instance()->ballVelocity[1]);
   
   if(SoccerFieldInfo::Instance()->ballVelocity.norm() > 0.5*1000 && SoccerFieldInfo::Instance()->ballVelocity[0] < 0) {
@@ -27,6 +35,7 @@ bool DeceptiveDefense::Applicable() {
     return true;
   }
   return false;
+  */
 }
 
 bool DeceptiveDefense::Complete() {
@@ -35,7 +44,7 @@ bool DeceptiveDefense::Complete() {
 
 // Check if the play is over
 bool DeceptiveDefense::CompleteCondition() {
-  if(SoccerFieldInfo::Instance()->_isYellowTeamInBallPossession == true && SoccerFieldInfo::Instance()->_robotWithBall._isYellow == _isYellowTeam) {
+  if(SoccerFieldInfo::Instance()->_isYellowTeamInBallPossession == true) {
     fprintf(stderr, "Complete!\n");
     return true;
   }

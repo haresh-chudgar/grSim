@@ -38,7 +38,6 @@ add_executable(${app} MACOSX_BUNDLE
     rrtnode.cpp
     pathplanner.cpp
     controller.cpp
-####    trajectoryplanner.cpp
     pid_controller.cpp
     playbook.cpp
     soccerteam.cpp
